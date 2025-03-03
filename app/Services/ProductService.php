@@ -12,11 +12,46 @@ class ProductService
         ->when(request()->input('search'), function ($query, $search) {
             return $query->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')]);
         })
+        ->orderBy('id','desc')
         ->paginate(15);
 
         return $products;   
     }
     
+    public function store($data){
+
+        $product = Product::create([
+        'name' => ucwords(strtolower($data->productName)) , 
+        'sell_price' => round(floatval($data->sellPrice), 2)
+        ]);
+
+        return $product;
+
+    }
+
+    public function update($data, $product){
+
+        $product->update([
+        'name' => ucwords(strtolower($data->productName)) , 
+        'sell_price' => round(floatval($data->sellPrice), 2)
+        ]);
+
+        return $product;
+
+    }
+
+    public function delete($product){
+        // Validar relaciones: 
+        // if($config->products()->exists()){
+        //     throw new Exception('Hay productos que contienen este registro, no puede ser eliminado',400);
+        // }
+
+        $product->delete();
+
+        return 0;
+
+    }
+
     // public function create($products){
     //     $entryGeneral = EntryGeneral::create(['quantity_products' => count($products) ]);
     

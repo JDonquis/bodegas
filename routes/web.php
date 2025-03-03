@@ -42,7 +42,7 @@ Route::middleware(['auth'])->prefix('home')->group(function ()
     Route::get('/productos',[ProductController::class, 'index'])->middleware('role_or_permission:admin')->name('products');
     Route::get('/productos/crear',[ProductController::class, 'create'])->middleware('role_or_permission:admin')->name('products.create');
     Route::get('/productos/{product}',[ProductController::class,'show'])->middleware('role_or_permission:admin')->name('products.show');
-    Route::post('/productos/normal',[ProductController::class, 'storeNormal'])->middleware('role_or_permission:admin')->name('products.store');
+    Route::post('/productos',[ProductController::class, 'store'])->middleware('role_or_permission:admin')->name('products.store');
     Route::delete('/productos/{product}',[ProductController::class, 'destroy'])->middleware('role_or_permission:admin')->name('products.delete');
     Route::get('/productos/editar/{product}',[ProductController::class, 'edit'])->middleware('role_or_permission:admin')->name('products.edit');
     Route::put('/productos/{product}',[ProductController::class, 'update'])->middleware('role_or_permission:admin')->name('products.update');
@@ -73,7 +73,7 @@ Route::middleware(['auth'])->prefix('home')->group(function ()
         Route::get('/inventario/{inventory}',[InventoryController::class,'show'])->name('inventory.show');
         Route::get('/inventario/search/{search}',[InventoryController::class,'search']);
         Route::get('/productos/search/{search}',[ProductController::class,'search']);
-        Route::post('/productos',[ProductController::class, 'store']);
+        // Route::post('/productos',[ProductController::class, 'store']);
 
 
     });
