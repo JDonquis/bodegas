@@ -14,7 +14,6 @@ class TypeUserSeeder extends Seeder
     public function run(): void
     {
         TypeUser::create(['name' => 'admin']);
-        TypeUser::create(['name' => 'regular']);
 
     }
 }

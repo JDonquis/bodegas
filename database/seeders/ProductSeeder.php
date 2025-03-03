@@ -15,102 +15,26 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         DB::table('products')->insert([
-            [
-                'name' => 'Paracetamol Tabletas 500mg',
-            ],
-            [
-                'name' => 'Ibuprofeno Tabletas 400mg',
-            ],
-            [
-                'name' => 'Aspirina Tabletas 100mg',
-            ],
-            [
-                'name' => 'Amoxicilina Cápsulas 500mg',
-            ],
-            [
-                'name' => 'Ciprofloxacino Tabletas 500mg',
-            ],
-            [
-                'name' => 'Azitromicina Tabletas 500mg',
-            ],
-            [
-                'name' => 'Metformina Tabletas 850mg',
-            ],
-            [
-                'name' => 'Lisinopril Tabletas 10mg',
-            ],
-            [
-                'name' => 'Amlodipino Tabletas 5mg',
-            ],
-            [
-                'name' => 'Simvastatina Tabletas 20mg',
-            ],
-            [
-                'name' => 'Atorvastatina Tabletas 10mg',
-            ],
-            [
-                'name' => 'Omeprazol Cápsulas 20mg',
-            ],
-            [
-                'name' => 'Esomeprazol Cápsulas 20mg',
-            ],
-            [
-                'name' => 'Ranitidina Tabletas 150mg',
-            ],
-            [
-                'name' => 'Levotiroxina Tabletas 50mcg',
-            ],
-            [
-                'name' => 'Albuterol Inhalador 90mcg/pulso',
-            ],
-            [
-                'name' => 'Sertralina Tabletas 50mg',
-            ],
-            [
-                'name' => 'Fluoxetina Tabletas 20mg',
-            ],
-            [
-                'name' => 'Citalopram Tabletas 20mg',
-            ],
-            [
-                'name' => 'Loratadina Tabletas 10mg',
-            ],
-            [
-                'name' => 'Cetirizina Tabletas 10mg',
-            ],
-            [
-                'name' => 'Diphenhidramina Tabletas 25mg',
-            ],
-            [
-                'name' => 'Furosemida Tabletas 40mg',
-            ],
-            [
-                'name' => 'Metoprolol Tabletas 50mg',
-            ],
-            [
-                'name' => 'Propranolol Tabletas 40mg',
-            ],
-            [
-                'name' => 'Warfarina Tabletas 5mg',
-            ],
-            [
-                'name' => 'Clopidogrel Tabletas 75mg',
-            ],
-            [
-                'name' => 'Duloxetina Cápsulas 30mg',
-            ],
-            [
-                'name' => 'Gabapentina Cápsulas 300mg',
-            ],
-            [
-                'name' => 'Tamsulosina Cápsulas 0.4mg',
-            ],
-            [
-                'name' => 'Prednisona Tabletas 5mg',
-            ],
-            [
-                'name' => 'Acetaminofen Tabletas 500mg',
-            ],
+            ['name' => 'Arroz', 'sell_price' => 2.50, 'created_at' => now()],
+            ['name' => 'Frijoles', 'sell_price' => 1.80, 'created_at' => now()],
+            ['name' => 'Lentejas', 'sell_price' => 2.00, 'created_at' => now()],
+            ['name' => 'Aceite de Oliva', 'sell_price' => 5.75, 'created_at' => now()],
+            ['name' => 'Azúcar', 'sell_price' => 1.20, 'created_at' => now()],
+            ['name' => 'Sal', 'sell_price' => 0.99, 'created_at' => now()],
+            ['name' => 'Pasta', 'sell_price' => 1.50, 'created_at' => now()],
+            ['name' => 'Tomates', 'sell_price' => 3.00, 'created_at' => now()],
+            ['name' => 'Cebollas', 'sell_price' => 1.00, 'created_at' => now()],
+            ['name' => 'Zanahorias', 'sell_price' => 1.25, 'created_at' => now()],
+            ['name' => 'Leche', 'sell_price' => 2.99, 'created_at' => now()],
+            ['name' => 'Huevos', 'sell_price' => 3.50, 'created_at' => now()],
+            ['name' => 'Pan', 'sell_price' => 2.00, 'created_at' => now()],
+            ['name' => 'Mantequilla', 'sell_price' => 4.00, 'created_at' => now()],
+            ['name' => 'Manzanas', 'sell_price' => 3.25, 'created_at' => now()],
+            ['name' => 'Plátanos', 'sell_price' => 1.15, 'created_at' => now()],
+            ['name' => 'Naranjas', 'sell_price' => 2.40, 'created_at' => now()],
+            ['name' => 'Pollo (kg)', 'sell_price' => 8.00, 'created_at' => now()],
+            ['name' => 'Carne de Res (kg)', 'sell_price' => 10.50, 'created_at' => now()],
+            ['name' => 'Pescado (kg)', 'sell_price' => 12.00, 'created_at' => now()],
         ]);
     }
 }

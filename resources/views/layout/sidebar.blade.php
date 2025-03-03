@@ -19,10 +19,19 @@
         <span class="menu-header-text">Menú</span>
       </li>
       @role('admin')
+      <li class="menu-item {{ request()->routeIs('patients') ? 'active' : ''}}">
+        <a
+        href="{{ route('products') }}"
+        class="menu-link">
+        <i class="menu-icon tf-icons bx bx-cheese"></i>
+        <div class="text-truncate" data-i18n="Chat">Productos</div>
+      </a>
+    </li>
+
       <li class="menu-item {{ request()->routeIs('entries') ? 'open active' : ''}} {{ request()->routeIs('entries.*') ? 'open active' : ''}} {{ request()->routeIs('outputs.*') ? 'open active' : ''}} {{ request()->routeIs('outputs') ? 'open active' : ''}} {{ request()->routeIs('inventory') ? 'open active' : ''}}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon tf-icons bx bx-dock-top"></i>
-          <div class="text-truncate" data-i18n="Account Settings">Insumo Médicos</div>
+          <div class="text-truncate" data-i18n="Account Settings">Inventario</div>
         </a>
         <ul class="menu-sub">
           <li class="menu-item {{ request()->routeIs('entries.*') ? 'active' : ''}} {{ request()->routeIs('entries') ? 'active' : ''}}">
@@ -37,23 +46,21 @@
           </li>
           <li class="menu-item {{ request()->routeIs('inventory') ? 'active' : ''}}">
             <a href="{{ route('inventory') }}" class="menu-link">
-              <div class="text-truncate" data-i18n="Account">Inventario</div>
+              <div class="text-truncate" data-i18n="Account">Ver inventario</div>
             </a>
           </li>
           
         </ul>
       </li>
-      @endrole
-      @role('user')
       <li class="menu-item {{ request()->routeIs('patients') ? 'active' : ''}}">
         <a
-          href="{{ route('patients') }}"
-          class="menu-link">
-          <i class="menu-icon tf-icons bx bx-chat"></i>
-          <div class="text-truncate" data-i18n="Chat">Preclínica</div>
-        </a>
-      </li>
-      @endrole
+        href="{{ route('patients') }}"
+        class="menu-link">
+        <i class="menu-icon tf-icons bx bx-chat"></i>
+        <div class="text-truncate" data-i18n="Chat">Preclínica</div>
+      </a>
+    </li>
+    @endrole
     
     </ul>
   </aside>

@@ -37,6 +37,16 @@ Route::middleware(['auth'])->prefix('home')->group(function ()
     Route::put('/perfil', [UserController::class, 'updateProfile'])->name('profile.update');
 
     Route::get('/logout', [UserController::class, 'logout'])->name('logout'); 
+
+    // ------------------------------- PRODUCTOS 
+    Route::get('/productos',[ProductController::class, 'index'])->middleware('role_or_permission:admin')->name('products');
+    Route::get('/productos/crear',[ProductController::class, 'create'])->middleware('role_or_permission:admin')->name('products.create');
+    Route::get('/productos/{product}',[ProductController::class,'show'])->middleware('role_or_permission:admin')->name('products.show');
+    Route::post('/productos/normal',[ProductController::class, 'storeNormal'])->middleware('role_or_permission:admin')->name('products.store');
+    Route::delete('/productos/{product}',[ProductController::class, 'destroy'])->middleware('role_or_permission:admin')->name('products.delete');
+    Route::get('/productos/editar/{product}',[ProductController::class, 'edit'])->middleware('role_or_permission:admin')->name('products.edit');
+    Route::put('/productos/{product}',[ProductController::class, 'update'])->middleware('role_or_permission:admin')->name('products.update');
+
     
     // ------------------------------- ENTRADAS 
     Route::get('/entradas',[EntryController::class, 'index'])->middleware('role_or_permission:admin|read-entries')->name('entries');

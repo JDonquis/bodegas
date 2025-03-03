@@ -17,7 +17,6 @@ class UserController extends Controller
 
         $loginService = new LoginService;
 
-        Log::info(['ci' => $request->ci, 'password' => $request->password]);
         if(!$loginService->tryLoginOrFail(['ci' => $request->ci, 'password' => $request->password]))
                 return redirect('/')->withErrors(['error' => 'Creedenciales incorrectas']);
 
