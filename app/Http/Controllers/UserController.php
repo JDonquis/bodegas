@@ -6,6 +6,7 @@ use App\Http\Requests\LoginRequest;
 use App\Services\LoginService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -16,6 +17,7 @@ class UserController extends Controller
 
         $loginService = new LoginService;
 
+        Log::info(['ci' => $request->ci, 'password' => $request->password]);
         if(!$loginService->tryLoginOrFail(['ci' => $request->ci, 'password' => $request->password]))
                 return redirect('/')->withErrors(['error' => 'Creedenciales incorrectas']);
 
