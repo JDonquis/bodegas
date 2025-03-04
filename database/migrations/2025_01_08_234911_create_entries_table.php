@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id');
             $table->foreignId('entry_general_id');
             $table->integer('quantity');
+            $table->decimal('cost', 8, 2);
             $table->date('expired_date');
             $table->timestamps();
         });

@@ -15,6 +15,7 @@
           <tr>
             <th>Fecha de registro</th>
             <th>Productos</th>
+            <th>Costo total</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
@@ -31,6 +32,8 @@
                 {{ ucfirst($entry->created_at->translatedFormat('F j, Y')) }}
               </td>
               <td>{{ $entry->quantity_products }}</td>
+              <td>{{ $entry->total_expense }}</td>
+
             </tr>  
           @endforeach
         </tbody>
@@ -77,7 +80,7 @@
 
 
   {{-- Modal --}}
-  <div class="modal fade" id="modalScrollable" tabindex="-1" style="display: none;" aria-hidden="true">
+  <div class="modal fade" id="modalScrollable" tabindex="-1" style="display: none;"  aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -94,6 +97,7 @@
                 <tr>
                   <th>Producto</th>
                   <th>Cantidad</th>
+                  <th>Prec. Compra</th>
                   <th>Vencimiento</th>
                 </tr>
               </thead>
@@ -215,6 +219,7 @@ function buildModal($entries){
                       ${entry.product.name}
                     </td>
                     <td>${entry.quantity}</td>
+                    <td>${entry.cost}$</td>
                     <td>
                       ${formattedExpiredDate}
                     </td>

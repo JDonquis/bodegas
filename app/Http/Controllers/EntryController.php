@@ -41,6 +41,8 @@ class EntryController extends Controller
         
         try{
 
+            Log::info($request->input('products'));
+
             $products = $request->input('products');
             $entryService = new EntryService();
             $entryService->create($products);

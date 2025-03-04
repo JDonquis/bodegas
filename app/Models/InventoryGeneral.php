@@ -15,6 +15,8 @@ class InventoryGeneral extends Model
         'stock',
         'entries',
         'outputs',
+        'expense',
+        'profits',
     ];
 
     public function product(){

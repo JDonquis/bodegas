@@ -12,9 +12,10 @@ class Entry extends Model
 
     protected $fillable = [
         'product_id',
-        'quantity',
-        'expired_date',
         'entry_general_id',
+        'quantity',
+        'cost',
+        'expired_date',
     ];
 
     public $casts = [

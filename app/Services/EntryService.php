@@ -11,33 +11,54 @@ use Exception;
 class EntryService
 {       
     public function create($products){
-        $entryGeneral = EntryGeneral::create(['quantity_products' => count($products) ]);
+
+        $costs = array_map('floatval', array_column($products, 'cost'));
+        $totalExpense = array_sum($costs);
+
+        $entryGeneral = EntryGeneral::create(['quantity_products' => count($products), 'total_expense' => $totalExpense ]);
     
-        $condition = 1;
         foreach ($products as $product) {
             
             $entry = Entry::create([
-                'product_id' => $product['productID'],     'quantity' => $product['quantity'],
-                'expired_date' => $product['expiredDate'], 'entry_general_id' => $entryGeneral->id 
+                'product_id' => $product['productID'],
+                'quantity' => $product['quantity'],
+                'expired_date' => $product['expiredDate'],
+                'entry_general_id' => $entryGeneral->id,
+                'cost' => round(floatval($product['cost']),2), 
             ]);
-                    
+            
+            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 2);
+
             Inventory::create([
-                                'product_id' => $product['productID'], 'expired_date' => $product['expiredDate'],
-                                'stock' => $product['quantity'] ,      'condition_id' => $condition, 
-                                'entry_id' => $entry->id,
-                            ]);
+                'product_id' => $product['productID'],
+                'entry_id' => $entry->id,
+                'cost' => $entry->cost,
+                'cost_per_unit' => $costPerUnit,
+                'profits' => 0,
+                'sold' => 0,
+                'stock' => $product['quantity'] , 
+                'expired_date' => $product['expiredDate'],
+                ]);
             
             $inventoryGeneral = InventoryGeneral::where('product_id',$product['productID'])->first();
+
             if(!isset($inventoryGeneral->id)){
 
-                InventoryGeneral::create(['product_id' => $product['productID'],'stock' => $product['quantity'] ,'entries' => $product['quantity'] ]);        
+                InventoryGeneral::create([
+                    'product_id' => $product['productID'],
+                    'stock' => $product['quantity'] ,
+                    'entries' => $product['quantity'],
+                    'outputs' => 0,
+                    'expense' => $entry->cost,
+                    'profits' => 0,
+                ]);        
             }
             else{
 
                 $inventoryGeneral->update([
                     'stock' => $inventoryGeneral->stock + $product['quantity'],
-                    'entries' => $inventoryGeneral->entries + $product['quantity']
-
+                    'entries' => $inventoryGeneral->entries + $product['quantity'],
+                    'expense' => $inventoryGeneral->expense + $entry->cost,
                 ]);
             }
             

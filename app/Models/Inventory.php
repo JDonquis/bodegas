@@ -12,12 +12,13 @@ class Inventory extends Model
     protected $fillable = [
         
         'product_id',
-        'expired_date',
-        'stock',
         'entry_id',
-        'condition_id',
-        
-    
+        'cost',
+        'cost_per_unit',
+        'profits',
+        'sold',
+        'stock',
+        'expired_date',
     ];
 
     public function product(){

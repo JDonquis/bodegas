@@ -10,7 +10,8 @@ class EntryGeneral extends Model
     use HasFactory;
 
     protected $fillable = [
-        'quantity_products'
+        'quantity_products',
+        'total_expense'
     ];
 
 

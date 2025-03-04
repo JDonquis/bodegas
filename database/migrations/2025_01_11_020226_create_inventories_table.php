@@ -14,10 +14,13 @@ return new class extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id');
-            $table->date('expired_date');
-            $table->integer('stock');
-            $table->foreignId('condition_id');
             $table->foreignId('entry_id');
+            $table->decimal('cost', 8, 2);
+            $table->decimal('cost_per_unit', 8, 2);
+            $table->decimal('profits', 8, 2);
+            $table->integer('sold');
+            $table->integer('stock');
+            $table->date('expired_date');
             $table->timestamps();
         });
     }

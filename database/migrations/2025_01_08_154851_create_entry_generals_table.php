@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('entry_generals', function (Blueprint $table) {
             $table->id();
             $table->integer('quantity_products');
+            $table->decimal('total_expense');
             $table->timestamps();
         });
     }
