@@ -84,14 +84,16 @@ class EntryService
 
         foreach($entries as $entryDetail){
             
+
             $inventoryGeneral = InventoryGeneral::with('product')->where('product_id',$entryDetail->product_id)->first();
             $newStock = $inventoryGeneral->stock - $entryDetail->quantity;
             $newEntries = $inventoryGeneral->entries - $entryDetail->quantity;
+            $newExpense = $inventoryGeneral->expense - $entryDetail->cost; 
 
             if($newStock < 0)
                 throw new Exception("No se puede eliminar esta entrada ya que el producto: ". $inventoryGeneral->product->name . ' quedaría en negativo', 500);
                 
-            $inventoryGeneral->update(['stock' => $newStock, 'entries' => $newEntries]);
+            $inventoryGeneral->update(['stock' => $newStock, 'entries' => $newEntries, 'expense' => $newExpense]);
         }
 
         Inventory::whereIn('entry_id',$entryIds)->delete();

@@ -109,8 +109,8 @@
         </div>
         <div class="modal-footer" >
           <div class="position-absolute w-full" method="" action="" style="left: 30px;">
-            <button type="button"  id="delete-btn" data-entryID="" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></button>
-            <button type="button"  id="update-btn" data-entryID="" class="btn btn-outline-primary "><i class='bx bx-pencil' ></i></button>
+            <button type="button"  id="delete-btn" onclick="deleteEntry(this)" data-entryID="" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></button>
+            <button type="button"  id="update-btn" onclick="updateEntry(this)" data-entryID="" class="btn btn-outline-primary "><i class='bx bx-pencil' ></i></button>
           </div>
           <div>
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -165,11 +165,28 @@ function formatDate(dateString) {
     const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-];
-    const month = monthNames[date.getMonth()]; // Nombre completo del mes
-    const day = date.getDate(); // Día del mes
-    const year = date.getFullYear(); // Año
-    return `${month} ${day} ${year}`; // Formato "f m Y"
+  ];
+      const month = monthNames[date.getMonth()]; // Nombre completo del mes
+      const day = date.getDate(); // Día del mes
+      const year = date.getFullYear(); // Año
+      return `${month} ${day} ${year}`; // Formato "f m Y"
+}
+
+function deleteEntry($element){
+
+  const entryID = $element.getAttribute('data-entryID');
+
+  if(confirm('Esta seguro de eliminar esta entrada?')){
+      
+    const form = document.getElementById('actions-form-delete'); 
+    
+    form.action = `/home/entradas/${entryID}`; 
+
+    form.submit();
+  }
+
+  return 0;
+
 }
 
 function buildModal($entries){
@@ -185,25 +202,7 @@ function buildModal($entries){
   
   dateEntry.innerHTML = $entries[0].created_at;
   deleteBtn.setAttribute('data-entryID',$entries[0].entry_general_id);
-  const entryID = deleteBtn.getAttribute('data-entryID');
 
-  deleteBtn.addEventListener('click',function (){
-
-    if(confirm('Esta seguro de eliminar esta entrada?')){
-      
-    const form = document.getElementById('actions-form-delete'); 
-    
-    form.action = `/home/entradas/${entryID}`; 
-
-    form.submit();
-    
-    
-    }
-    else{
-      return 0;
-    }
-
-  })
 
   updateBtn.addEventListener('click',function (){
 
