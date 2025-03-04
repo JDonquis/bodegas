@@ -185,7 +185,7 @@ function refreshProducts()
                         <input class="form-control" required type="number" oninput="refreshData(${product.id}, 'quantity' , this)" min="1" name="products[${index}][quantity]" value="${product.quantity}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
                       </td>
                       <td>
-                        <input class="form-control" required type="number" step="0.01" min="0" oninput="refreshData(${product.id}, 'cost' , this)" min="1" name="products[${index}][cost]" value="${product.cost}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
+                        <input class="form-control" required type="number" step="0.01" min="0" oninput="refreshData(${product.id}, 'cost' , this)" min="1" name="products[${index}][cost]" value="${product.cost}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 100px;" >
                       </td>
                       <td>
                         <input class="form-control" required type="date" oninput="refreshData(${product.id}, 'date', this)" value="${product.date}" name="products[${index}][expiredDate]" >
@@ -204,6 +204,9 @@ function refreshData($productID, $type,  $element){
 
   if($type == 'date')
     product.date = $element.value; 
+
+  if($type == 'cost')
+    product.cost = $element.value; 
 
   console.log(productsAdded);
     

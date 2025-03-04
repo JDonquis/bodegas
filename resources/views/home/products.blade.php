@@ -2,9 +2,21 @@
 
 @section('content')
 <div class="card">
+  
     <div class=" d-flex justify-content-between align-items-center ">
-        <h5 class="card-header">Productos</h5>
-        <a type="button" class="btn btn-primary text-white" href="{{ route('products.create') }}" style="height: 70%; margin-right:30px;">
+      
+      <h5 class="card-header">Productos</h5>
+      <form action="{{ route('products') }}" method="GET" id="search-form">
+        <div class="input-group input-group-merge" style="max-width: 300px;">
+            <input class="form-control" type="search" name="search" placeholder="Buscar..." id="html5-search-input" value="{{ request('search') }}">
+            <button class="btn btn-outline-primary" type="submit"><i class='bx bx-search-alt-2' ></i></button>
+            <button type="button" class="btn btn-outline-danger" id="clear-search">X</button>
+        </div>
+    </form>
+    
+ 
+
+      <a type="button" class="btn btn-primary text-white" href="{{ route('products.create') }}" style="height: 70%; margin-right:30px;">
           <i class='bx bx-plus'></i>
           Nuevo producto
         </a>
@@ -107,6 +119,11 @@ function deleteProduct(url){
 return 0;
 
 }
+
+document.getElementById('clear-search').addEventListener('click', function() {
+    document.getElementById('html5-search-input').value = ''; // Limpia el campo de búsqueda
+    document.getElementById('search-form').submit(); // Envía el formulario para restablecer la búsqueda
+});
 
 
 </script>

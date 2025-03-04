@@ -189,6 +189,14 @@ function deleteEntry($element){
 
 }
 
+function updateEntry($element){
+
+  const entryID = $element.getAttribute('data-entryID');
+
+  window.location.href=`/home/entradas/editar/${entryID}`
+
+}
+
 function buildModal($entries){
 
   let dateEntry = document.getElementById('date-entry')
@@ -196,19 +204,11 @@ function buildModal($entries){
   let deleteBtn = document.getElementById('delete-btn')
   let updateBtn = document.getElementById('update-btn')
 
-
-  
-
   
   dateEntry.innerHTML = $entries[0].created_at;
   deleteBtn.setAttribute('data-entryID',$entries[0].entry_general_id);
+  updateBtn.setAttribute('data-entryID',$entries[0].entry_general_id);
 
-
-  updateBtn.addEventListener('click',function (){
-
-    window.location.href=`/home/entradas/editar/${entryID}`
-})
-  
   
   let results = $entries.map(entry => {
 

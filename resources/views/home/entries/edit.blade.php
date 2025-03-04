@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="row">
-    <div class="col-xl col-md-6">
+    <div class="col-12">
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Buscar productos</h5>
@@ -47,7 +47,7 @@
       </div>
     </div>
 
-    <div class="col-xl col-md-6">
+    <div class="col-12">
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Productos agregados</h5>
@@ -63,6 +63,7 @@
                     <tr>
                       <th>Producto</th>
                       <th>Cantidad</th>
+                      <th>Prec. de Compra $</th>
                       <th>Fecha de vencimiento</th>
                     </tr>
                   </thead>
@@ -73,16 +74,19 @@
                     @foreach ($entries as $entry )
                         <tr>
                             <td>
-                            <input type="hidden" name="products[{{ $index }}][{{ $entry->product_id }}]" value="{{ $entry->product_id }}">
-                            
-                            <button type="button" onclick="cancelProduct({{ $entry->product_id }})" class="btn p-0" ><i class='bx bxs-x-circle' style="font-size: 24px;"></i></button>
-                            {{ $entry->product->name }}
+                              <input type="hidden" name="products[{{ $index }}][{{ $entry->product_id }}]" value="{{ $entry->product_id }}">
+                              
+                              <button type="button" onclick="cancelProduct({{ $entry->product_id }})" class="btn p-0" ><i class='bx bxs-x-circle' style="font-size: 24px;"></i></button>
+                              {{ $entry->product->name }}
                             </td>
                             <td>
-                            <input class="form-control" required type="number" oninput="refreshData({{ $entry->product_id }}, 'quantity' , this)" min="1" name="products[{{ $index }}][quantity]" value="{{ $entry->quantity }}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
+                              <input class="form-control" required type="number" oninput="refreshData({{ $entry->product_id }}, 'quantity' , this)" min="1" name="products[{{ $index }}][quantity]" value="{{ $entry->quantity }}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
                             </td>
                             <td>
-                            <input class="form-control" required type="date" oninput="refreshData({{ $entry->product_id }}, 'date', this)" value="{{ $entry->expired_date->format('Y-m-d') }}" name="products[{{ $index }}][expiredDate]" >
+                              <input class="form-control" required type="number" step="0.01" min="0" oninput="refreshData({{ $entry->product_id }}, 'cost' , this)" min="1" name="products[{{ $index }}][cost]" value="{{ $entry->cost }}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 100px;" >
+                            </td>
+                            <td>
+                              <input class="form-control" required type="date" oninput="refreshData({{ $entry->product_id }}, 'date', this)" value="{{ $entry->expired_date->format('Y-m-d') }}" name="products[{{ $index }}][expiredDate]" >
                             </td>
                             
                         </tr>    
@@ -188,6 +192,8 @@ function addProduct($product) {
   if (!productsAdded.some(p => p.id === $product.id)) {
         $product.quantity = 1;
         $product.date = null;
+        $product.cost = 0;
+
 
         productsAdded.unshift($product); 
         console.log('Producto añadido:', $product);
@@ -231,6 +237,9 @@ function refreshProducts()
                         <input class="form-control" required type="number" oninput="refreshData(${product.id}, 'quantity' , this)" min="1" name="products[${index}][quantity]" value="${product.quantity}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
                       </td>
                       <td>
+                        <input class="form-control" required type="number" step="0.01" min="0" oninput="refreshData(${product.id}, 'cost' , this)" min="1" name="products[${index}][cost]" value="${product.cost}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
+                      </td>
+                      <td>
                         <input class="form-control" required type="date" oninput="refreshData(${product.id}, 'date', this)" value="${product.date}" name="products[${index}][expiredDate]" >
                       </td>
                       
@@ -246,7 +255,10 @@ function refreshData($productID, $type,  $element){
     product.quantity = $element.value; 
 
   if($type == 'date')
-    product.date = $element.value; 
+    product.date = $element.value;
+  
+  if($type == 'cost')
+  product.cost = $element.value; 
 
   console.log(productsAdded);
     

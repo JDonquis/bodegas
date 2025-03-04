@@ -30,7 +30,7 @@
 
       <li class="menu-item {{ request()->routeIs('entries') ? 'open active' : ''}} {{ request()->routeIs('entries.*') ? 'open active' : ''}} {{ request()->routeIs('outputs.*') ? 'open active' : ''}} {{ request()->routeIs('outputs') ? 'open active' : ''}} {{ request()->routeIs('inventory') ? 'open active' : ''}}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon tf-icons bx bx-dock-top"></i>
+          <i class="menu-icon tf-icons bx bx-store-alt"></i>
           <div class="text-truncate" data-i18n="Account Settings">Inventario</div>
         </a>
         <ul class="menu-sub">
