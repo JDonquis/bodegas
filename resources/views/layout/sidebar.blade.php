@@ -1,7 +1,7 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-    <div class="app-brand demo" style="height:auto !important;">
+    <div class="app-brand demo d-flex justify-content-center" style="height:auto !important;">
       <a href="{{ route('home') }}" class="app-brand-link">
-          <img src="{{ asset('unefacare-log.png') }}" class="w-full" style=" height:90px; object-fit: cover;" alt="">
+          <img src="{{ asset('bodega.png') }}" class="w-full " style=" height:90px; object-fit: cover; " alt="">
       </a>
 
       <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -56,8 +56,8 @@
         <a
         href="{{ route('patients') }}"
         class="menu-link">
-        <i class="menu-icon tf-icons bx bx-chat"></i>
-        <div class="text-truncate" data-i18n="Chat">Preclínica</div>
+        <i class="menu-icon tf-icons bx bx-user"></i>
+        <div class="text-truncate" data-i18n="User">Clientes</div>
       </a>
     </li>
     @endrole

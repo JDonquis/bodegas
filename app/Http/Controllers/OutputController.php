@@ -82,8 +82,8 @@ class OutputController extends Controller
     public function edit(OutputGeneral $output)
     {
         $outputs = Output::with('product','inventory')->where('output_general_id',$output->id)->get();
-        
-        return view('home.outputs.edit')->with(['outputs' => $outputs, 'outputGeneral' => $output]);
+        $clients = Client::get();
+        return view('home.outputs.edit')->with(['outputs' => $outputs, 'outputGeneral' => $output, 'clients' => $clients]);
     }
 
     /**

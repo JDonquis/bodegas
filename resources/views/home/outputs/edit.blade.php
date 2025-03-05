@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="row">
-    <div class="col-xl col-md-6">
+    <div class="col-12">
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Buscar productos</h5>
@@ -28,6 +28,7 @@
                   <thead>
                     <tr>
                       <th>Productos</th>
+                      <th>Precio de venta</th>
                       <th>Stock</th>
                       <th></th>
 
@@ -45,10 +46,10 @@
       </div>
     </div>
 
-    <div class="col-xl col-md-6">
+    <div class="col-12">
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Productos agregados</h5>
+          <h5 class="mb-0">Productos a vender</h5>
           <small class="text-muted float-end">Salidas</small>
         </div>
         <div class="card-body">
@@ -56,17 +57,28 @@
             @csrf
             @method('PUT')
 
-            <div>
-              <label for="defaultFormControlInput" class="form-label">Destino</label>
-              <input type="text" required name="destiny" value="{{ $outputGeneral->destiny }}" class="form-control" id="defaultFormControlInput" placeholder="Organización..." aria-describedby="defaultFormControlHelp">
-              
+            <div class="mb-4">
+              <label for="exampleFormControlSelect1" class="form-label">Vendido a:</label>
+              <select class="form-select" name="client_id" id="exampleFormControlSelect1" aria-label="Default select example" style="max-width: 300px;">
+                @foreach ($clients as $client )
+                  @if($client->id == 1)
+                    <option value="{{ $client->id }}" selected>{{ $client->name }}</option>
+                  @else
+                  <option value="{{ $client->id }}">{{ $client->name }}</option>
+                  @endif
+                @endforeach
+              </select>
             </div>
+            <h5>Monto total: <span id="total_sold" class="text-primary"></span></h5>
+            <input type="hidden" value="" name="total_sold" id="total_sold_input">
             <div class="table-responsive text-nowrap">
                 <table class="table">
                   <thead>
                     <tr>
                       <th>Producto</th>
                       <th>Cantidad</th>
+                      <th>Precio venta</th>
+                      <th>Nro Lote</th>
                       <th>Fecha de vencimiento</th>
                     </tr>
                   </thead>
@@ -88,7 +100,13 @@
                           <input class="form-control" required type="number" oninput="refreshData({{ $output->inventory_id }}, 'quantity' , this)" min="1" max="{{ $output->inventory->stock + $output->quantity }}}" name="products[{{ $index }}][quantity]" value="{{ $output->quantity }}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
                         /{{ $output->inventory->stock + $output->quantity }}
                         </div>
-                        </td>
+                      </td>
+                      <td>
+                        {{ $output->inventory->product->sell_price }}
+                      </td>
+                      <td>
+                        {{ $output->inventory->lote_number }}
+                      </td>
                       <td>
                         {{ $output->expired_date }}
                       </td>
@@ -190,9 +208,12 @@
             let results = data.inventories.map(inventory => {
                 
                 
-                return `<tr>
+              return `<tr>
                     <td>
                         <a href="#" class="text-decoration-none text-reset" inventoryID=${inventory.id} >${inventory.product.name}</a>
+                    </td>
+                    <td>
+                         ${inventory.product.sell_price}$
                     </td>
                     <td>
                          ${inventory.stock}
@@ -202,7 +223,7 @@
                             <i class='bx bx-plus'></i>
                         </button>
                     </td>
-                </tr>`;
+                </tr>`; 
             }).join('');
             document.getElementById('search-results').innerHTML = results;
         })
