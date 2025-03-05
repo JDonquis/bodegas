@@ -78,15 +78,22 @@ class OutputService
         foreach($outputs as $outputDetail){
             
             $inventory = Inventory::where('id',$outputDetail->inventory_id)->first();
-            $inventory ->update(['stock' => $inventory->stock + $outputDetail->quantity]);
-
-
+            $inventory ->update([
+                'stock' => $inventory->stock + $outputDetail->quantity,
+                'profits' => $inventory->profits - $outputDetail->profit,
+                'sold' => $inventory->sold - $outputDetail->quantity, 
+            ]);
 
             $inventoryGeneral = InventoryGeneral::with('product')->where('product_id',$outputDetail->product_id)->first();
             $newStock = $inventoryGeneral->stock + $outputDetail->quantity;
             $newOutputs = $inventoryGeneral->outputs - $outputDetail->quantity;
-                
-            $inventoryGeneral->update(['stock' => $newStock, 'outputs' => $newOutputs]);
+            $newProfits = $inventoryGeneral->profits - $outputDetail->profit;
+
+            $inventoryGeneral->update([
+                'stock' => $newStock,
+                'outputs' => $newOutputs,
+                'profits' => $newProfits,
+            ]);
         }
 
     }

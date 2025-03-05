@@ -118,8 +118,8 @@
         </div>
         <div class="modal-footer" >
           <div class="position-absolute w-full" method="" action="" style="left: 30px;">
-            <button type="button"  id="delete-btn" data-outputID="" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></button>
-            <button type="button"  id="update-btn" data-outputID="" class="btn btn-outline-primary "><i class='bx bx-pencil' ></i></button>
+            <button type="button"  id="delete-btn" onclick="deleteOutput(this)" data-outputID="" class="btn btn-outline-danger"><i class='bx bx-trash' ></i></button>
+            <button type="button"  id="update-btn" onclick="updateOutput(this)" data-outputID="" class="btn btn-outline-primary "><i class='bx bx-pencil' ></i></button>
           </div>
           <div>
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -181,6 +181,30 @@ function formatDate(dateString) {
     return `${month} ${day} ${year}`; // Formato "f m Y"
 }
 
+function deleteOutput($element){
+
+  const outputID = $element.getAttribute('data-outputID');
+
+
+  if(confirm('Esta seguro de eliminar esta salida?')){
+      
+      const form = document.getElementById('actions-form-delete'); 
+      
+      form.action = `/home/salidas/${outputID}`; 
+  
+      form.submit();
+      
+    }
+
+}
+
+function updateOutput($element){
+
+  const outputID = $element.getAttribute('data-outputID');
+  window.location.href=`/home/salidas/editar/${outputID}`
+
+}
+
 function buildModal($outputs){
 
   let dateOutput = document.getElementById('date-output')
@@ -188,36 +212,9 @@ function buildModal($outputs){
   let deleteBtn = document.getElementById('delete-btn')
   let updateBtn = document.getElementById('update-btn')
 
-
-  
-
-  
   dateOutput.innerHTML = $outputs[0].created_at;
   deleteBtn.setAttribute('data-outputID',$outputs[0].output_general_id);
-  const outputID = deleteBtn.getAttribute('data-outputID');
-
-  deleteBtn.addEventListener('click',function (){
-
-    if(confirm('Esta seguro de eliminar esta salida?')){
-      
-    const form = document.getElementById('actions-form-delete'); 
-    
-    form.action = `/home/salidas/${outputID}`; 
-
-    form.submit();
-    
-    
-    }
-    else{
-      return 0;
-    }
-
-  })
-
-  updateBtn.addEventListener('click',function (){
-
-    window.location.href=`/home/salidas/editar/${outputID}`
-})
+  updateBtn.setAttribute('data-outputID',$outputs[0].output_general_id);
   
   
   let results = $outputs.map(output => {
