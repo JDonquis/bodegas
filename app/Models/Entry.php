@@ -16,6 +16,8 @@ class Entry extends Model
         'quantity',
         'cost',
         'expired_date',
+        'lote_number',
+
     ];
 
     public $casts = [

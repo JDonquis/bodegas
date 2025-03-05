@@ -14,7 +14,7 @@
         <thead>
           <tr>
             <th>Fecha de registro</th>
-            <th>Productos</th>
+            <th>Nro Productos</th>
             <th>Costo total</th>
           </tr>
         </thead>
@@ -32,7 +32,7 @@
                 {{ ucfirst($entry->created_at->translatedFormat('F j, Y')) }}
               </td>
               <td>{{ $entry->quantity_products }}</td>
-              <td>{{ $entry->total_expense }}</td>
+              <td>{{ $entry->total_expense }}$</td>
 
             </tr>  
           @endforeach
@@ -98,6 +98,7 @@
                   <th>Producto</th>
                   <th>Cantidad</th>
                   <th>Prec. Compra</th>
+                  <th>Nro Lote</th>
                   <th>Vencimiento</th>
                 </tr>
               </thead>
@@ -219,6 +220,7 @@ function buildModal($entries){
                     </td>
                     <td>${entry.quantity}</td>
                     <td>${entry.cost}$</td>
+                    <td>${entry.lote_number}</td>
                     <td>
                       ${formattedExpiredDate}
                     </td>

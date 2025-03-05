@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('output_generals', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('client_id');
             $table->integer('quantity_products');
-            $table->string('destiny');
+            $table->decimal('total_sold', 8, 2);
+            $table->decimal('total_profit', 8, 2);
             $table->timestamps();
         });
     }

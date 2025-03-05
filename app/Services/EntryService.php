@@ -25,6 +25,7 @@ class EntryService
                 'expired_date' => $product['expiredDate'],
                 'entry_general_id' => $entryGeneral->id,
                 'cost' => round(floatval($product['cost']),2), 
+                'lote_number' => $product['lote_number'],
             ]);
             
             $costPerUnit = round(floatval($entry->cost / $entry->quantity), 2);
@@ -38,6 +39,7 @@ class EntryService
                 'sold' => 0,
                 'stock' => $product['quantity'] , 
                 'expired_date' => $product['expiredDate'],
+                'lote_number' => $entry->lote_number,
                 ]);
             
             $inventoryGeneral = InventoryGeneral::where('product_id',$product['productID'])->first();

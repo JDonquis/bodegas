@@ -16,6 +16,7 @@ class Output extends Model
         'inventory_id',
         'quantity',
         'expired_date',
+        'profit',
     ];
 
     public function product(){

@@ -14,8 +14,11 @@
         <thead>
           <tr>
             <th>Fecha de registro</th>
-            <th>Productos</th>
-            <th>Destino / Paciente</th>
+            <th>Nro Productos</th>
+            <th>Venta a</th>
+            <th>Cuenta Total</th>
+            <th>Ganancia Total</th>
+
 
           </tr>
         </thead>
@@ -33,7 +36,9 @@
                 {{ ucfirst($output->created_at->translatedFormat('F j, Y')) }}
               </td>
               <td>{{ $output->quantity_products }}</td>
-              <td>{{ $output->destiny }}</td>
+              <td>{{ $output->client->name }}</td>
+              <td>{{ $output->total_sold }}$</td>
+              <td><span class="text-primary">{{ $output->total_profit}}$</span></td>
 
             </tr>  
           @endforeach
@@ -98,6 +103,10 @@
                 <tr>
                   <th>Producto</th>
                   <th>Cantidad</th>
+                  <th>Prec. compra</th>
+                  <th>Prec. venta</th>
+                  <th>Ganancia</th>
+                  <th>Nro Lote</th>
                   <th>Vencimiento</th>
                 </tr>
               </thead>
@@ -219,6 +228,10 @@ function buildModal($outputs){
                       ${output.product.name}
                     </td>
                     <td>${output.quantity}</td>
+                    <td>${output.inventory.cost_per_unit}$</td>
+                    <td>${output.product.sell_price}$</td>
+                    <td>${output.profit}$</td>
+                    <td>${output.inventory.lote_number}</td>
                     <td>
                       ${formattedExpiredDate}
                     </td>

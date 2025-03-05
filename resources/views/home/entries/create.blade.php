@@ -63,6 +63,7 @@
                       <th>Producto</th>
                       <th>Cantidad</th>
                       <th>Prec. de Compra $</th>
+                      <th>Nro Lote</th>
                       <th>Fecha de vencimiento</th>
                     </tr>
                   </thead>
@@ -142,6 +143,7 @@ function addProduct($product) {
         $product.quantity = 1;
         $product.date = null;
         $product.cost = 0;
+        $product.lote_number = "";
 
 
         productsAdded.unshift($product); 
@@ -188,6 +190,9 @@ function refreshProducts()
                         <input class="form-control" required type="number" step="0.01" min="0" oninput="refreshData(${product.id}, 'cost' , this)" min="1" name="products[${index}][cost]" value="${product.cost}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 100px;" >
                       </td>
                       <td>
+                        <input class="form-control" required type="text" oninput="refreshData(${product.id}, 'lote_number' , this)" min="1" name="products[${index}][lote_number]" value="${product.lote_number}"  style="max-width: 120px;" >
+                      </td>
+                      <td>
                         <input class="form-control" required type="date" oninput="refreshData(${product.id}, 'date', this)" value="${product.date}" name="products[${index}][expiredDate]" >
                       </td>
                       
@@ -207,6 +212,9 @@ function refreshData($productID, $type,  $element){
 
   if($type == 'cost')
     product.cost = $element.value; 
+    
+  if($type == 'lote_number')
+    product.lote_number = $element.value; 
 
   console.log(productsAdded);
     

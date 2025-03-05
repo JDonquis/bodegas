@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('sold');
             $table->integer('stock');
             $table->date('expired_date');
+            $table->string('lote_number');
             $table->timestamps();
         });
     }

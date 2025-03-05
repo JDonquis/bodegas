@@ -10,31 +10,51 @@ use Exception;
 
 class OutputService
 {       
-    public function create($products, $destiny){
+    public function create($products, $client_id, $totalSold){
 
-        $outputGeneral = OutputGeneral::create(['quantity_products' => count($products), 'destiny' =>  $destiny]);
+        
+        $totalOutputProfit = 0;
+        $outputGeneral = OutputGeneral::create([
+            'quantity_products' => count($products),
+            'client_id' =>  $client_id,
+            'total_sold' => $totalSold,
+            'total_profit' => 0,
+        ]);
     
         foreach ($products as $product) {
             
             $this->validateStock($product);
 
-            $inventory = Inventory::where('id',$product['inventoryID'])->first();
-            $inventory->update(['stock' => $inventory->stock - $product['quantity']]);
+            $inventory = Inventory::where('id',$product['inventoryID'])->with('product')->first();
+            $detailProfit = $this->calculateDetailProfit($inventory,$product['quantity']);
+            $inventory->update([
+                'stock' => $inventory->stock - $product['quantity'],
+                'sold' => $inventory->sold + $product['quantity'],
+                'profits' => $inventory->profits + $detailProfit,
+            ]);
             
 
             $inventoryGeneral = InventoryGeneral::where('product_id',$product['productID'])->first();
             $inventoryGeneral->update([
                 'stock' => $inventoryGeneral->stock - $product['quantity'],
-                'outputs' => $inventoryGeneral->outputs + $product['quantity']
+                'outputs' => $inventoryGeneral->outputs + $product['quantity'],
+                'profits' => $inventoryGeneral->profits + $detailProfit
             ]);
 
 
             Output::create([
-                'product_id' => $product['productID'],     'quantity' => $product['quantity'],
-                'inventory_id' => $product['inventoryID'], 'output_general_id' => $outputGeneral->id,
+                'product_id' => $product['productID'],
+                'output_general_id' => $outputGeneral->id,
+                'inventory_id' => $product['inventoryID'],
+                'quantity' => $product['quantity'],
                 'expired_date' => $inventory->expired_date, 
+                'profit' => $detailProfit,
             ]);
+
+            $totalOutputProfit = $totalOutputProfit + $detailProfit;
         }
+
+        $outputGeneral->update(['total_profit' => $totalOutputProfit]);
 
         return $outputGeneral;
 
@@ -77,6 +97,13 @@ class OutputService
         if($inventory->stock < $product['quantity'])
             throw new Exception("La cantidad del producto: " . $inventory->product->name . " - " . $inventory->expired_date . " supera el stock disponible", 500);
             
+    }
+
+    public function calculateDetailProfit($inventory,$quantity){
+        $totalCost = $inventory->cost_per_unit * $quantity;
+        $totalSold = $inventory->product->sell_price * $quantity;
+        $totalProfit = $totalSold - $totalCost;
+        return $totalProfit;
     }
 
 }

@@ -19,6 +19,8 @@ class Inventory extends Model
         'sold',
         'stock',
         'expired_date',
+        'lote_number',
+
     ];
 
     public function product(){

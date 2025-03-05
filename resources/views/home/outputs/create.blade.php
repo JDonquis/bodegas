@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="row">
-    <div class="col-xl col-md-6">
+    <div class="col-12">
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Buscar productos</h5>
@@ -28,6 +28,7 @@
                   <thead>
                     <tr>
                       <th>Productos</th>
+                      <th>Precio de Venta</th>
                       <th>Stock</th>
                       <th></th>
 
@@ -45,26 +46,37 @@
       </div>
     </div>
 
-    <div class="col-xl col-md-6">
+    <div class="col-12">
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Productos agregados</h5>
+          <h5 class="mb-0">Productos a vender</h5>
           <small class="text-muted float-end">Salidas</small>
         </div>
         <div class="card-body">
           <form action="{{ route('outputs.store') }}" method="POST">
             @csrf
-            <div>
-              <label for="defaultFormControlInput" class="form-label">Destino</label>
-              <input type="text" required name="destiny" value="" class="form-control" id="defaultFormControlInput" placeholder="Organización..." aria-describedby="defaultFormControlHelp">
-              
+            <div class="mb-4">
+              <label for="exampleFormControlSelect1" class="form-label">Vendido a:</label>
+              <select class="form-select" name="client_id" id="exampleFormControlSelect1" aria-label="Default select example" style="max-width: 300px;">
+                @foreach ($clients as $client )
+                  @if($client->id == 1)
+                    <option value="{{ $client->id }}" selected>{{ $client->name }}</option>
+                  @else
+                  <option value="{{ $client->id }}">{{ $client->name }}</option>
+                  @endif
+                @endforeach
+              </select>
             </div>
+            <h5>Monto total: <span id="total_sold" class="text-primary"></span></h5>
+            <input type="hidden" value="" name="total_sold" id="total_sold_input">
             <div class="table-responsive text-nowrap">
                 <table class="table">
                   <thead>
                     <tr>
                       <th>Producto</th>
                       <th>Cantidad</th>
+                      <th>Precio venta</th>
+                      <th>Nro Lote</th>
                       <th>Fecha de vencimiento</th>
                     </tr>
                   </thead>
@@ -99,6 +111,9 @@
                 <tr>
                   <th>Producto</th>
                   <th>Stock</th>
+                  <th>Cost Unidad</th>
+                  <th>Ganancia</th>
+                  <th>Nro Lote</th>
                   <th>Vencimiento</th>
                 </tr>
               </thead>
@@ -125,6 +140,10 @@
 <script>
 
   const productsAdded = [];
+  const totalSold = document.querySelector('#total_sold');
+  const totalSoldInput = document.querySelector('#total_sold_input');
+
+
 
   function searchProduct() {
       let searchInput = document.getElementById('html5-search-input').value;
@@ -148,6 +167,9 @@
                 return `<tr>
                     <td>
                         <a href="#" class="text-decoration-none text-reset" inventoryID=${inventory.id} >${inventory.product.name}</a>
+                    </td>
+                    <td>
+                         ${inventory.product.sell_price}$
                     </td>
                     <td>
                          ${inventory.stock}
@@ -208,10 +230,13 @@ let results = $details.map(detail => {
       return `<tr>
                   <td>
                   <button class="btn" ${status} style="padding-left:0px !important;" inventoryDetailID="${detail.id}" onclick="addProduct(${productJson})">
-                    ${detail.product.name}
+                    <span class="text-primary">${detail.product.name}</span>
                   </button>
                   </td>
                   <td>${detail.stock}</td>
+                  <td>${detail.cost_per_unit}$</td>
+                  <td> <span class="text-primary"> ${ detail.product.sell_price - detail.cost_per_unit  }$ </span></td>
+                  <td>${detail.lote_number}</td>
                   <td>
                     ${formattedExpiredDate}
                   </td>
@@ -249,8 +274,22 @@ function addProduct($inventory) {
     button.disabled = true;
   
 
-
+  calculateTotal(productsAdded);
   refreshProducts();
+}
+
+function calculateTotal(productsAdded){
+
+  const totalAmount = productsAdded.reduce((total, item) => {
+  const quantity = parseInt(item.request_quantity, 10); // Convertir a número entero
+  const sellPrice = parseFloat(item.product.sell_price); // Convertir a número flotante
+  return total + (quantity * sellPrice); // Sumar al total
+  }, 0);
+  
+  totalSold.innerHTML = `${totalAmount}$`;
+  totalSoldInput.value = totalAmount;
+
+
 }
 
 function refreshProducts()
@@ -282,12 +321,21 @@ function refreshProducts()
                         </div>
                         </td>
                       <td>
+                        ${inventory.product.sell_price}$
+                      </td>
+                      <td>
+                        ${inventory.lote_number}
+                      </td>
+                      <td>
                         ${inventory.expired_date}
                       </td>
                       
                     </tr>`;
             }).join('');
             document.getElementById('added-products').innerHTML = results;
+    
+  calculateTotal(productsAdded);
+            
 }
 
 function refreshData($inventoryID, $type,  $element){
@@ -296,8 +344,8 @@ function refreshData($inventoryID, $type,  $element){
   if($type == 'quantity')
     product.request_quantity = $element.value; 
 
-  console.log(productsAdded);
-    
+    calculateTotal(productsAdded);
+  
 }
 
 function cancelProduct($inventoryID){

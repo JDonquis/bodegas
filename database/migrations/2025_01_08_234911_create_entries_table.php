@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('cost', 8, 2);
             $table->date('expired_date');
+            $table->string('lote_number');
             $table->timestamps();
         });
     }

@@ -64,6 +64,7 @@
                       <th>Producto</th>
                       <th>Cantidad</th>
                       <th>Prec. de Compra $</th>
+                      <th>Nro Lote</th>
                       <th>Fecha de vencimiento</th>
                     </tr>
                   </thead>
@@ -74,7 +75,7 @@
                     @foreach ($entries as $entry )
                         <tr>
                             <td>
-                              <input type="hidden" name="products[{{ $index }}][{{ $entry->product_id }}]" value="{{ $entry->product_id }}">
+                              <input type="hidden" name="products[{{ $index }}][productID]" value="{{ $entry->product_id }}">
                               
                               <button type="button" onclick="cancelProduct({{ $entry->product_id }})" class="btn p-0" ><i class='bx bxs-x-circle' style="font-size: 24px;"></i></button>
                               {{ $entry->product->name }}
@@ -84,6 +85,9 @@
                             </td>
                             <td>
                               <input class="form-control" required type="number" step="0.01" min="0" oninput="refreshData({{ $entry->product_id }}, 'cost' , this)" min="1" name="products[{{ $index }}][cost]" value="{{ $entry->cost }}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 100px;" >
+                            </td>
+                            <td>
+                              <input class="form-control" required type="text" oninput="refreshData({{ $entry->product_id }}, 'lote_number' , this)"  name="products[{{ $index }}][lote_number]" value="{{ $entry->lote_number }}" style="max-width: 120px;" >
                             </td>
                             <td>
                               <input class="form-control" required type="date" oninput="refreshData({{ $entry->product_id }}, 'date', this)" value="{{ $entry->expired_date->format('Y-m-d') }}" name="products[{{ $index }}][expiredDate]" >
@@ -116,6 +120,8 @@
 <script>
 
   const productsAdded = [];
+  const createEntryBtnGeneral = document.getElementById('btn-create-entry');
+
 
   const productsFromController = @json($entries);
 
@@ -127,11 +133,12 @@
             created_at: null,
             updated_at: null,
             quantity: entry.quantity,
-            date: formatDate(entry.expired_date)
+            date: formatDate(entry.expired_date),
+            cost: entry.cost,
+            lote_number:entry.lote_number
         });
     });
 
-  console.log(productsAdded);
 
 function formatDate(dateString) {
         const date = new Date(dateString);
@@ -193,6 +200,8 @@ function addProduct($product) {
         $product.quantity = 1;
         $product.date = null;
         $product.cost = 0;
+        $product.lote_number = "";
+
 
 
         productsAdded.unshift($product); 
@@ -217,6 +226,7 @@ function refreshProducts()
 {
 
   let createEntryBtn = document.getElementById('btn-create-entry');
+  
 
   if(productsAdded.length > 0)
     createEntryBtn.disabled = false;
@@ -240,6 +250,9 @@ function refreshProducts()
                         <input class="form-control" required type="number" step="0.01" min="0" oninput="refreshData(${product.id}, 'cost' , this)" min="1" name="products[${index}][cost]" value="${product.cost}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
                       </td>
                       <td>
+                        <input class="form-control" required type="text" oninput="refreshData(${product.id}, 'lote_number' , this)" name="products[${index}][lote_number]" value="${product.lote_number}"  style="max-width: 120px;" >
+                      </td>
+                      <td>
                         <input class="form-control" required type="date" oninput="refreshData(${product.id}, 'date', this)" value="${product.date}" name="products[${index}][expiredDate]" >
                       </td>
                       
@@ -258,9 +271,13 @@ function refreshData($productID, $type,  $element){
     product.date = $element.value;
   
   if($type == 'cost')
-  product.cost = $element.value; 
+    product.cost = $element.value; 
 
-  console.log(productsAdded);
+  if($type == 'lote_number')
+    product.lote_number = $element.value; 
+
+    if(createEntryBtnGeneral.disabled)
+      createEntryBtnGeneral.disabled = false;
     
 }
 

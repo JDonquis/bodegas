@@ -22,9 +22,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             ProductSeeder::class,
-            ConditionSeeder::class,
-            PathologySeeder::class,
-            PatientSeeder::class,
+            ClientSeeder::class,
         ]);
 
     }

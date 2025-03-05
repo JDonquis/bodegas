@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Output;
 use App\Models\OutputGeneral;
 use App\Services\OutputService;
@@ -16,7 +17,7 @@ class OutputController extends Controller
      */
     public function index()
     {
-        $outputs = OutputGeneral::orderBy('created_at','desc')->paginate(10);
+        $outputs = OutputGeneral::with('client')->orderBy('created_at','desc')->paginate(10);
         return view('home.outputs')->with(compact('outputs'));
     }
 
@@ -24,8 +25,9 @@ class OutputController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {
-        return view('home.outputs.create');
+    {   
+        $clients = Client::get();
+        return view('home.outputs.create')->with(compact('clients'));
         
     }
 
@@ -39,10 +41,12 @@ class OutputController extends Controller
         try{
 
             $products = $request->input('products');
-            $destiny = $request->input('destiny');
+            $client = $request->input('client_id');
+            $totalSold = $request->input('total_sold');
+
 
             $outputService = new OutputService();
-            $newOutputGeneral = $outputService->create($products, $destiny);
+            $newOutputGeneral = $outputService->create($products, $client, $totalSold);
             
             DB::commit();
 
@@ -67,7 +71,7 @@ class OutputController extends Controller
      */
     public function show(OutputGeneral $output)
     {
-        $outputs = Output::with('product')->where('output_general_id', $output->id)->get();
+        $outputs = Output::with('product','inventory')->where('output_general_id', $output->id)->get();
 
         return response()->json(['outputs' => $outputs]);
     }
