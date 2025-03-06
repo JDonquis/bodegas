@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 class InventoryController extends Controller
 {
     public function index(){
+        
         $inventories = InventoryGeneral::with('product')->paginate(10);
         return view('home.inventory')->with(['inventories' => $inventories]);
     }

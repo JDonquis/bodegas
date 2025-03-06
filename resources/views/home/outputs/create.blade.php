@@ -286,8 +286,11 @@ function calculateTotal(productsAdded){
   return total + (quantity * sellPrice); // Sumar al total
   }, 0);
   
-  totalSoldInput.value = isNaN(totalAmount) ? 0 : totalAmount;
-  totalSold.innerHTML = isNaN(totalAmount) ? '0$' : `${totalAmount}$`;
+  const finalAmount = isNaN(totalAmount) ? 0 : Math.round(totalAmount * 1000) / 1000;
+
+
+  totalSoldInput.value = finalAmount;
+  totalSold.innerHTML = finalAmount;
 
 
 }
@@ -316,7 +319,7 @@ function refreshProducts()
                       </td>
                       <td>
                         <div class="d-flex align-items-center"> 
-                          <input class="form-control" required type="number" oninput="refreshData(${inventory.id}, 'quantity' , this)" min="1" max="${inventory.stock}" name="products[${index}][quantity]" value="${inventory.request_quantity}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
+                          <input class="form-control" required type="number" oninput="refreshData(${inventory.id}, 'quantity' , this)" min="1" max="${inventory.stock}" name="products[${index}][quantity]" value="${inventory.request_quantity}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 100px;" >
                         /${inventory.stock}
                         </div>
                         </td>

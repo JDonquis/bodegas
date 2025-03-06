@@ -13,13 +13,13 @@
           <form method="POST" action="{{ route('products.store') }}">
             @csrf
             <div class="mb-6">
-              <label class="form-label" for="basic-default-company">Nombre</label>
-              <input type="text" class="form-control" name="productName" value="{{ old('productName') }}" id="input-name-patient" placeholder="Nombre" style="max-width: 200px;">
+              <label class="form-label" for="basic-default-company">Nombre *</label>
+              <input type="text" required class="form-control" name="productName" value="{{ old('productName') }}" id="input-name-patient" placeholder="Nombre" style="max-width: 200px;">
             </div>
             <div class="mb-6">
-              <label class="form-label" for="basic-default-email">Precio de venta $</label>
+              <label class="form-label" for="basic-default-email">Precio de venta $ *</label>
               <div class="input-group input-group-merge">
-                <input type="number" step="0.001" min="0" id="input-lastname-patient" value="{{ old('sellPrice') }}" name="sellPrice" class="form-control" style="max-width: 200px;" placeholder="0.0" aria-describedby="basic-default-email2">
+                <input type="number" required step="0.001" min="0" id="input-lastname-patient" value="{{ old('sellPrice') }}" name="sellPrice" class="form-control" style="max-width: 200px;" placeholder="0.0" aria-describedby="basic-default-email2">
               </div>
             </div>
               <div class="d-flex justify-content-between">

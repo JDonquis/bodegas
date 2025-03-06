@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id');
             $table->foreignId('entry_id');
             $table->decimal('cost', 8, 3);
-            $table->decimal('cost_per_unit', 8, 3);
+            $table->decimal('cost_per_unit', 8, 4);
             $table->decimal('profits', 8, 3);
             $table->integer('sold');
             $table->integer('stock');

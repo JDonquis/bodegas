@@ -392,7 +392,7 @@ button.list-group-item-primary.active {
 }
 
 .navbar.bg-primary {
-  background-color: rgba(105, 108, 255, 0.88) !important;
+  background-color: #FA9035 !important;
   color: #e0e1ff;
 }
 .navbar.bg-primary .navbar-brand,
@@ -564,7 +564,7 @@ button.list-group-item-primary.active {
 
 .bg-primary.toast, .bg-primary.bs-toast {
   color: #fff;
-  background-color: rgba(105, 108, 255, 0.85) !important;
+  background-color: #596a4a !important;
   box-shadow: 0 0.25rem 1rem rgba(105, 108, 255, 0.4);
 }
 .bg-primary.toast .toast-header, .bg-primary.bs-toast .toast-header {

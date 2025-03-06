@@ -38,6 +38,7 @@ class OutputService
             $inventoryGeneral->update([
                 'stock' => $inventoryGeneral->stock - $product['quantity'],
                 'outputs' => $inventoryGeneral->outputs + $product['quantity'],
+                'sold' => $inventoryGeneral->sold + ($product['quantity'] * $inventory->product->sell_price),
                 'profits' => $inventoryGeneral->profits + $detailProfit
             ]);
 
@@ -77,7 +78,7 @@ class OutputService
 
         foreach($outputs as $outputDetail){
             
-            $inventory = Inventory::where('id',$outputDetail->inventory_id)->first();
+            $inventory = Inventory::where('id',$outputDetail->inventory_id)->with('product')->first();
             $inventory ->update([
                 'stock' => $inventory->stock + $outputDetail->quantity,
                 'profits' => $inventory->profits - $outputDetail->profit,
@@ -88,10 +89,12 @@ class OutputService
             $newStock = $inventoryGeneral->stock + $outputDetail->quantity;
             $newOutputs = $inventoryGeneral->outputs - $outputDetail->quantity;
             $newProfits = $inventoryGeneral->profits - $outputDetail->profit;
+            $newSold = $inventoryGeneral->sold - ($outputDetail * $inventory->product->sell_price);
 
             $inventoryGeneral->update([
                 'stock' => $newStock,
                 'outputs' => $newOutputs,
+                'sold' => $newSold,
                 'profits' => $newProfits,
             ]);
         }

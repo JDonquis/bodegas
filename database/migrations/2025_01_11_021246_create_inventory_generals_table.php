@@ -17,8 +17,9 @@ return new class extends Migration
             $table->integer('stock');
             $table->integer('entries')->default(0);
             $table->integer('outputs')->default(0);
-            $table->decimal('expense')->default(0);
-            $table->decimal('profits')->default(0);
+            $table->decimal('expense', 8, 3)->default(0);
+            $table->decimal('sold', 8, 3)->default(0);
+            $table->decimal('profits', 8, 3)->default(0);
             $table->timestamps();
         });
     }

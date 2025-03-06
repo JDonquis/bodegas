@@ -19,14 +19,23 @@
         <span class="menu-header-text">Menú</span>
       </li>
       @role('admin')
-      <li class="menu-item {{ request()->routeIs('patients') ? 'active' : ''}}">
+      <li class="menu-item {{ request()->routeIs('clients') ? 'active' : ''}} {{ request()->routeIs('clients.*') ? 'active' : ''}}">
         <a
-        href="{{ route('products') }}"
-        class="menu-link">
-        <i class="menu-icon tf-icons bx bx-cheese"></i>
-        <div class="text-truncate" data-i18n="Chat">Productos</div>
-      </a>
-    </li>
+          href="{{ route('clients') }}"
+          class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user"></i>
+          <div class="text-truncate" data-i18n="User">Clientes</div>
+        </a>
+      </li>
+
+      <li class="menu-item {{ request()->routeIs('products') ? 'active' : ''}}  {{ request()->routeIs('products.*') ? 'active' : ''}}">
+        <a
+          href="{{ route('products') }}"
+          class="menu-link">
+          <i class="menu-icon tf-icons bx bx-cheese"></i>
+          <div class="text-truncate" data-i18n="Chat">Productos</div>
+        </a>
+      </li>
 
       <li class="menu-item {{ request()->routeIs('entries') ? 'open active' : ''}} {{ request()->routeIs('entries.*') ? 'open active' : ''}} {{ request()->routeIs('outputs.*') ? 'open active' : ''}} {{ request()->routeIs('outputs') ? 'open active' : ''}} {{ request()->routeIs('inventory') ? 'open active' : ''}}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -52,14 +61,7 @@
           
         </ul>
       </li>
-      <li class="menu-item {{ request()->routeIs('patients') ? 'active' : ''}}">
-        <a
-        href="{{ route('patients') }}"
-        class="menu-link">
-        <i class="menu-icon tf-icons bx bx-user"></i>
-        <div class="text-truncate" data-i18n="User">Clientes</div>
-      </a>
-    </li>
+   
     @endrole
     
     </ul>

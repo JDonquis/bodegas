@@ -13,6 +13,10 @@
             <th>Stock</th>
             <th>Entradas</th>
             <th>Salidas</th>
+            <th>Gastado</th>
+            <th>Vendido</th>
+            <th>Ganancias</th>
+
 
           </tr>
         </thead>
@@ -33,6 +37,15 @@
               </td>
               <td>
                 {{ $inventory->outputs }}
+              </td>
+              <td>
+                {{ $inventory->expense }}$
+              </td>
+              <td>
+                {{ $inventory->sold }}$
+              </td>
+              <td>
+                <span class="text-primary" style="font-weight: bold;">{{ $inventory->profits }}$</span>
               </td>
               {{-- <td>
                 <div class="dropdown">

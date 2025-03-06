@@ -16,6 +16,7 @@ class InventoryGeneral extends Model
         'entries',
         'outputs',
         'expense',
+        'sold',
         'profits',
     ];
 

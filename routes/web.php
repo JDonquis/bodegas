@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\EntryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OutputController;
@@ -78,22 +79,12 @@ Route::middleware(['auth'])->prefix('home')->group(function ()
 
     });
     
-    // ------------------------------- Pacientes 
-    Route::get('/pacientes',[PatientController::class, 'index'])->middleware('role_or_permission:admin|read-patients')->name('patients');
-    Route::get('/pacientes/crear',[PatientController::class, 'create'])->middleware('role_or_permission:admin|create-patients')->name('patients.create');
-    Route::get('/pacientes/search/{search}',[PatientController::class, 'search'])->middleware('role_or_permission:admin|read-patients')->name('patients.search');
-    Route::post('/pacientes',[PatientController::class, 'store'])->middleware('role_or_permission:admin|create-patients')->name('patients.store');
-    Route::post('/pacientes/casos',[PatientController::class, 'storeCase'])->middleware('role_or_permission:admin|create-patients')->name('patients.case.store');
-    Route::delete('/pacientes/casos/{case}',[PatientController::class, 'destroy'])->middleware('role_or_permission:admin|delete-patients')->name('patients.case.delete');
-
-
-    // ------------------------------- Patologias
-    Route::get('/patologias/search/{search}',[PatientController::class, 'searchPathology'])->middleware('role_or_permission:admin|create-patients')->name('patients.pathology.search');
-    Route::post('/patologias',[PatientController::class, 'createPathology'])->middleware('role_or_permission:admin|create-patients')->name('patients.pathology.store');
-     
-
-
-
-
+    // ------------------------------- Clients 
+    Route::get('/clientes',[ClientController::class, 'index'])->middleware('role_or_permission:admin')->name('clients');
+    Route::get('/clientes/crear',[ClientController::class, 'create'])->middleware('role_or_permission:admin')->name('clients.create');
+    Route::post('/clientes',[ClientController::class, 'store'])->middleware('role_or_permission:admin')->name('clients.store');
+    Route::get('/clientes/editar/{client}',[ClientController::class, 'edit'])->middleware('role_or_permission:admin')->name('clients.edit');
+    Route::put('/clientes/{client}', [ClientController::class, 'update'])->middleware('role_or_permission:admin')->name('clients.update');
+    Route::delete('/clientes/{client}',[ClientController::class, 'destroy'])->middleware('role_or_permission:admin')->name('clients.delete');
 
 });

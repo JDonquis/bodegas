@@ -28,7 +28,7 @@ class EntryService
                 'lote_number' => $product['lote_number'],
             ]);
             
-            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 3);
+            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 4);
 
             Inventory::create([
                 'product_id' => $product['productID'],
