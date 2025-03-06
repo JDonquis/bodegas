@@ -49,8 +49,8 @@
               <td>
                 {{ ucfirst($product->created_at->translatedFormat('F j, Y, g:i A')) }}
               </td>
-              <td><span class="text-primary">{{ $product->name}}</span></td>
-              <td>{{ $product->sell_price }}$ </td>
+              <td>{{ $product->name}}</td>
+              <td><span class="text-primary" style="font-weight: bold;">{{ $product->sell_price }}$ </span></td>
             </tr>  
           @endforeach
         </tbody>

@@ -62,7 +62,7 @@
               <div class="app-brand justify-content-center">
                 <a href="index.html" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
-                    <img src="{{ asset('unefacare-log.png') }}" alt="">
+                    <img src="{{ asset('bodega.png') }}" style="max-width: 300px;" alt="">
                   </span>
                 </a>
               </div>

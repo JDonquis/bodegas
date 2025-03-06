@@ -24,11 +24,11 @@ class EntryService
                 'quantity' => $product['quantity'],
                 'expired_date' => $product['expiredDate'],
                 'entry_general_id' => $entryGeneral->id,
-                'cost' => round(floatval($product['cost']),2), 
+                'cost' => round(floatval($product['cost']),3), 
                 'lote_number' => $product['lote_number'],
             ]);
             
-            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 2);
+            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 3);
 
             Inventory::create([
                 'product_id' => $product['productID'],

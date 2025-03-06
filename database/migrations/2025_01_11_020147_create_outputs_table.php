@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('inventory_id');
             $table->integer('quantity');
             $table->date('expired_date');
-            $table->decimal('profit', 8, 2);
+            $table->decimal('profit', 8, 3);
             $table->timestamps();
         });
     }

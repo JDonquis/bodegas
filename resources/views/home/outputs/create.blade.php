@@ -286,8 +286,8 @@ function calculateTotal(productsAdded){
   return total + (quantity * sellPrice); // Sumar al total
   }, 0);
   
-  totalSold.innerHTML = `${totalAmount}$`;
-  totalSoldInput.value = totalAmount;
+  totalSoldInput.value = isNaN(totalAmount) ? 0 : totalAmount;
+  totalSold.innerHTML = isNaN(totalAmount) ? '0$' : `${totalAmount}$`;
 
 
 }

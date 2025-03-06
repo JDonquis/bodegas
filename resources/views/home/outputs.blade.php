@@ -104,7 +104,7 @@
                   <th>Producto</th>
                   <th>Cantidad</th>
                   <th>Prec. compra</th>
-                  <th>Prec. venta</th>
+                  <th>Vendido en</th>
                   <th>Ganancia</th>
                   <th>Nro Lote</th>
                   <th>Vencimiento</th>
@@ -220,13 +220,14 @@ function buildModal($outputs){
   let results = $outputs.map(output => {
 
     const formattedExpiredDate = formatDate(output.expired_date);
+    let sellPrice = calculateSellPrice(output);
         return `<tr>
                     <td>
                       ${output.product.name}
                     </td>
                     <td>${output.quantity}</td>
                     <td>${output.inventory.cost_per_unit}$</td>
-                    <td>${output.product.sell_price}$</td>
+                    <td>${sellPrice}$</td>
                     <td>${output.profit}$</td>
                     <td>${output.inventory.lote_number}</td>
                     <td>
@@ -237,6 +238,18 @@ function buildModal($outputs){
 
             tableOutputsDetail.innerHTML = results;
 
+}
+
+function calculateSellPrice(output){
+
+let costPrice = output.inventory.cost_per_unit * -1;
+costPrice *= output.quantity; 
+let sellPrice = costPrice - output.profit;
+sellPrice = sellPrice / output.quantity;
+
+sellPrice = Math.round(sellPrice * 1000) / 1000;
+
+  return sellPrice * -1;
 }
 
 </script>

@@ -99,9 +99,11 @@ class OutputController extends Controller
             $outputService->delete($output);
 
             $products = $request->input('products');
-            $destiny = $request->input('destiny');
+            $client = $request->input('client_id');
+            $totalSold = $request->input('total_sold');
 
-            $outputService->create($products, $destiny);
+            $outputService->create($products, $client, $totalSold);
+
 
             DB::commit();
             return redirect()->route('outputs')->with(['success' => 'Salida actualizada exitosamente']);

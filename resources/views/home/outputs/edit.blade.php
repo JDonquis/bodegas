@@ -89,8 +89,8 @@
                     @foreach ($outputs as $output )
                     <tr>
                       <td>
-                        <input type="hidden" name="products[{{ $index }}][{{ $output->product_id }}]" value="{{ $output->product_id }}">
-                        <input type="hidden" name="products[{{ $index }}][{{ $output->inventory_id }}]" value="{{ $output->inventory_id }}">
+                        <input type="hidden" name="products[{{ $index }}][productID]" value="{{ $output->product_id }}">
+                        <input type="hidden" name="products[{{ $index }}][inventoryID]" value="{{ $output->inventory_id }}">
                         
                         <button type="button" onclick="cancelProduct({{ $output->inventory_id }})" class="btn p-0" ><i class='bx bxs-x-circle' style="font-size: 24px;"></i></button>
                         {{ $output->product->name }}
@@ -145,6 +145,9 @@
                 <tr>
                   <th>Producto</th>
                   <th>Stock</th>
+                  <th>Cost Unidad</th>
+                  <th>Ganancia</th>
+                  <th>Nro Lote</th>
                   <th>Vencimiento</th>
                 </tr>
               </thead>
@@ -171,6 +174,8 @@
 <script>
 
   const productsAdded = [];
+  const totalSold = document.querySelector('#total_sold');
+  const totalSoldInput = document.querySelector('#total_sold_input');
 
   const productsFromController = @json($outputs);
 
@@ -184,10 +189,13 @@
             stock_available: output.inventory.stock + output.quantity,
             condition_id: output.inventory.condition_id,
             product: output.product,
-            request_quantity: output.quantity
+            request_quantity: output.quantity,
+            lote_number:output.inventory.lote_number,
 
         });
     });
+
+  calculateTotal(productsAdded);
 
   function searchProduct() {
       let searchInput = document.getElementById('html5-search-input').value;
@@ -271,13 +279,16 @@ let results = $details.map(detail => {
   }
 
   const formattedExpiredDate = formatDate(detail.expired_date);
-      return `<tr>
+  return `<tr>
                   <td>
                   <button class="btn" ${status} style="padding-left:0px !important;" inventoryDetailID="${detail.id}" onclick="addProduct(${productJson})">
-                    ${detail.product.name}
+                    <span class="text-primary">${detail.product.name}</span>
                   </button>
                   </td>
                   <td>${detail.stock}</td>
+                  <td>${detail.cost_per_unit}$</td>
+                  <td> <span class="text-primary"> ${ detail.product.sell_price - detail.cost_per_unit  }$ </span></td>
+                  <td>${detail.lote_number}</td>
                   <td>
                     ${formattedExpiredDate}
                   </td>
@@ -315,7 +326,7 @@ function addProduct($inventory) {
     button.disabled = true;
   
 
-
+  calculateTotal(productsAdded);
   refreshProducts();
 }
 
@@ -343,10 +354,16 @@ function refreshProducts()
                       </td>
                       <td>
                         <div class="d-flex align-items-center"> 
-                          <input class="form-control" required type="number" oninput="refreshData(${inventory.id}, 'quantity' , this)" min="1" max="${inventory.stock_available ?? inventory.stock}" name="products[${index}][quantity]" value="${inventory.request_quantity}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
-                        /${inventory.stock_available ?? inventory.stock }
+                          <input class="form-control" required type="number" oninput="refreshData(${inventory.id}, 'quantity' , this)" min="1" max="${inventory.stock}" name="products[${index}][quantity]" value="${inventory.request_quantity}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 80px;" >
+                        /${inventory.stock}
                         </div>
                         </td>
+                      <td>
+                        ${inventory.product.sell_price}$
+                      </td>
+                      <td>
+                        ${inventory.lote_number}
+                      </td>
                       <td>
                         ${inventory.expired_date}
                       </td>
@@ -354,6 +371,9 @@ function refreshProducts()
                     </tr>`;
             }).join('');
             document.getElementById('added-products').innerHTML = results;
+  
+  calculateTotal(productsAdded);
+  
 }
 
 function refreshData($inventoryID, $type,  $element){
@@ -363,7 +383,15 @@ function refreshData($inventoryID, $type,  $element){
     product.request_quantity = $element.value; 
 
   console.log(productsAdded);
-    
+  calculateTotal(productsAdded);
+
+  let createOutputBtn = document.getElementById('btn-create-output');
+
+  if(productsAdded.length > 0)
+    createOutputBtn.disabled = false;
+  else
+    createOutputBtn.disabled = true;
+ 
 }
 
 function cancelProduct($inventoryID){
@@ -417,6 +445,20 @@ function createProduct(){
   else{
     console.log('ayy')
   }
+}
+
+function calculateTotal(productsAdded){
+
+const totalAmount = productsAdded.reduce((total, item) => {
+const quantity = parseInt(item.request_quantity, 10); // Convertir a número entero
+const sellPrice = parseFloat(item.product.sell_price); // Convertir a número flotante
+return total + (quantity * sellPrice); // Sumar al total
+}, 0);
+
+totalSoldInput.value = isNaN(totalAmount) ? 0 : totalAmount;
+totalSold.innerHTML = isNaN(totalAmount) ? '0$' : `${totalAmount}$`;
+
+
 }
 
 </script>

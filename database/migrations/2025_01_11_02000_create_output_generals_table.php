@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id');
             $table->integer('quantity_products');
-            $table->decimal('total_sold', 8, 2);
-            $table->decimal('total_profit', 8, 2);
+            $table->decimal('total_sold', 8, 3);
+            $table->decimal('total_profit', 8, 3);
             $table->timestamps();
         });
     }

@@ -22,7 +22,7 @@ class ProductService
 
         $product = Product::create([
         'name' => ucwords(strtolower($data->productName)) , 
-        'sell_price' => round(floatval($data->sellPrice), 2)
+        'sell_price' => round(floatval($data->sellPrice), 3)
         ]);
 
         return $product;
@@ -33,7 +33,7 @@ class ProductService
 
         $product->update([
         'name' => ucwords(strtolower($data->productName)) , 
-        'sell_price' => round(floatval($data->sellPrice), 2)
+        'sell_price' => round(floatval($data->sellPrice), 3)
         ]);
 
         return $product;

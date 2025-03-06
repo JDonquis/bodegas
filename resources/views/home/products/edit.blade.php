@@ -20,7 +20,7 @@
             <div class="mb-6">
               <label class="form-label" for="basic-default-email">Precio de venta</label>
               <div class="input-group input-group-merge">
-                <input type="number" step="0.01" min="0" id="input-lastname-patient" value="{{ $product->sell_price }}" name="sellPrice" class="form-control" placeholder="Precio de venta" aria-label="john.doe" aria-describedby="basic-default-email2">
+                <input type="number" step="0.001" min="0.001" id="input-lastname-patient" value="{{ $product->sell_price }}" name="sellPrice" class="form-control" placeholder="Precio de venta" aria-label="john.doe" aria-describedby="basic-default-email2">
               </div>
             </div>
               <div class="d-flex justify-content-between">

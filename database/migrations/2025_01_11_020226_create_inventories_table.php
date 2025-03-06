@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id');
             $table->foreignId('entry_id');
-            $table->decimal('cost', 8, 2);
-            $table->decimal('cost_per_unit', 8, 2);
-            $table->decimal('profits', 8, 2);
+            $table->decimal('cost', 8, 3);
+            $table->decimal('cost_per_unit', 8, 3);
+            $table->decimal('profits', 8, 3);
             $table->integer('sold');
             $table->integer('stock');
             $table->date('expired_date');
