@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Output;
 use App\Models\OutputGeneral;
 use App\Services\OutputService;
+use App\Services\PDFService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,8 +16,9 @@ class OutputController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+
         $outputs = OutputGeneral::with('client')->orderBy('created_at','desc')->paginate(10);
         return view('home.outputs')->with(compact('outputs'));
     }
@@ -49,6 +51,7 @@ class OutputController extends Controller
             $newOutputGeneral = $outputService->create($products, $client, $totalSold);
             
             DB::commit();
+
 
             if($json == null)
                 return redirect('home/salidas')->with(['success' => 'Salida creada exitosamente']);

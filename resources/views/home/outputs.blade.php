@@ -30,9 +30,13 @@
             <tr>
               
               <td>
+                <a  href="{{ route('invoice',['outputID' => $output->id]) }}" class="btn btn-outline-primary p-1">
+                  <i class='bx bxs-report'></i>
+                </a>
                 <button type="button" onclick="showDetail(this)" class="btn" output="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#modalScrollable">
                   <i class='bx bx-detail' ></i>
                 </button>
+                
                 {{ ucfirst($output->created_at->translatedFormat('F j, Y')) }}
               </td>
               <td>{{ $output->quantity_products }}</td>
@@ -251,6 +255,8 @@ sellPrice = Math.round(sellPrice * 1000) / 1000;
 
   return sellPrice * -1;
 }
+
+
 
 </script>
 

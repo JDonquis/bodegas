@@ -4,6 +4,7 @@ use App\Http\Controllers\AppController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\EntryController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProductController;
@@ -86,5 +87,9 @@ Route::middleware(['auth'])->prefix('home')->group(function ()
     Route::get('/clientes/editar/{client}',[ClientController::class, 'edit'])->middleware('role_or_permission:admin')->name('clients.edit');
     Route::put('/clientes/{client}', [ClientController::class, 'update'])->middleware('role_or_permission:admin')->name('clients.update');
     Route::delete('/clientes/{client}',[ClientController::class, 'destroy'])->middleware('role_or_permission:admin')->name('clients.delete');
+
+    // ------------------------------- Clients 
+    Route::get('/invoice/{outputID}',[InvoiceController::class, 'index'])->middleware('role_or_permission:admin')->name('invoice');
+
 
 });
