@@ -33,7 +33,7 @@ class PDFService
 
     // RIF centrado
     $pdf->SetFont('Arial', 'B', 9);
-    $pdf->Cell(0, 5 , 'RIF ' . $bodegaRif, 0, 1, 'C');
+    $pdf->Cell(0, 5 , $bodegaRif, 0, 1, 'C');
 
     // Dirección centrada
     $pdf->SetFont('Arial', '', 9);
