@@ -124,6 +124,8 @@
                 <tr>
                   <th>Producto</th>
                   <th>Stock</th>
+                  <th>Gastado</th>
+                  <th>Nro Lote</th>
                   <th>Vencimiento</th>
                 </tr>
               </thead>
@@ -198,6 +200,8 @@ function buildModal($details){
                       ${detail.product.name}
                     </td>
                     <td>${detail.stock}</td>
+                    <td>${detail.cost}</td>
+                    <td>${detail.lote_number}</td>
                     <td>
                       ${formattedExpiredDate}
                     </td>

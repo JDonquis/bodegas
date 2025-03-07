@@ -17,7 +17,7 @@ class InventoryController extends Controller
 
     public function show(InventoryGeneral $inventory){
         
-        $details = Inventory::with('product')->where('product_id',$inventory->product_id)->where('stock','>',0)->get();
+        $details = Inventory::with('product')->where('product_id',$inventory->product_id)->where('stock','>',0)->orderBy('id','desc')->get();
 
         return response()->json(['details' => $details]);
     }
