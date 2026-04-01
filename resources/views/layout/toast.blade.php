@@ -1,71 +1,25 @@
 @if(session('success') || $errors->any())
-<div class="bs-toast toast toast-placement-ex m-2 fade bg-primary {{ session('success')? 'show' : '' }} {{ $errors->any()? 'show' : '' }}  top-0 end-0 hide" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
-    <div class="toast-header">
-      <i class="bx bx-bell me-2"></i>
-      <div class="me-auto fw-medium">{{ config('app.name') }}</div>
-      <small>Ahora</small>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+<div id="toast-notification" class="fixed top-24 right-8 z-[60] flex items-center w-full max-w-xs p-4 space-x-4 text-white {{ session('success') ? 'bg-secondary' : 'bg-error' }} rounded-xl shadow-lg transform transition-all duration-300 translate-x-0" role="alert">
+    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg bg-white/20">
+        <span class="material-symbols-outlined text-xl">
+            {{ session('success') ? 'check_circle' : 'error' }}
+        </span>
     </div>
-    @if(session('success'))
-        <div class="toast-body">{{ session('success') }}</div>
-    @endif
-
-    @if($errors->any())
-        <div class="toast-body">{{ $errors->first() }}</div>
-    @endif
-    
-
+    <div class="text-sm font-medium">
+        {{ session('success') ? session('success') : $errors->first() }}
     </div>
+    <button type="button" onclick="document.getElementById('toast-notification').remove()" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-white/80 hover:text-white rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-white/10 inline-flex h-8 w-8" aria-label="Close">
+        <span class="material-symbols-outlined text-xl">close</span>
+    </button>
+</div>
 
-
-  <div class="row gx-3 gy-2 align-items-center d-none" >
-    <div class="col-md-3">
-      <label class="form-label" for="selectTypeOpt">Type</label>
-      <select id="selectTypeOpt" class="form-select color-dropdown">
-        <option value="bg-primary" {{ session('success')? 'selected' : '' }}>Primary</option>
-        <option value="bg-secondary">Secondary</option>
-        <option value="bg-success">Success</option>
-        <option value="bg-danger" {{ $errors->any()? 'selected' : '' }} >Danger</option>
-        <option value="bg-warning">Warning</option>
-        <option value="bg-info">Info</option>
-        <option value="bg-dark">Dark</option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <label class="form-label" for="selectPlacement">Placement</label>
-      <select class="form-select placement-dropdown" id="selectPlacement">
-        <option value="top-0 start-0">Top left</option>
-        <option value="top-0 start-50 translate-middle-x">Top center</option>
-        <option value="top-0 end-0" selected>Top right</option>
-        <option value="top-50 start-0 translate-middle-y">Middle left</option>
-        <option value="top-50 start-50 translate-middle">Middle center</option>
-        <option value="top-50 end-0 translate-middle-y">Middle right</option>
-        <option value="bottom-0 start-0">Bottom left</option>
-        <option value="bottom-0 start-50 translate-middle-x">Bottom center</option>
-        <option value="bottom-0 end-0">Bottom right</option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <label class="form-label" for="showToastPlacement">&nbsp;</label>
-      <button id="showToastPlacement" class="btn btn-primary d-block">Show Toast</button>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toastElement = document.querySelector('.bs-toast');
-
-        // Si hay una sesión de éxito, ocultar el toast después de 3 segundos
-        if (toastElement.classList.contains('show')) {
-            setTimeout(() => {
-                toastElement.classList.remove('show');
-                toastElement.classList.add('hide');
-
-            }, 5000); // 3000 ms = 3 segundos
+<script>
+    setTimeout(() => {
+        const toast = document.getElementById('toast-notification');
+        if (toast) {
+            toast.style.transform = 'translateX(150%)';
+            setTimeout(() => toast.remove(), 300);
         }
-    });
+    }, 5000);
 </script>
-
-
 @endif
-

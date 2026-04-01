@@ -24,12 +24,27 @@ class InventoryController extends Controller
 
     public function search($search){
         
-        $products = Product::select('id')->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
-        ->get()
-        ->pluck('id')
-        ->toArray();
+        $products = Product::select('id')->where(function($q) use ($search) {
+            $q->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
+              ->orWhere('barcode', 'LIKE', '%'.$search.'%');
+        })->get()->pluck('id')->toArray();
 
         $inventories = InventoryGeneral::with('product')->whereIn('product_id',$products)->get();
+
+        return response()->json(['inventories' => $inventories]);
+
+    }
+
+    public function searchLots($search){
+        
+        $inventories = Inventory::with('product')
+            ->where('stock', '>', 0)
+            ->whereHas('product', function($query) use ($search) {
+                $query->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
+                      ->orWhere('barcode', 'LIKE', '%'.$search.'%');
+            })
+            ->orderBy('expired_date', 'asc')
+            ->get();
 
         return response()->json(['inventories' => $inventories]);
 

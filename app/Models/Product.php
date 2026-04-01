@@ -11,6 +11,18 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'barcode',
         'sell_price',
+        'sell_price_bs',
     ];
+
+    public function entries()
+    {
+        return $this->hasMany(Entry::class);
+    }
+
+    public function outputs()
+    {
+        return $this->hasMany(Output::class);
+    }
 }

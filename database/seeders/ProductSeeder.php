@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Services\BCVService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,27 +14,42 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('products')->insert([
-            ['name' => 'Arroz', 'sell_price' => 2.50, 'created_at' => now()],
-            ['name' => 'Frijoles', 'sell_price' => 1.80, 'created_at' => now()],
-            ['name' => 'Lentejas', 'sell_price' => 2.00, 'created_at' => now()],
-            ['name' => 'Aceite de Oliva', 'sell_price' => 5.75, 'created_at' => now()],
-            ['name' => 'Azúcar', 'sell_price' => 1.20, 'created_at' => now()],
-            ['name' => 'Sal', 'sell_price' => 0.99, 'created_at' => now()],
-            ['name' => 'Pasta', 'sell_price' => 1.50, 'created_at' => now()],
-            ['name' => 'Tomates', 'sell_price' => 3.00, 'created_at' => now()],
-            ['name' => 'Cebollas', 'sell_price' => 1.00, 'created_at' => now()],
-            ['name' => 'Zanahorias', 'sell_price' => 1.25, 'created_at' => now()],
-            ['name' => 'Leche', 'sell_price' => 2.99, 'created_at' => now()],
-            ['name' => 'Huevos', 'sell_price' => 3.50, 'created_at' => now()],
-            ['name' => 'Pan', 'sell_price' => 2.00, 'created_at' => now()],
-            ['name' => 'Mantequilla', 'sell_price' => 4.00, 'created_at' => now()],
-            ['name' => 'Manzanas', 'sell_price' => 3.25, 'created_at' => now()],
-            ['name' => 'Plátanos', 'sell_price' => 1.15, 'created_at' => now()],
-            ['name' => 'Naranjas', 'sell_price' => 2.40, 'created_at' => now()],
-            ['name' => 'Pollo (kg)', 'sell_price' => 8.00, 'created_at' => now()],
-            ['name' => 'Carne de Res (kg)', 'sell_price' => 10.50, 'created_at' => now()],
-            ['name' => 'Pescado (kg)', 'sell_price' => 12.00, 'created_at' => now()],
-        ]);
+        // Obtener tasa para el seeder
+        $bcvService = new BCVService();
+        $rate = $bcvService->getUSDValue() ?: 36.50; // Fallback por si falla el scraping
+
+        $products = [
+            ['name' => 'Harina PAN Maíz Blanco 1kg', 'barcode' => '7591001000111', 'sell_price' => 1.20],
+            ['name' => 'Harina PAN Maíz Amarillo 1kg', 'barcode' => '7591001000222', 'sell_price' => 1.25],
+            ['name' => 'Mantequilla Mavesa 500g', 'barcode' => '7591001000333', 'sell_price' => 2.50],
+            ['name' => 'Mayonesa Mavesa 445g', 'barcode' => '7591001000444', 'sell_price' => 3.80],
+            ['name' => 'Arroz Primor Clásico 1kg', 'barcode' => '7591001000555', 'sell_price' => 1.10],
+            ['name' => 'Pasta Primor Codo Mediano 1kg', 'barcode' => '7591001000666', 'sell_price' => 1.40],
+            ['name' => 'Aceite Vegetal Vatel 1L', 'barcode' => '7591001000777', 'sell_price' => 2.90],
+            ['name' => 'Atún Margarita en Aceite 140g', 'barcode' => '7591001000888', 'sell_price' => 1.85],
+            ['name' => 'Sardinas La Gaviota 170g', 'barcode' => '7591001000999', 'sell_price' => 0.85],
+            ['name' => 'Café Fama de América 250g', 'barcode' => '7591001001010', 'sell_price' => 2.20],
+            ['name' => 'Leche La Campesina 400g', 'barcode' => '7591001001111', 'sell_price' => 4.50],
+            ['name' => 'Refresco Polar Black 1.5L', 'barcode' => '7591001001212', 'sell_price' => 1.50],
+            ['name' => 'Malta Polar 355ml', 'barcode' => '7591001001313', 'sell_price' => 0.90],
+            ['name' => 'Cerveza Polar Light (Tercio)', 'barcode' => '7591001001414', 'sell_price' => 1.10],
+            ['name' => 'Jabón Las Llaves (Panela)', 'barcode' => '7591001001515', 'sell_price' => 1.30],
+            ['name' => 'Detergente Las Llaves 1kg', 'barcode' => '7591001001616', 'sell_price' => 3.20],
+            ['name' => 'Papel Higiénico Scott 4 rollos', 'barcode' => '7591001001717', 'sell_price' => 2.10],
+            ['name' => 'Crema Dental Colgate 100ml', 'barcode' => '7591001001818', 'sell_price' => 1.95],
+            ['name' => 'Shampoo Every Night 400ml', 'barcode' => '7591001001919', 'sell_price' => 3.50],
+            ['name' => 'Adobo La Comadre 200g', 'barcode' => '7591001002020', 'sell_price' => 1.15],
+        ];
+
+        foreach ($products as $p) {
+            Product::create([
+                'name' => $p['name'],
+                'barcode' => $p['barcode'],
+                'sell_price' => $p['sell_price'],
+                'sell_price_bs' => round($p['sell_price'] * $rate, 2),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

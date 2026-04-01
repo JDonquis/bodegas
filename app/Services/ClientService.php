@@ -30,6 +30,7 @@ class ClientService
         'ci' => $data->clientCI ?? null ,
         'phone_number' => $data->clientPhoneNumber ?? null , 
         'address' => $data->clientAddress ?? null , 
+        'debt' => $data->clientDebt ?? 0,
     ]);
 
         return $client;
@@ -43,6 +44,7 @@ class ClientService
             'ci' => $data->clientCI ?? null ,
             'phone_number' => $data->clientPhoneNumber ?? null , 
             'address' => $data->clientAddress ?? null , 
+            'debt' => $data->clientDebt ?? 0,
         ]);
 
         return $client;

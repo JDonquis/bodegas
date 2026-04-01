@@ -1,47 +1,95 @@
-@extends('layout.home')
+@extends('layout.app')
 
 @section('content')
-
-<div class="row">
-    <div class="col-xl" id="card-1-patient">
-      <div class="card mb-6" style="max-width: 380px;" >
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Cliente</h5>
-          <small class="text-body float-end">Crear cliente</small>
-        </div>
-        <div class="card-body">
-          <form method="POST" action="{{ route('clients.store') }}">
-            @csrf
-            <div class="mb-6">
-              <label class="form-label" for="basic-default-company">Nombre *</label>
-              <input type="text" required class="form-control" name="clientName" value="{{ old('clientName') }}" id="input-name-patient" placeholder="Sin asignar" style="max-width: 200px;">
-            </div>
-            <div class="mb-6">
-                <label class="form-label" for="basic-default-company">Cédula</label>
-                <input type="text" class="form-control" name="clientCI" value="{{ old('clientCI') }}" id="input-name-patient" placeholder="Sin asignar" style="max-width: 200px;">
-            </div>
-            <div class="mb-6">
-                <label class="form-label" for="basic-default-company">Nro Teléfono</label>
-                <input type="text" class="form-control" name="clientPhoneNumber" value="{{ old('clientPhoneNumber') }}" id="input-name-patient" placeholder="Sin asignar" style="max-width: 200px;">
-            </div>
-            <div class="mb-6">
-                <label class="form-label" for="basic-default-company">Dirección</label>
-                <input type="text" class="form-control" name="clientAddress" value="{{ old('clientAddress') }}" id="input-name-patient" placeholder="Sin asignar" style="max-width: 200px;">
-            </div>
-
-            
-              <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary justify-self-end">Crear</button>
-               </div>    
-        </form>
-        </div>
-      </div>
+<!-- Header Section -->
+<section class="mb-10 flex items-end gap-4">
+    <a href="{{ route('clients') }}" class="p-2 hover:bg-surface-container-high rounded-full transition-colors text-primary">
+        <span class="material-symbols-outlined text-2xl">arrow_back</span>
+    </a>
+    <div>
+        <h1 class="text-4xl font-extrabold text-primary tracking-tight mb-2 font-headline">Nuevo Cliente</h1>
+        <p class="text-on-surface-variant font-body">Registra un nuevo contacto en el sistema.</p>
     </div>
+</section>
 
+<div class="max-w-4xl">
+    <div class="bg-surface-container-lowest p-10 rounded-[3rem] shadow-sm border border-outline-variant/30">
+        <form method="POST" action="{{ route('clients.store') }}" class="space-y-8">
+            @csrf
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Nombre del Cliente -->
+                <div class="space-y-2 md:col-span-2">
+                    <label for="clientName" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Nombre Completo *</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">person</span>
+                        <input type="text" name="clientName" id="clientName" required autofocus
+                            value="{{ old('clientName') }}"
+                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-bold"
+                            placeholder="Ej: Juan Pérez">
+                    </div>
+                </div>
 
-@endsection
+                <!-- Cédula -->
+                <div class="space-y-2">
+                    <label for="clientCI" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Cédula / ID</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">badge</span>
+                        <input type="text" name="clientCI" id="clientCI"
+                            value="{{ old('clientCI') }}"
+                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-bold"
+                            placeholder="12345678">
+                    </div>
+                </div>
 
-@section('scripts')
-<script>
-</script>
+                <!-- Teléfono -->
+                <div class="space-y-2">
+                    <label for="clientPhoneNumber" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Teléfono</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">phone</span>
+                        <input type="text" name="clientPhoneNumber" id="clientPhoneNumber"
+                            value="{{ old('clientPhoneNumber') }}"
+                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-bold"
+                            placeholder="0412-0000000">
+                    </div>
+                </div>
+
+                <!-- Deuda Inicial -->
+                <div class="space-y-2">
+                    <label for="clientDebt" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Deuda Inicial ($)</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-error">money_off</span>
+                        <input type="number" step="0.01" min="0" name="clientDebt" id="clientDebt"
+                            value="{{ old('clientDebt', 0) }}"
+                            class="w-full bg-error-container/10 border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-error/20 placeholder:text-on-surface-variant/40 transition-all font-black text-error"
+                            placeholder="0.00">
+                    </div>
+                    <p class="text-[10px] text-on-surface-variant/60 ml-1 italic font-medium">Registra si el cliente inicia con un saldo pendiente.</p>
+                </div>
+
+                <!-- Dirección -->
+                <div class="space-y-2 md:col-span-2">
+                    <label for="clientAddress" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Dirección de Habitación</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-4 text-on-surface-variant">location_on</span>
+                        <textarea name="clientAddress" id="clientAddress" rows="3"
+                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-medium"
+                            placeholder="Calle, Sector, Edificio...">{{ old('clientAddress') }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-8 border-t border-outline-variant/30 flex items-center justify-end gap-4">
+                <a href="{{ route('clients') }}" class="px-8 py-4 rounded-2xl text-sm font-black uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-high transition-colors">
+                    Descartar
+                </a>
+                <button type="submit" class="bg-primary hover:bg-primary-container text-white px-10 py-4 rounded-2xl flex items-center gap-3 transition-all font-headline font-black uppercase tracking-widest shadow-xl shadow-primary/20 transform active:scale-95">
+                    <span class="material-symbols-outlined">person_add</span>
+                    Registrar Cliente
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection

@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+    /* --- Fuentes --- */
+    --font-headline: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-label: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+    /* --- Bordes --- */
+    --radius-default: 0.25rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+
+    /* --- Colores Personalizados --- */
+    --color-surface: #f8f9ff;
+    --color-on-surface: #0d1c2f;
+    --color-surface-variant: #d5e3fd;
+    --color-on-surface-variant: #44474e;
+
+    --color-primary: #002046;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #1b365d;
+    --color-on-primary-container: #87a0cd;
+    --color-primary-fixed: #d6e3ff;
+    --color-primary-fixed-dim: #aec7f7;
+    --color-on-primary-fixed: #001b3d;
+    --color-on-primary-fixed-variant: #2e476f;
+
+    --color-secondary: #006c49;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #6cf8bb;
+    --color-on-secondary-container: #00714d;
+    --color-secondary-fixed: #6ffbbe;
+    --color-secondary-fixed-dim: #4edea3;
+    --color-on-secondary-fixed: #002113;
+    --color-on-secondary-fixed-variant: #005236;
+
+    --color-tertiary: #4a0011;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #72001f;
+    --color-on-tertiary-container: #ff7180;
+    --color-tertiary-fixed: #ffdadb;
+    --color-tertiary-fixed-dim: #ffb2b7;
+    --color-on-tertiary-fixed: #40000d;
+    --color-on-tertiary-fixed-variant: #92002a;
+
+    --color-background: #f8f9ff;
+    --color-on-background: #0d1c2f;
+
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+
+    --color-surface-container: #e6eeff;
+    --color-surface-container-low: #eff4ff;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-high: #dde9ff;
+    --color-surface-container-highest: #d5e3fd;
+
+    --color-surface-bright: #f8f9ff;
+    --color-surface-dim: #ccdbf4;
+    --color-surface-tint: #465f88;
+
+    --color-inverse-primary: #aec7f7;
+    --color-inverse-surface: #233144;
+    --color-inverse-on-surface: #ebf1ff;
+
+    --color-outline: #74777f;
+    --color-outline-variant: #c4c6cf;
+}
+
+/* --- Estilos Globales --- */
+@layer base {
+    body {
+        @apply bg-surface text-on-surface font-body;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-headline;
+    }
+}
+
+/* --- Clases de Utilidad Específicas --- */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

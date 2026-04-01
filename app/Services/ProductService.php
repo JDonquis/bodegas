@@ -10,7 +10,10 @@ class ProductService
     public function get(){
         $products = Product::query()
         ->when(request()->input('search'), function ($query, $search) {
-            return $query->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')]);
+            return $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
+                  ->orWhere('barcode', 'LIKE', '%'.$search.'%');
+            });
         })
         ->orderBy('id','desc')
         ->paginate(15);
@@ -22,7 +25,9 @@ class ProductService
 
         $product = Product::create([
         'name' => ucwords(strtolower($data->productName)) , 
-        'sell_price' => round(floatval($data->sellPrice), 3)
+        'barcode' => $data->barcode,
+        'sell_price' => round(floatval($data->sellPrice), 2),
+        'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null
         ]);
 
         return $product;
@@ -33,7 +38,9 @@ class ProductService
 
         $product->update([
         'name' => ucwords(strtolower($data->productName)) , 
-        'sell_price' => round(floatval($data->sellPrice), 3)
+        'barcode' => $data->barcode,
+        'sell_price' => round(floatval($data->sellPrice), 2),
+        'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null
         ]);
 
         return $product;
@@ -41,10 +48,14 @@ class ProductService
     }
 
     public function delete($product){
-        // Validar relaciones: 
-        // if($config->products()->exists()){
-        //     throw new Exception('Hay productos que contienen este registro, no puede ser eliminado',400);
-        // }
+        
+        if($product->entries()->exists()){
+            throw new Exception('No se puede eliminar el producto porque tiene entradas registradas.', 400);
+        }
+
+        if($product->outputs()->exists()){
+            throw new Exception('No se puede eliminar el producto porque tiene salidas registradas.', 400);
+        }
 
         $product->delete();
 

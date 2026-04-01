@@ -12,6 +12,7 @@ class OutputGeneral extends Model
     protected $fillable = [
 
         'client_id',
+        'client_name',
         'quantity_products',
         'total_sold',
         'total_profit',

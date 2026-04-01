@@ -15,6 +15,7 @@ class Entry extends Model
         'entry_general_id',
         'quantity',
         'cost',
+        'cost_bs',
         'expired_date',
         'lote_number',
 

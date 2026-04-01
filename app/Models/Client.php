@@ -14,5 +14,6 @@ class Client extends Model
         'ci',
         'phone_number',
         'address',
+        'debt',
     ];
 }

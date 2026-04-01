@@ -1,408 +1,370 @@
-@extends('layout.home')
+@extends('layout.app')
 
 @section('content')
-
-<div class="row">
-    <div class="col-12">
-      <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Buscar productos</h5>
-          <small class="text-muted float-end">Salidas</small>
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+        <div>
+            <h2 class="text-3xl font-extrabold text-primary tracking-tight mb-2 font-headline">Nueva Salida de Mercancía</h2>
+            <p class="text-outline font-body">Registra ventas o egresos de productos con control de inventario.</p>
         </div>
-        <div class="card-body">
-          <form>
-            <div class="mb-6 d-flex gap-4">
-              <div class="d-flex gap-2">  
-                <div class="input-group input-group-merge">
-                    <span id="basic-icon-default-fullname2" class="input-group-text">
-                      <i class='bx bx-package'></i>
-                    </span>
-                    <input class="form-control" type="search"  value="" oninput="searchProduct()" placeholder="Buscar..." id="html5-search-input">
-                  </div>
-
-                </div>
-            </div>
-          
-            <div class="table-responsive text-nowrap">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Productos</th>
-                      <th>Precio de Venta</th>
-                      <th>Stock</th>
-                      <th></th>
-
-
-                    </tr>
-                  </thead>
-                  <tbody class="table-border-bottom-0" id="search-results">
-                    
-                    
-                  </tbody>
-                </table>
-              </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12">
-      <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Productos a vender</h5>
-          <small class="text-muted float-end">Salidas</small>
-        </div>
-        <div class="card-body">
-          <form action="{{ route('outputs.store') }}" method="POST">
-            @csrf
-            <div class="mb-4">
-              <label for="exampleFormControlSelect1" class="form-label">Vendido a:</label>
-              <select class="form-select" name="client_id" id="exampleFormControlSelect1" aria-label="Default select example" style="max-width: 300px;">
-                @foreach ($clients as $client )
-                  @if($client->id == 1)
-                    <option value="{{ $client->id }}" selected>{{ $client->name }}</option>
-                  @else
-                  <option value="{{ $client->id }}">{{ $client->name }}</option>
-                  @endif
-                @endforeach
-              </select>
-            </div>
-            <h5>Monto total: <span id="total_sold" class="text-primary"></span></h5>
-            <input type="hidden" value="" name="total_sold" id="total_sold_input">
-            <div class="table-responsive text-nowrap">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Cantidad</th>
-                      <th>Precio venta</th>
-                      <th>Nro Lote</th>
-                      <th>Fecha de vencimiento</th>
-                    </tr>
-                  </thead>
-                  <tbody class="table-border-bottom-0" id="added-products" >
-                  
-                  </tbody>
-                </table>
-              </div>
-             
-            <div class="w-full d-flex justify-content-end">  
-              <button disabled type="submit" id="btn-create-output" class="btn btn-primary mt-3">Crear salida</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="modalScrollable" tabindex="-1" style="display: none;" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <div class="d-flex align-items-center gap-4">
-          <h5 class="modal-title" id="modalScrollableTitle">Seleccionar inventario</h5>
-        </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="table-responsive text-nowrap">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Stock</th>
-                  <th>Cost Unidad</th>
-                  <th>Ganancia</th>
-                  <th>Nro Lote</th>
-                  <th>Vencimiento</th>
-                </tr>
-              </thead>
-              <tbody class="table-border-bottom-0" id="inventory-details">
-                
-              </tbody>
-            </table>
-          </div>
-        </div>
-           <div class="modal-footer" >
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              Cerrar
+        <div class="flex gap-4 w-full md:w-auto">
+            <button type="button" onclick="window.location.href='{{ route('outputs') }}'" 
+                    class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-outline-variant text-primary font-bold hover:bg-surface-container transition-all active:scale-95">
+                <span class="material-symbols-outlined">close</span>
+                Cancelar
             </button>
-          </div>
+            <button type="submit" form="output-form" id="btn-create-output" disabled
+                    class="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-primary text-white font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                <span class="material-symbols-outlined">shopping_bag</span>
+                Confirmar Venta
+            </button>
         </div>
-      </div>
-    </div>
-  </div>
-  
+    </header>
 
+    <div class="grid grid-cols-12 gap-8">
+        
+        <!-- Sidebar: Client & Search -->
+        <div class="col-span-12 lg:col-span-4 space-y-6">
+            
+            <!-- Client Selection Card -->
+            <section class="bg-surface-container-lowest p-8 rounded-[2.5rem] border-t-8 border-secondary shadow-sm">
+                <h3 class="text-lg font-bold text-primary font-headline mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">person_add</span>
+                    Identificación del Cliente
+                </h3>
+
+                <div class="space-y-6">
+                    <!-- Toggle Type -->
+                    <div class="bg-surface-container-low p-1.5 rounded-2xl flex gap-1">
+                        <button type="button" onclick="toggleClientType('registered')" id="tab-registered" 
+                                class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-primary shadow-sm">
+                            Registrado
+                        </button>
+                        <button type="button" onclick="toggleClientType('casual')" id="tab-casual" 
+                                class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-outline hover:text-primary">
+                            Casual / Nuevo
+                        </button>
+                    </div>
+
+                    <!-- Registered Client Select -->
+                    <div id="section-registered" class="space-y-2">
+                        <label class="block text-[10px] font-black text-outline uppercase tracking-widest ml-1">Seleccionar Cliente</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline/60">group</span>
+                            <select id="client_id_select" class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-secondary/40 text-on-surface font-bold text-sm appearance-none transition-all">
+                                <option value="">-- Seleccione un cliente --</option>
+                                @foreach($clients as $client)
+                                    <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->ci }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Casual Client Input -->
+                    <div id="section-casual" class="hidden space-y-2">
+                        <label class="block text-[10px] font-black text-outline uppercase tracking-widest ml-1">Nombre del Cliente</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline/60">person_edit</span>
+                            <input type="text" id="client_name_input" placeholder="Nombre completo..." 
+                                   class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-secondary/40 text-on-surface font-bold text-sm transition-all">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product Search Card -->
+            <section class="bg-surface-container-lowest p-8 rounded-[2.5rem] border-t-8 border-primary shadow-sm">
+                <h3 class="text-lg font-bold text-primary font-headline mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined">search</span>
+                    Buscador de Stock
+                </h3>
+
+                <div class="relative group">
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-4 text-outline/60">barcode_scanner</span>
+                        <input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/40 text-on-surface placeholder-outline/40 transition-all font-body" 
+                               placeholder="Escanea o busca producto..." 
+                               type="text" 
+                               oninput="searchProduct()" 
+                               id="html5-search-input">
+                    </div>
+                </div>
+
+                <div class="mt-6 overflow-hidden rounded-2xl border border-outline-variant/10 bg-white">
+                    <table class="w-full text-left border-collapse">
+                        <tbody id="search-results" class="text-sm font-body divide-y divide-surface-container">
+                            <tr>
+                                <td class="px-6 py-10 text-center opacity-30 italic text-xs">Busca productos en stock...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Main Content: Basket -->
+        <div class="col-span-12 lg:col-span-8">
+            <section class="bg-surface-container-lowest p-8 rounded-[3rem] border-t-8 border-primary shadow-sm min-h-[600px] flex flex-col relative overflow-hidden">
+                <!-- Watermark Icon -->
+                <div class="absolute -top-10 -right-10 opacity-[0.03] pointer-events-none">
+                    <span class="material-symbols-outlined text-[20rem]">shopping_basket</span>
+                </div>
+
+                <div class="flex items-center gap-3 mb-8 relative z-10">
+                    <div class="w-12 h-12 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined text-3xl">local_mall</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-primary font-headline">Carrito de Salida</h3>
+                </div>
+
+                <form action="{{ route('outputs.store') }}" method="POST" id="output-form" class="flex-1 flex flex-col relative z-10">
+                    @csrf
+                    <!-- Hidden inputs for backend logic -->
+                    <input type="hidden" name="client_id" id="final_client_id">
+                    <input type="hidden" name="client_name" id="final_client_name">
+                    <input type="hidden" name="total_sold" id="final_total_sold">
+
+                    <div class="overflow-x-auto flex-1 -mx-4">
+                        <table class="w-full text-left border-separate border-spacing-y-3">
+                            <thead>
+                                <tr class="text-outline text-[10px] uppercase tracking-[0.15em] font-black px-4">
+                                    <th class="pb-2 pl-6">Producto / Lote</th>
+                                    <th class="pb-2 text-center w-24">Cantidad</th>
+                                    <th class="pb-2 text-right w-32">Precio Unit.</th>
+                                    <th class="pb-2 text-right pr-6 w-32">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="added-products" class="text-sm font-body">
+                                <!-- JS Injection -->
+                            </tbody>
+                        </table>
+
+                        <div id="empty-state" class="py-32 flex flex-col items-center justify-center text-outline/20">
+                            <span class="material-symbols-outlined text-7xl mb-4">production_quantity_limits</span>
+                            <p class="font-black text-xs uppercase tracking-[0.2em]">Selecciona productos del inventario</p>
+                        </div>
+                    </div>
+
+                    <!-- Totals Panel -->
+                    <div id="total-summary" class="mt-auto pt-8 border-t border-outline-variant/30 hidden">
+                        <div class="bg-surface-container-low p-8 rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-center gap-8">
+                            <div class="flex gap-12">
+                                <div>
+                                    <p class="text-[10px] font-black text-outline uppercase tracking-widest mb-1">Ítems</p>
+                                    <p class="text-4xl font-black text-primary font-headline" id="items-count">0</p>
+                                </div>
+                                <div class="h-14 w-px bg-outline-variant/30"></div>
+                                <div>
+                                    <p class="text-[10px] font-black text-outline uppercase tracking-widest mb-1">Total a Cobrar</p>
+                                    <div class="flex flex-col">
+                                        <p class="text-4xl font-black text-secondary font-headline" id="total-sold-preview">0.00$</p>
+                                        <p class="text-xs font-bold text-primary/40" id="total-sold-bs">≈ 0.00 Bs</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="w-full sm:w-auto">
+                                <div class="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-white flex flex-col gap-1 shadow-sm">
+                                    <div class="flex justify-between gap-6">
+                                        <span class="text-[9px] font-bold text-outline uppercase">Utilidad Estimada:</span>
+                                        <span class="text-xs font-black text-primary" id="total-profit-preview">0.00$</span>
+                                    </div>
+                                    <div class="h-1 bg-surface-container rounded-full overflow-hidden">
+                                        <div class="h-full bg-secondary w-full opacity-30"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
+    const productsAdded = [];
+    const usdRate = parseFloat("{{ $usdRate ?? 0 }}");
+    let currentClientType = 'registered';
 
-  const productsAdded = [];
-  const totalSold = document.querySelector('#total_sold');
-  const totalSoldInput = document.querySelector('#total_sold_input');
+    function toggleClientType(type) {
+        currentClientType = type;
+        const regTab = document.getElementById('tab-registered');
+        const casTab = document.getElementById('tab-casual');
+        const regSec = document.getElementById('section-registered');
+        const casSec = document.getElementById('section-casual');
 
+        if (type === 'registered') {
+            regTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-primary shadow-sm";
+            casTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-outline hover:text-primary";
+            regSec.classList.remove('hidden');
+            casSec.classList.add('hidden');
+            document.getElementById('client_name_input').value = "";
+        } else {
+            casTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-primary shadow-sm";
+            regTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-outline hover:text-primary";
+            casSec.classList.remove('hidden');
+            regSec.classList.add('hidden');
+            document.getElementById('client_id_select').value = "";
+        }
+        syncClientData();
+    }
 
+    function syncClientData() {
+        document.getElementById('final_client_id').value = document.getElementById('client_id_select').value;
+        document.getElementById('final_client_name').value = document.getElementById('client_name_input').value;
+    }
 
-  function searchProduct() {
-      let searchInput = document.getElementById('html5-search-input').value;
+    document.getElementById('client_id_select').addEventListener('change', syncClientData);
+    document.getElementById('client_name_input').addEventListener('input', syncClientData);
 
-      // Evitar búsquedas vacías
-      if (searchInput.length < 1) {
-          document.getElementById('search-results').innerHTML = '';
-          return;
-      }
+    function searchProduct() {
+        let searchInput = document.getElementById('html5-search-input').value;
+        if (searchInput.length < 1) {
+            document.getElementById('search-results').innerHTML = '<tr><td class="px-6 py-10 text-center opacity-30 italic text-xs">Busca productos en stock...</td></tr>';
+            return;
+        }
 
-      // Realizar la llamada AJAX
-      fetch(`/home/inventario/search/${encodeURIComponent(searchInput)}`)
-        .then(response => response.json())
-        .then(data => {
+        fetch(`/home/inventario/search-lots/${encodeURIComponent(searchInput)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.inventories.length === 0) {
+                    document.getElementById('search-results').innerHTML = '<tr><td class="px-6 py-10 text-center text-error/60 text-xs font-black uppercase tracking-widest">Sin stock disponible</td></tr>';
+                    return;
+                }
 
-            
+                document.getElementById('search-results').innerHTML = data.inventories.map(inv => {
+                    const invJson = JSON.stringify(inv).replace(/"/g, '&quot;');
+                    let isAdded = productsAdded.some(p => p.inventoryID === inv.id);
+                    
+                    // Formatear fecha de vencimiento
+                    let expiredInfo = 'Sin Vencimiento';
+                    if(inv.expired_date) {
+                        const date = new Date(inv.expired_date);
+                        expiredInfo = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                    }
 
-            let results = data.inventories.map(inventory => {
-                
-                
-                return `<tr>
-                    <td>
-                        <a href="#" class="text-decoration-none text-reset" inventoryID=${inventory.id} >${inventory.product.name}</a>
-                    </td>
-                    <td>
-                         ${inventory.product.sell_price}$
-                    </td>
-                    <td>
-                         ${inventory.stock}
-                    </td>
-                    <td>
-                        <button type="button" onclick="showDetail(this)" class="btn btn-icon btn-success" data-bs-toggle="modal" data-bs-target="#modalScrollable"  inventoryID=${inventory.id}>
-                            <i class='bx bx-plus'></i>
-                        </button>
-                    </td>
-                </tr>`;
-            }).join('');
-            document.getElementById('search-results').innerHTML = results;
-        })
-        .catch(error => {
-            console.error(error);
-        });
-}
-
-function showDetail($btn){
-
-let inventoryID = $btn.getAttribute('inventoryID');
-
-fetch(`/home/inventario/${inventoryID}`,{
-    method: 'GET',
-    headers:{
-      "Content-Type" : "application/json",
-      "X-Requested-With" : "XMLHttpRequest"
-    },
-  })
-      .then(response => response.json())
-      .then(data => {
-
-        console.log(data)
-        buildModal(data.details)
-      })
-      .catch(error => {
-          console.error(error);
-      });
-
-}
-
-function buildModal($details){
-
-let tableInventoryDetail = document.getElementById('inventory-details')
-
-
-let results = $details.map(detail => {
-
-  const productJson = JSON.stringify(detail).replace(/"/g, '&quot;');
-  
-  let status = '';
-
-  if (productsAdded.some(p => p.id === detail.id)){
-    status = 'disabled'
-  }
-
-  const formattedExpiredDate = formatDate(detail.expired_date);
-      return `<tr>
-                  <td>
-                  <button class="btn" ${status} style="padding-left:0px !important;" inventoryDetailID="${detail.id}" onclick="addProduct(${productJson})">
-                    <span class="text-primary">${detail.product.name}</span>
-                  </button>
-                  </td>
-                  <td>${detail.stock}</td>
-                  <td>${detail.cost_per_unit}$</td>
-                  <td> <span class="text-primary"> ${ detail.product.sell_price - detail.cost_per_unit  }$ </span></td>
-                  <td>${detail.lote_number}</td>
-                  <td>
-                    ${formattedExpiredDate}
-                  </td>
-                </tr>  `;
-          }).join('');
-
-          tableInventoryDetail.innerHTML = results;
-
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const monthNames = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-];
-    const month = monthNames[date.getMonth()]; // Nombre completo del mes
-    const day = date.getDate(); // Día del mes
-    const year = date.getFullYear(); // Año
-    return `${month} ${day} ${year}`; // Formato "f m Y"
-}
-
-function addProduct($inventory) {
-
-  if (!productsAdded.some(p => p.id === $inventory.id)) {
-        $inventory.request_quantity = 1;
-
-        productsAdded.unshift($inventory); 
-        console.log('Producto añadido:', $inventory);
-  }
-
-        
-  const button = document.querySelector(`button[inventoryDetailID="${$inventory.id}"]`);
-  if (button) 
-    button.disabled = true;
-  
-
-  calculateTotal(productsAdded);
-  refreshProducts();
-}
-
-function calculateTotal(productsAdded){
-
-  const totalAmount = productsAdded.reduce((total, item) => {
-  const quantity = parseInt(item.request_quantity, 10); // Convertir a número entero
-  const sellPrice = parseFloat(item.product.sell_price); // Convertir a número flotante
-  return total + (quantity * sellPrice); // Sumar al total
-  }, 0);
-  
-  const finalAmount = isNaN(totalAmount) ? 0 : Math.round(totalAmount * 1000) / 1000;
-
-
-  totalSoldInput.value = finalAmount;
-  totalSold.innerHTML = finalAmount;
-
-
-}
-
-function refreshProducts()
-{
-
-  let createOutputBtn = document.getElementById('btn-create-output');
-
-  if(productsAdded.length > 0)
-    createOutputBtn.disabled = false;
-  else
-    createOutputBtn.disabled = true;
-
-
-  let results = productsAdded.map( (inventory, index ) => {
-
-                const productJson = JSON.stringify(inventory).replace(/"/g, '&quot;'); // Escapar las comillas
-                return `<tr>
-                      <td>
-                        <input type="hidden" name="products[${index}][productID]" value="${inventory.product.id}">
-                        <input type="hidden" name="products[${index}][inventoryID]" value="${inventory.id}">
-                        
-                        <button type="button" onclick="cancelProduct(${inventory.id})" class="btn p-0" ><i class='bx bxs-x-circle' style="font-size: 24px;"></i></button>
-                        ${inventory.product.name}
-                      </td>
-                      <td>
-                        <div class="d-flex align-items-center"> 
-                          <input class="form-control" required type="number" oninput="refreshData(${inventory.id}, 'quantity' , this)" min="1" max="${inventory.stock}" name="products[${index}][quantity]" value="${inventory.request_quantity}" pattern="[0-9]" title="Solo se permiten números" oninput="this.value = this.value.replace(/[a-zA-Z]/g, '');"  style="max-width: 100px;" >
-                        /${inventory.stock}
-                        </div>
+                    return `<tr class="hover:bg-primary/5 transition-colors group">
+                        <td class="px-6 py-4 cursor-pointer" onclick="${isAdded ? '' : `addProduct(${invJson})`}">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-primary text-sm">${inv.product.name}</span>
+                                <div class="flex flex-wrap gap-2 mt-1">
+                                    <span class="text-[8px] font-black bg-secondary-container/40 text-secondary px-1.5 py-0.5 rounded uppercase tracking-tighter">Lote: ${inv.lote_number || 'S/L'}</span>
+                                    <span class="text-[8px] font-bold text-outline bg-surface-container-low px-1.5 py-0.5 rounded uppercase">Vence: ${expiredInfo}</span>
+                                </div>
+                            </div>
                         </td>
-                      <td>
-                        ${inventory.product.sell_price}$
-                      </td>
-                      <td>
-                        ${inventory.lote_number}
-                      </td>
-                      <td>
-                        ${inventory.expired_date}
-                      </td>
-                      
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex flex-col items-end">
+                                <span class="text-xs font-black text-primary">${inv.stock} uds.</span>
+                                <button type="button" ${isAdded ? 'disabled' : ''} onclick="addProduct(${invJson})" 
+                                        class="mt-1 p-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-all disabled:opacity-20">
+                                    <span class="material-symbols-outlined text-xs">add_shopping_cart</span>
+                                </button>
+                            </div>
+                        </td>
                     </tr>`;
-            }).join('');
-            document.getElementById('added-products').innerHTML = results;
-    
-  calculateTotal(productsAdded);
-            
-}
+                }).join('');
+            });
+    }
 
-function refreshData($inventoryID, $type,  $element){
+    function addProduct(inventory) {
+        if (!productsAdded.some(p => p.inventoryID === inventory.id)) {
+            productsAdded.unshift({
+                inventoryID: inventory.id,
+                productID: inventory.product_id,
+                name: inventory.product.name,
+                barcode: inventory.product.barcode,
+                lote: inventory.lote_number,
+                maxStock: inventory.stock,
+                quantity: 1,
+                sell_price: parseFloat(inventory.product.sell_price),
+                cost_per_unit: parseFloat(inventory.cost_per_unit)
+            });
+        }
+        refreshBasket();
+    }
 
-  const product = productsAdded.find(product => product.id == $inventoryID);
-  if($type == 'quantity')
-    product.request_quantity = $element.value; 
+    function refreshBasket() {
+        const createBtn = document.getElementById('btn-create-output');
+        const emptyState = document.getElementById('empty-state');
+        const summary = document.getElementById('total-summary');
+        
+        if (productsAdded.length > 0) {
+            createBtn.disabled = false;
+            emptyState.classList.add('hidden');
+            summary.classList.remove('hidden');
+            updateBasketTotals();
+        } else {
+            createBtn.disabled = true;
+            emptyState.classList.remove('hidden');
+            summary.classList.add('hidden');
+        }
 
-    calculateTotal(productsAdded);
-  
-}
+        document.getElementById('added-products').innerHTML = productsAdded.map((p, index) => {
+            return `<tr class="bg-white hover:shadow-md transition-all group border border-outline-variant/10">
+                <td class="py-4 pl-6 rounded-l-3xl">
+                    <input type="hidden" name="products[${index}][productID]" value="${p.productID}">
+                    <input type="hidden" name="products[${index}][inventoryID]" value="${p.inventoryID}">
+                    <div class="flex items-center gap-4">
+                        <button type="button" onclick="removeProduct(${p.inventoryID})" class="text-outline/30 hover:text-error transition-all scale-100 hover:scale-125">
+                            <span class="material-symbols-outlined text-xl">remove_circle</span>
+                        </button>
+                        <div class="flex flex-col">
+                            <span class="font-black text-primary text-base leading-none">${p.name}</span>
+                            <span class="text-[9px] text-outline font-mono mt-1 uppercase tracking-tighter">Lote: ${p.lote || 'S/L'} • SKU: ${p.barcode || '---'}</span>
+                        </div>
+                    </div>
+                </td>
+                <td class="py-4 px-2">
+                    <div class="flex flex-col items-center gap-1">
+                        <input class="w-20 bg-surface-container-low border-none rounded-xl py-2 text-sm text-center focus:ring-2 focus:ring-primary/40 font-black text-primary" 
+                               required type="number" oninput="updateQty(${p.inventoryID}, this)" min="1" max="${p.maxStock}" 
+                               name="products[${index}][quantity]" value="${p.quantity}">
+                        <span class="text-[8px] font-bold text-outline/40">Max: ${p.maxStock}</span>
+                    </div>
+                </td>
+                <td class="py-4 px-2 text-right">
+                    <span class="text-sm font-black text-primary/60">${p.sell_price.toFixed(2)}$</span>
+                </td>
+                <td class="py-4 pr-6 rounded-r-3xl text-right">
+                    <span class="text-base font-black text-primary">${(p.sell_price * p.quantity).toFixed(2)}$</span>
+                </td>
+            </tr>`;
+        }).join('');
+    }
 
-function cancelProduct($inventoryID){
-  
-  
+    function updateQty(id, element) {
+        const p = productsAdded.find(x => x.inventoryID === id);
+        if (p) {
+            p.quantity = parseInt(element.value) || 0;
+            if (p.quantity > p.maxStock) {
+                p.quantity = p.maxStock;
+                element.value = p.maxStock;
+            }
+            refreshBasket();
+        }
+    }
 
-  const index = productsAdded.findIndex(product => product.id === $inventoryID);
-  let productObject = productsAdded[index];
+    function removeProduct(id) {
+        const idx = productsAdded.findIndex(x => x.inventoryID === id);
+        if (idx !== -1) productsAdded.splice(idx, 1);
+        refreshBasket();
+    }
 
-    console.log(productObject)
-   
-    if (index !== -1) 
-       productObject = productsAdded.splice(index, 1)[0];
-  
+    function updateBasketTotals() {
+        const totalSold = productsAdded.reduce((sum, p) => sum + (p.sell_price * p.quantity), 0);
+        const totalCost = productsAdded.reduce((sum, p) => sum + (p.cost_per_unit * p.quantity), 0);
+        const profit = totalSold - totalCost;
 
-  let button = document.querySelector(`button[inventoryDetailID="${$inventoryID}"]`);
-  if (button) 
-    button.disabled = false;
-  
-    
-    refreshProducts();
-}
-
-function createProduct(){
-  
-  if(confirm('Esta seguro de crear este producto?')){
-    let searchInput = document.getElementById('html5-search-input').value;
-
-    fetch(`/home/productos`,{
-      method: 'POST',
-      headers:{
-        "Content-Type" : "application/json",
-        "X-Requested-With" : "XMLHttpRequest"
-      },
-      body: JSON.stringify({
-        _token: "{{ csrf_token() }}",
-        productName: searchInput,
-      })
-    })
-        .then(response => response.json())
-        .then(data => {
-
-          console.log(data)
-          addProduct(data.product)
-        })
-        .catch(error => {
-            console.error(error);
-        });
-
-  }
-  else{
-    console.log('ayy')
-  }
-}
-
+        document.getElementById('items-count').innerText = productsAdded.length;
+        document.getElementById('total-sold-preview').innerText = totalSold.toFixed(2) + '$';
+        document.getElementById('total-sold-bs').innerText = `≈ ${(totalSold * usdRate).toFixed(2)} Bs`;
+        document.getElementById('total-profit-preview').innerText = profit.toFixed(2) + '$';
+        document.getElementById('final_total_sold').value = totalSold.toFixed(2);
+    }
 </script>
 @endsection

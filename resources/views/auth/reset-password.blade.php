@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido | {{ config('app.name') }}</title>
+    <title>Nueva Contraseña | {{ config('app.name') }}</title>
 
     <!-- Fonts -->
     <link
@@ -24,10 +24,10 @@
     <div
         class="w-full max-w-5xl bg-surface-container-lowest rounded-[2.5rem] shadow-2xl shadow-primary/5 overflow-hidden flex flex-col md:flex-row min-h-[600px] border border-outline-variant/30">
 
-        <!-- Left Side: Branding/Illustration -->
-        <div class="w-full md:w-1/2 bg-primary p-12 flex flex-col justify-between text-white relative overflow-hidden">
-            <!-- Decorative circles -->
-            <div class="absolute -top-24 -left-24 w-64 h-64 bg-secondary/20 rounded-full blur-3xl"></div>
+        <!-- Left Side: Branding -->
+        <div
+            class="w-full md:w-1/2 bg-secondary p-12 flex flex-col justify-between text-white relative overflow-hidden">
+            <div class="absolute -top-24 -left-24 w-64 h-64 bg-primary/20 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-primary-container/40 rounded-full blur-3xl"></div>
 
             <div class="relative z-10">
@@ -35,60 +35,58 @@
                     <span class="text-3xl font-extrabold tracking-tighter">{{ config('app.name') }}</span>
                 </div>
                 <h1 class="text-4xl lg:text-5xl font-extrabold font-headline leading-tight mb-6">
-                    Gestiona tu inventario con <span class="text-secondary-fixed">precisión</span>
+                    Nueva <span class="text-primary-fixed">Contraseña</span>
                 </h1>
-                <p class="text-on-primary-container text-lg max-w-sm font-medium">
-                    Acceso centralizado para el control de suministros y gestión de dispensarios médicos.
+                <p class="text-on-secondary-container text-lg max-w-sm font-medium">
+                    Actualiza tus credenciales para recuperar el acceso al sistema.
                 </p>
             </div>
 
-
-
-            <div class="relative z-10 text-xs text-on-primary-container/60 font-medium">
+            <div class="relative z-10 text-xs text-on-secondary-container/60 font-medium">
                 © 2026 {{ config('app.name') }}. Todos los derechos reservados.
             </div>
         </div>
 
-        <!-- Right Side: Login Form -->
+        <!-- Right Side: Reset Form -->
         <div class="w-full md:w-1/2 p-12 lg:p-20 flex flex-col justify-center bg-surface">
             <div class="mb-10">
-                <h2 class="text-3xl font-extrabold text-primary font-headline mb-2">Bienvenido</h2>
-                <p class="text-on-surface-variant font-medium">Ingresa tus credenciales para continuar</p>
+                <h2 class="text-3xl font-extrabold text-primary font-headline mb-2">Restablecer</h2>
+                <p class="text-on-surface-variant font-medium">Establece tu nueva clave de acceso</p>
             </div>
 
-            <form method="POST" action="{{ route('login-post') }}" class="space-y-6">
+            <form method="POST" action="{{ route('password.update') }}" class="space-y-6">
                 @csrf
+                <input type="hidden" name="ci" value="{{ $ci }}">
 
                 <div class="space-y-2">
-                    <label for="ci" class="text-sm font-bold text-primary ml-1">Cédula de Identidad</label>
+                    <label for="password" class="text-sm font-bold text-primary ml-1">Nueva Contraseña</label>
                     <div class="relative">
                         <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">badge</span>
-                        <input type="text" name="ci" id="ci" required autofocus
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">lock_reset</span>
+                        <input type="password" name="password" id="password" required autofocus
                             class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40 transition-all"
-                            placeholder="Ej: 12345678">
+                            placeholder="Mínimo 6 caracteres">
                     </div>
                 </div>
 
                 <div class="space-y-2">
-                    <div class="flex justify-between items-center px-1">
-                        <label for="password" class="text-sm font-bold text-primary">Contraseña</label>
-                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-secondary hover:underline transition-all">¿Olvidaste tu contraseña?</a>
-                    </div>
+                    <label for="password_confirmation" class="text-sm font-bold text-primary ml-1">Confirmar
+                        Contraseña</label>
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">lock</span>
-                        <input type="password" name="password" id="password" required
+
+                        <input type="password" name="password_confirmation" id="password_confirmation" required
                             class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40 transition-all"
-                            placeholder="••••••••••••">
+                            placeholder="Repite tu nueva contraseña">
                     </div>
                 </div>
 
                 <div class="pt-4">
                     <button type="submit"
-                        class="w-full bg-primary hover:bg-primary-container text-white font-bold font-headline py-4 rounded-2xl shadow-lg shadow-primary/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
-                        <span>Iniciar Sesión</span>
-                        <span class="material-symbols-outlined text-xl">login</span>
+                        class="w-full bg-secondary hover:bg-on-secondary-container text-white font-bold font-headline py-4 rounded-2xl shadow-lg shadow-secondary/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                        <span>Actualizar Contraseña</span>
+                        <span class="material-symbols-outlined text-xl">save</span>
                     </button>
                 </div>
             </form>

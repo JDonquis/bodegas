@@ -15,20 +15,21 @@ class EntryService
         $costs = array_map('floatval', array_column($products, 'cost'));
         $totalExpense = array_sum($costs);
 
-        $entryGeneral = EntryGeneral::create(['quantity_products' => count($products), 'total_expense' => $totalExpense ]);
+        $entryGeneral = EntryGeneral::create(['quantity_products' => count($products), 'total_expense' => round($totalExpense, 2) ]);
     
         foreach ($products as $product) {
             
             $entry = Entry::create([
                 'product_id' => $product['productID'],
                 'quantity' => $product['quantity'],
-                'expired_date' => $product['expiredDate'],
+                'expired_date' => $product['expiredDate'] ?: null,
                 'entry_general_id' => $entryGeneral->id,
-                'cost' => round(floatval($product['cost']),3), 
+                'cost' => round(floatval($product['cost']), 2), 
+                'cost_bs' => isset($product['cost_bs']) ? round(floatval($product['cost_bs']), 2) : null,
                 'lote_number' => $product['lote_number'],
             ]);
             
-            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 4);
+            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 2);
 
             Inventory::create([
                 'product_id' => $product['productID'],
@@ -38,7 +39,7 @@ class EntryService
                 'profits' => 0,
                 'sold' => 0,
                 'stock' => $product['quantity'] , 
-                'expired_date' => $product['expiredDate'],
+                'expired_date' => $product['expiredDate'] ?: null,
                 'lote_number' => $entry->lote_number,
                 ]);
             
@@ -60,7 +61,7 @@ class EntryService
                 $inventoryGeneral->update([
                     'stock' => $inventoryGeneral->stock + $product['quantity'],
                     'entries' => $inventoryGeneral->entries + $product['quantity'],
-                    'expense' => $inventoryGeneral->expense + $entry->cost,
+                    'expense' => round($inventoryGeneral->expense + $entry->cost, 2),
                 ]);
             }
             
@@ -90,7 +91,7 @@ class EntryService
             $inventoryGeneral = InventoryGeneral::with('product')->where('product_id',$entryDetail->product_id)->first();
             $newStock = $inventoryGeneral->stock - $entryDetail->quantity;
             $newEntries = $inventoryGeneral->entries - $entryDetail->quantity;
-            $newExpense = $inventoryGeneral->expense - $entryDetail->cost; 
+            $newExpense = round($inventoryGeneral->expense - $entryDetail->cost, 2); 
 
             if($newStock < 0)
                 throw new Exception("No se puede eliminar esta entrada ya que el producto: ". $inventoryGeneral->product->name . ' quedaría en negativo', 500);

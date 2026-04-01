@@ -1,54 +1,53 @@
-<?php  
+<?php
 
 namespace App\Services;
 
-use App\Models\Output;
-use App\Models\OutputGeneral;
 use App\Models\Inventory;
 use App\Models\InventoryGeneral;
+use App\Models\Output;
+use App\Models\OutputGeneral;
 use Exception;
 
 class OutputService
-{       
-    public function create($products, $client_id, $totalSold){
+{
+    public function create($products, $client_id, $totalSold, $client_name = null)
+    {
 
-        
         $totalOutputProfit = 0;
         $outputGeneral = OutputGeneral::create([
             'quantity_products' => count($products),
-            'client_id' =>  $client_id,
-            'total_sold' => $totalSold,
+            'client_id' => $client_id ?: null,
+            'client_name' => $client_name,
+            'total_sold' => round(floatval($totalSold), 2),
             'total_profit' => 0,
         ]);
-    
+
         foreach ($products as $product) {
-            
+
             $this->validateStock($product);
 
-            $inventory = Inventory::where('id',$product['inventoryID'])->with('product')->first();
-            $detailProfit = $this->calculateDetailProfit($inventory,$product['quantity']);
+            $inventory = Inventory::where('id', $product['inventoryID'])->with('product')->first();
+            $detailProfit = $this->calculateDetailProfit($inventory, $product['quantity']);
             $inventory->update([
                 'stock' => $inventory->stock - $product['quantity'],
                 'sold' => $inventory->sold + $product['quantity'],
                 'profits' => $inventory->profits + $detailProfit,
             ]);
-            
 
-            $inventoryGeneral = InventoryGeneral::where('product_id',$product['productID'])->first();
+            $inventoryGeneral = InventoryGeneral::where('product_id', $product['productID'])->first();
             $inventoryGeneral->update([
                 'stock' => $inventoryGeneral->stock - $product['quantity'],
                 'outputs' => $inventoryGeneral->outputs + $product['quantity'],
                 'sold' => $inventoryGeneral->sold + ($product['quantity'] * $inventory->product->sell_price),
-                'profits' => $inventoryGeneral->profits + $detailProfit
+                'profits' => $inventoryGeneral->profits + $detailProfit,
             ]);
-
 
             Output::create([
                 'product_id' => $product['productID'],
                 'output_general_id' => $outputGeneral->id,
                 'inventory_id' => $product['inventoryID'],
                 'quantity' => $product['quantity'],
-                'expired_date' => $inventory->expired_date, 
+                'expired_date' => $inventory->expired_date ?? now(),
                 'profit' => $detailProfit,
             ]);
 
@@ -61,35 +60,36 @@ class OutputService
 
     }
 
-    public function delete($output){
-        
+    public function delete($output)
+    {
+
         $output->load('outputs');
         $this->addInventory($output);
         $output->outputs()->delete();
         $output->delete();
 
-        
     }
 
-    private function addInventory($output){
+    private function addInventory($output)
+    {
         $outputs = $output->outputs;
 
         $entryIds = $outputs->pluck('id')->toArray();
 
-        foreach($outputs as $outputDetail){
-            
-            $inventory = Inventory::where('id',$outputDetail->inventory_id)->with('product')->first();
-            $inventory ->update([
+        foreach ($outputs as $outputDetail) {
+
+            $inventory = Inventory::where('id', $outputDetail->inventory_id)->with('product')->first();
+            $inventory->update([
                 'stock' => $inventory->stock + $outputDetail->quantity,
                 'profits' => $inventory->profits - $outputDetail->profit,
-                'sold' => $inventory->sold - $outputDetail->quantity, 
+                'sold' => $inventory->sold - $outputDetail->quantity,
             ]);
 
-            $inventoryGeneral = InventoryGeneral::with('product')->where('product_id',$outputDetail->product_id)->first();
+            $inventoryGeneral = InventoryGeneral::with('product')->where('product_id', $outputDetail->product_id)->first();
             $newStock = $inventoryGeneral->stock + $outputDetail->quantity;
             $newOutputs = $inventoryGeneral->outputs - $outputDetail->quantity;
             $newProfits = $inventoryGeneral->profits - $outputDetail->profit;
-            $newSold = $inventoryGeneral->sold - ($outputDetail * $inventory->product->sell_price);
+            $newSold = $inventoryGeneral->sold - ($outputDetail->quantity * $inventory->product->sell_price);
 
             $inventoryGeneral->update([
                 'stock' => $newStock,
@@ -101,19 +101,22 @@ class OutputService
 
     }
 
-    private function validateStock($product){
-        $inventory = Inventory::with('product')->where('id',$product['inventoryID'])->first();
-        
-        if($inventory->stock < $product['quantity'])
-            throw new Exception("La cantidad del producto: " . $inventory->product->name . " - " . $inventory->expired_date . " supera el stock disponible", 500);
-            
+    private function validateStock($product)
+    {
+        $inventory = Inventory::with('product')->where('id', $product['inventoryID'])->first();
+
+        if ($inventory->stock < $product['quantity']) {
+            throw new Exception('La cantidad del producto: '.$inventory->product->name.' - '.$inventory->expired_date.' supera el stock disponible', 500);
+        }
+
     }
 
-    public function calculateDetailProfit($inventory,$quantity){
-        $totalCost = $inventory->cost_per_unit * $quantity;
-        $totalSold = $inventory->product->sell_price * $quantity;
-        $totalProfit = $totalSold - $totalCost;
+    public function calculateDetailProfit($inventory, $quantity)
+    {
+        $totalCost = round($inventory->cost_per_unit * $quantity, 2);
+        $totalSold = round($inventory->product->sell_price * $quantity, 2);
+        $totalProfit = round($totalSold - $totalCost, 2);
+
         return $totalProfit;
     }
-
 }
