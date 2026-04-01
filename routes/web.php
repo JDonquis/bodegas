@@ -65,7 +65,7 @@ Route::middleware(['auth'])->prefix('home')->group(function () {
     Route::get('/salidas/crear', [OutputController::class, 'create'])->middleware('role_or_permission:admin|create-outputs')->name('outputs.create');
     Route::get('/salidas/search', [OutputController::class, 'search'])->middleware('role_or_permission:admin|read-outputs')->name('outputs.search');
     Route::get('/salidas/{output}', [OutputController::class, 'show'])->middleware('role_or_permission:admin|read-outputs')->name('outputs.show');
-    Route::post('/salidas/{json?}', [OutputController::class, 'store'])->middleware('role_or_permission:admin|create-outputs|create-patients')->name('outputs.store');
+    Route::post('/salidas/{json?}', [OutputController::class, 'store'])->middleware('role_or_permission:admin|create-outputs')->name('outputs.store');
     Route::delete('/salidas/{output}', [OutputController::class, 'destroy'])->middleware('role_or_permission:admin|delete-outputs')->name('outputs.delete');
     Route::get('/salidas/editar/{output}', [OutputController::class, 'edit'])->middleware('role_or_permission:admin|update-outputs')->name('outputs.edit');
     Route::put('/salidas/{output}', [OutputController::class, 'update'])->middleware('role_or_permission:admin|update-outputs')->name('outputs.update');

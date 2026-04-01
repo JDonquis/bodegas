@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -16,7 +15,6 @@ class RoleSeeder extends Seeder
     {
         $adminRole = Role::create(['name' => 'admin']);
 
-
         $readEntryPermission = Permission::create(['name' => 'read-entries']);
         $createEntryPermission = Permission::create(['name' => 'create-entries']);
         $updateEntryPermission = Permission::create(['name' => 'update-entries']);
@@ -29,14 +27,6 @@ class RoleSeeder extends Seeder
 
         $readInventoriesPermission = Permission::create(['name' => 'read-inventories']);
 
-
-        $readPatientsPermission = Permission::create(['name' => 'read-patients']);
-        $createPatientsPermission = Permission::create(['name' => 'create-patients']);
-        $updatePatientsPermission = Permission::create(['name' => 'update-patients']);
-        $deletePatientsPermission = Permission::create(['name' => 'delete-patients']);
-
-
-
         $adminPermissions = [
 
             $readEntryPermission,  $readOutputPermission,
@@ -47,7 +37,6 @@ class RoleSeeder extends Seeder
             $readInventoriesPermission,
 
         ];
-
 
         $adminRole->syncPermissions($adminPermissions);
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CasePatient;
 use App\Models\EntryGeneral;
 use App\Models\InventoryGeneral;
 use App\Models\Output;
@@ -22,9 +21,8 @@ class AppController extends Controller
         $entries = EntryGeneral::count();
         $outputs = OutputGeneral::count();
         $inventories = InventoryGeneral::count();
-        $casePatients = CasePatient::count();
 
-        return view('home.index')->with(compact('entries', 'outputs', 'inventories', 'casePatients'));
+        return view('home.index')->with(compact('entries', 'outputs', 'inventories'));
     }
 
     public function statistics(Request $request)
