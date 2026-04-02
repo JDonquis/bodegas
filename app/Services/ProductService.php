@@ -1,4 +1,4 @@
-<?php  
+<?php
 
 namespace App\Services;
 
@@ -7,53 +7,61 @@ use Exception;
 
 class ProductService
 {
-    public function get(){
+    public function get()
+    {
         $products = Product::query()
-        ->when(request()->input('search'), function ($query, $search) {
-            return $query->where(function($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
-                  ->orWhere('barcode', 'LIKE', '%'.$search.'%');
-            });
-        })
-        ->orderBy('id','desc')
-        ->paginate(15);
+            ->when(request()->input('search'), function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
+                        ->orWhere('barcode', 'LIKE', '%'.$search.'%');
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(15);
 
-        return $products;   
+        return $products;
     }
-    
-    public function store($data){
+
+    public function store($data)
+    {
 
         $product = Product::create([
-        'name' => ucwords(strtolower($data->productName)) , 
-        'barcode' => $data->barcode,
-        'sell_price' => round(floatval($data->sellPrice), 2),
-        'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null
+            'name' => ucwords(strtolower($data->productName)),
+            'barcode' => $data->barcode,
+            'sell_price' => round(floatval($data->sellPrice), 2),
+            'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null,
+            'sale_type' => $data->saleType ?? 'unit',
+            'price_per_kg' => $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null,
         ]);
 
         return $product;
 
     }
 
-    public function update($data, $product){
+    public function update($data, $product)
+    {
 
         $product->update([
-        'name' => ucwords(strtolower($data->productName)) , 
-        'barcode' => $data->barcode,
-        'sell_price' => round(floatval($data->sellPrice), 2),
-        'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null
+            'name' => ucwords(strtolower($data->productName)),
+            'barcode' => $data->barcode,
+            'sell_price' => round(floatval($data->sellPrice), 2),
+            'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null,
+            'sale_type' => $data->saleType ?? 'unit',
+            'price_per_kg' => $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null,
         ]);
 
         return $product;
 
     }
 
-    public function delete($product){
-        
-        if($product->entries()->exists()){
+    public function delete($product)
+    {
+
+        if ($product->entries()->exists()) {
             throw new Exception('No se puede eliminar el producto porque tiene entradas registradas.', 400);
         }
 
-        if($product->outputs()->exists()){
+        if ($product->outputs()->exists()) {
             throw new Exception('No se puede eliminar el producto porque tiene salidas registradas.', 400);
         }
 
@@ -65,25 +73,25 @@ class ProductService
 
     // public function create($products){
     //     $entryGeneral = EntryGeneral::create(['quantity_products' => count($products) ]);
-    
+
     //     $condition = 1;
     //     foreach ($products as $product) {
-            
+
     //         $entry = Entry::create([
     //             'product_id' => $product['productID'],     'quantity' => $product['quantity'],
-    //             'expired_date' => $product['expiredDate'], 'entry_general_id' => $entryGeneral->id 
+    //             'expired_date' => $product['expiredDate'], 'entry_general_id' => $entryGeneral->id
     //         ]);
-                    
+
     //         Inventory::create([
     //                             'product_id' => $product['productID'], 'expired_date' => $product['expiredDate'],
-    //                             'stock' => $product['quantity'] ,      'condition_id' => $condition, 
+    //                             'stock' => $product['quantity'] ,      'condition_id' => $condition,
     //                             'entry_id' => $entry->id,
     //                         ]);
-            
+
     //         $inventoryGeneral = InventoryGeneral::where('product_id',$product['productID'])->first();
     //         if(!isset($inventoryGeneral->id)){
 
-    //             InventoryGeneral::create(['product_id' => $product['productID'],'stock' => $product['quantity'] ,'entries' => $product['quantity'] ]);        
+    //             InventoryGeneral::create(['product_id' => $product['productID'],'stock' => $product['quantity'] ,'entries' => $product['quantity'] ]);
     //         }
     //         else{
 
@@ -93,20 +101,18 @@ class ProductService
 
     //             ]);
     //         }
-            
-    //     }
 
+    //     }
 
     // }
 
     // public function delete($entry){
-        
+
     //     $entry->load('entries');
     //     $this->deleteInventory($entry);
     //     $entry->entries()->delete();
     //     $entry->delete();
 
-        
     // }
 
     // private function deleteInventory($entry){
@@ -115,14 +121,14 @@ class ProductService
     //     $entryIds = $entries->pluck('id')->toArray();
 
     //     foreach($entries as $entryDetail){
-            
+
     //         $inventoryGeneral = InventoryGeneral::with('product')->where('product_id',$entryDetail->product_id)->first();
     //         $newStock = $inventoryGeneral->stock - $entryDetail->quantity;
     //         $newEntries = $inventoryGeneral->entries - $entryDetail->quantity;
 
     //         if($newStock < 0)
     //             throw new Exception("No se puede eliminar esta entrada ya que el producto: ". $inventoryGeneral->product->name . ' quedaría en negativo', 500);
-                
+
     //         $inventoryGeneral->update(['stock' => $newStock, 'entries' => $newEntries]);
     //     }
 

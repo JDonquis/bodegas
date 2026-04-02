@@ -80,13 +80,13 @@
                     </td>
                     <td class="px-4 py-5 text-center">
                         <span class="inline-flex items-center px-4 py-1 rounded-full text-sm font-black {{ $inventory->stock <= 5 ? 'bg-error-container text-error' : 'bg-secondary-container text-secondary' }}">
-                            {{ $inventory->stock }}
+                            {{ $inventory->stock }} {{ $inventory->product->sale_type === 'weight' ? 'g' : 'uds' }}
                         </span>
                     </td>
                     <td class="px-4 py-5 text-center">
                         <div class="flex flex-col items-center gap-1">
                             <span class="text-[10px] font-bold text-outline uppercase tracking-tighter">
-                                <span class="text-primary">{{ $inventory->entries }}</span> / <span class="text-error">{{ $inventory->outputs }}</span>
+                                <span class="text-primary">{{ $inventory->entries }}</span> / <span class="text-error">{{ $inventory->outputs }}</span> {{ $inventory->product->sale_type === 'weight' ? 'g' : 'uds' }}
                             </span>
                             <div class="w-16 h-1 bg-surface-container rounded-full overflow-hidden flex">
                                 @php 
@@ -312,7 +312,7 @@ function buildModal($details){
                         </div>
                     </td>
                     <td class="py-6 text-center">
-                        <span class="px-4 py-1.5 bg-primary-fixed text-primary rounded-xl font-black text-sm">${detail.stock} uds.</span>
+                        <span class="px-4 py-1.5 bg-primary-fixed text-primary rounded-xl font-black text-sm">${detail.stock} ${detail.product.sale_type === 'weight' ? 'g' : 'uds'}</span>
                     </td>
                     <td class="py-6 text-right font-bold text-primary/60">${parseFloat(detail.cost).toFixed(2)}$</td>
                     <td class="py-6 pr-10 text-right text-xs font-bold uppercase tracking-tight">

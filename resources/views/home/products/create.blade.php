@@ -52,13 +52,31 @@
                     </div>
                 </div>
 
+                <!-- Tipo de Venta -->
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-primary ml-1">Tipo de Venta *</label>
+                    <div class="bg-surface-container-low p-1.5 rounded-2xl flex gap-1">
+                        <button type="button" onclick="setSaleType('unit')" id="btn-unit" 
+                                class="flex-1 py-3 text-sm font-black rounded-xl transition-all bg-primary text-white shadow-sm flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">inventory_2</span>
+                            Por Unidad
+                        </button>
+                        <button type="button" onclick="setSaleType('weight')" id="btn-weight" 
+                                class="flex-1 py-3 text-sm font-black rounded-xl transition-all text-outline hover:text-primary flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">scale</span>
+                            Por Peso (gramos)
+                        </button>
+                    </div>
+                    <input type="hidden" name="saleType" id="saleType" value="{{ old('saleType', 'unit') }}">
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Precio de Venta USD -->
                     <div class="space-y-2">
-                        <label for="sellPrice" class="text-sm font-bold text-primary ml-1">Precio USD *</label>
+                        <label for="sellPrice" class="text-sm font-bold text-primary ml-1" id="label-usd">Precio USD *</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">attach_money</span>
-                            <input type="number" step="0.001" min="0" name="sellPrice" id="sellPrice" required
+                            <input type="number" step="0.01" min="0" name="sellPrice" id="sellPrice" required
                                 value="{{ old('sellPrice') }}"
                                 class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40 transition-all"
                                 placeholder="0.00">
@@ -67,7 +85,7 @@
 
                     <!-- Precio de Venta BS -->
                     <div class="space-y-2">
-                        <label for="sellPriceBs" class="text-sm font-bold text-primary ml-1">Precio Bs</label>
+                        <label for="sellPriceBs" class="text-sm font-bold text-primary ml-1" id="label-bs">Precio Bs</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">account_balance_wallet</span>
                             <input type="number" step="0.01" min="0" name="sellPriceBs" id="sellPriceBs"
@@ -100,6 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const usdInput = document.getElementById('sellPrice');
     const bsInput = document.getElementById('sellPriceBs');
     const rate = parseFloat(document.getElementById('usd-rate').value) || 0;
+    const currentType = document.getElementById('saleType').value;
+    updateSaleTypeButtons(currentType);
 
     if (rate > 0) {
         usdInput.addEventListener('input', function() {
@@ -112,6 +132,43 @@ document.addEventListener('DOMContentLoaded', function() {
             usdInput.value = (bs / rate).toFixed(2);
         });
     }
+});
+
+function setSaleType(type) {
+    document.getElementById('saleType').value = type;
+    updateSaleTypeButtons(type);
+    updatePriceLabels(type);
+}
+
+function updateSaleTypeButtons(type) {
+    const btnUnit = document.getElementById('btn-unit');
+    const btnWeight = document.getElementById('btn-weight');
+    
+    if (type === 'weight') {
+        btnWeight.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all bg-primary text-white shadow-sm flex items-center justify-center gap-2';
+        btnUnit.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all text-outline hover:text-primary flex items-center justify-center gap-2';
+    } else {
+        btnUnit.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all bg-primary text-white shadow-sm flex items-center justify-center gap-2';
+        btnWeight.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all text-outline hover:text-primary flex items-center justify-center gap-2';
+    }
+}
+
+function updatePriceLabels(type) {
+    const labelUsd = document.getElementById('label-usd');
+    const labelBs = document.getElementById('label-bs');
+    
+    if (type === 'weight') {
+        labelUsd.textContent = 'Precio por Kg (USD) *';
+        labelBs.textContent = 'Precio por Kg (Bs)';
+    } else {
+        labelUsd.textContent = 'Precio USD *';
+        labelBs.textContent = 'Precio Bs';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const currentType = document.getElementById('saleType').value;
+    updatePriceLabels(currentType);
 });
 </script>
 @endsection

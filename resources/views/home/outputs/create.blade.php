@@ -259,7 +259,7 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex flex-col items-end">
-                                <span class="text-xs font-black text-primary">${inv.stock} uds.</span>
+                                <span class="text-xs font-black text-primary">${inv.stock} ${inv.product.sale_type === 'weight' ? 'g' : 'uds'}</span>
                                 <button type="button" ${isAdded ? 'disabled' : ''} onclick="addProduct(${invJson})" 
                                         class="mt-1 p-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-all disabled:opacity-20">
                                     <span class="material-symbols-outlined text-xs">add_shopping_cart</span>
@@ -273,6 +273,11 @@
 
     function addProduct(inventory) {
         if (!productsAdded.some(p => p.inventoryID === inventory.id)) {
+            const isWeight = inventory.product.sale_type === 'weight';
+            const effectivePrice = isWeight && inventory.product.price_per_kg 
+                ? inventory.product.price_per_kg / 1000 
+                : parseFloat(inventory.product.sell_price);
+            
             productsAdded.unshift({
                 inventoryID: inventory.id,
                 productID: inventory.product_id,
@@ -281,8 +286,10 @@
                 lote: inventory.lote_number,
                 maxStock: inventory.stock,
                 quantity: 1,
-                sell_price: parseFloat(inventory.product.sell_price),
-                cost_per_unit: parseFloat(inventory.cost_per_unit)
+                sell_price: effectivePrice,
+                display_price: inventory.product.price_per_kg || inventory.product.sell_price,
+                cost_per_unit: parseFloat(inventory.cost_per_unit),
+                sale_type: isWeight ? 'weight' : 'unit'
             });
         }
         refreshBasket();
@@ -305,6 +312,9 @@
         }
 
         document.getElementById('added-products').innerHTML = productsAdded.map((p, index) => {
+            const unitLabel = p.sale_type === 'weight' ? 'g' : 'uds';
+            const inputStep = p.sale_type === 'weight' ? '1' : '1';
+            const inputMin = p.sale_type === 'weight' ? '1' : '1';
             return `<tr class="bg-white hover:shadow-md transition-all group border border-outline-variant/10">
                 <td class="py-4 pl-6 rounded-l-3xl">
                     <input type="hidden" name="products[${index}][productID]" value="${p.productID}">
@@ -322,16 +332,19 @@
                 <td class="py-4 px-2">
                     <div class="flex flex-col items-center gap-1">
                         <input class="w-20 bg-surface-container-low border-none rounded-xl py-2 text-sm text-center focus:ring-2 focus:ring-primary/40 font-black text-primary" 
-                               required type="number" oninput="updateQty(${p.inventoryID}, this)" min="1" max="${p.maxStock}" 
-                               name="products[${index}][quantity]" value="${p.quantity}">
+                               required type="number" step="${inputStep}" min="${inputMin}" max="${p.maxStock}" 
+                               name="products[${index}][quantity]" value="${p.quantity}" oninput="updateQty(${p.inventoryID}, this)">
+                        <span class="text-[8px] font-bold text-outline/40">${unitLabel}</span>
                         <span class="text-[8px] font-bold text-outline/40">Max: ${p.maxStock}</span>
                     </div>
                 </td>
                 <td class="py-4 px-2 text-right">
-                    <span class="text-sm font-black text-primary/60">${p.sell_price.toFixed(2)}$</span>
+                    ${p.sale_type === 'weight' 
+                        ? `<span class="text-sm font-black text-primary/60">${parseFloat(p.display_price).toFixed(2)}$/kg</span>` 
+                        : `<span class="text-sm font-black text-primary/60">${p.sell_price.toFixed(2)}$</span>`}
                 </td>
                 <td class="py-4 pr-6 rounded-r-3xl text-right">
-                    <span class="text-base font-black text-primary">${(p.sell_price * p.quantity).toFixed(2)}$</span>
+                    <span class="subtotal text-base font-black text-primary">${(p.sell_price * p.quantity).toFixed(2)}$</span>
                 </td>
             </tr>`;
         }).join('');
@@ -340,12 +353,20 @@
     function updateQty(id, element) {
         const p = productsAdded.find(x => x.inventoryID === id);
         if (p) {
-            p.quantity = parseInt(element.value) || 0;
-            if (p.quantity > p.maxStock) {
-                p.quantity = p.maxStock;
-                element.value = p.maxStock;
+            let val = parseFloat(element.value) || 0;
+            if (p.sale_type === 'weight') {
+                val = Math.max(1, Math.round(val));
+            } else {
+                val = Math.max(1, Math.floor(val));
             }
-            refreshBasket();
+            if (val > p.maxStock) {
+                val = p.maxStock;
+            }
+            p.quantity = val;
+            element.value = val;
+            const row = element.closest('tr');
+            row.querySelector('.subtotal').textContent = (p.sell_price * val).toFixed(2) + '$';
+            updateBasketTotals();
         }
     }
 

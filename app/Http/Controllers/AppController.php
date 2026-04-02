@@ -84,19 +84,20 @@ class AppController extends Controller
             }
         }
 
-        $topProducts = Output::selectRaw('product_id, SUM(quantity) as total_quantity')
+        $topProducts = Output::selectRaw('product_id, COUNT(*) as total_sales')
             ->whereHas('outputGeneral', function ($q) use ($start, $end) {
                 $q->whereBetween('created_at', [$start, $end]);
             })
-            ->with('product:id,name')
+            ->with('product:id,name,sale_type')
             ->groupBy('product_id')
-            ->orderByDesc('total_quantity')
+            ->orderByDesc('total_sales')
             ->limit(3)
             ->get()
             ->map(function ($item) {
                 return [
                     'name' => $item->product->name,
-                    'quantity' => $item->total_quantity,
+                    'quantity' => $item->total_sales,
+                    'unit' => 'ventas',
                 ];
             });
 

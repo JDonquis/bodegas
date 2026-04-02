@@ -260,7 +260,7 @@ function renderTopProducts(products) {
             </div>
             <div class="flex-1 min-w-0">
                 <p class="font-bold text-on-surface truncate">${product.name}</p>
-                <p class="text-xs text-outline">${product.quantity} unidades vendidas</p>
+                <p class="text-xs text-outline">${product.quantity} ${product.unit || 'uds'} realizadas</p>
             </div>
             <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: ${colors[index]}20">
                 <span class="font-black text-sm" style="color: ${colors[index]}">#${index + 1}</span>

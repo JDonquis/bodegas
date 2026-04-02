@@ -28,10 +28,11 @@ class ProductRequest extends FormRequest
             'productName' => ['required', 'string'],
             'sellPrice' => ['required', 'numeric'],
             'sellPriceBs' => ['nullable', 'numeric'],
+            'saleType' => ['required', 'in:unit,weight'],
             'barcode' => [
-                'nullable', 
-                'string', 
-                Rule::unique('products', 'barcode')->ignore($productId)
+                'nullable',
+                'string',
+                Rule::unique('products', 'barcode')->ignore($productId),
             ],
         ];
     }

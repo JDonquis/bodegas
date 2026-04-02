@@ -353,7 +353,20 @@ function buildModal($outputs) {
     
     let total = 0;
     let results = $outputs.map(output => {
-        total += parseFloat(output.product.sell_price * output.quantity);
+        const isWeight = output.product.sale_type === 'weight';
+        const pricePerKg = parseFloat(output.product.price_per_kg) || 0;
+        const sellPrice = parseFloat(output.product.sell_price) || 0;
+        const effectivePrice = isWeight && pricePerKg > 0 
+            ? pricePerKg / 1000 
+            : sellPrice;
+        const displayPrice = isWeight && pricePerKg > 0 
+            ? pricePerKg 
+            : sellPrice;
+        
+        const subtotal = effectivePrice * output.quantity;
+        total += subtotal;
+        
+        const unitLabel = isWeight ? 'g' : 'uds';
         return `<tr class="hover:bg-white transition-colors">
                     <td class="py-5 pl-10">
                         <div class="flex flex-col">
@@ -362,10 +375,10 @@ function buildModal($outputs) {
                         </div>
                     </td>
                     <td class="py-5 text-center">
-                        <span class="px-3 py-1 bg-primary-fixed text-primary rounded-lg font-black text-sm">${output.quantity}</span>
+                        <span class="px-3 py-1 bg-primary-fixed text-primary rounded-lg font-black text-sm">${output.quantity} ${unitLabel}</span>
                     </td>
                     <td class="py-5 text-right font-bold text-primary/80">
-                        ${parseFloat(output.product.sell_price).toFixed(2)}$
+                        ${isWeight ? displayPrice.toFixed(2) + '$/kg' : displayPrice.toFixed(2) + '$'}
                     </td>
                     <td class="py-5 text-center">
                         <span class="text-xs font-bold text-outline">${output.expired_date || '---'}</span>

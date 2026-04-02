@@ -35,10 +35,11 @@ class OutputService
             ]);
 
             $inventoryGeneral = InventoryGeneral::where('product_id', $product['productID'])->first();
+            $effectivePrice = $this->getEffectiveSellPrice($inventory->product);
             $inventoryGeneral->update([
                 'stock' => $inventoryGeneral->stock - $product['quantity'],
                 'outputs' => $inventoryGeneral->outputs + $product['quantity'],
-                'sold' => $inventoryGeneral->sold + ($product['quantity'] * $inventory->product->sell_price),
+                'sold' => $inventoryGeneral->sold + ($product['quantity'] * $effectivePrice),
                 'profits' => $inventoryGeneral->profits + $detailProfit,
             ]);
 
@@ -86,10 +87,11 @@ class OutputService
             ]);
 
             $inventoryGeneral = InventoryGeneral::with('product')->where('product_id', $outputDetail->product_id)->first();
+            $effectivePrice = $this->getEffectiveSellPrice($inventory->product);
             $newStock = $inventoryGeneral->stock + $outputDetail->quantity;
             $newOutputs = $inventoryGeneral->outputs - $outputDetail->quantity;
             $newProfits = $inventoryGeneral->profits - $outputDetail->profit;
-            $newSold = $inventoryGeneral->sold - ($outputDetail->quantity * $inventory->product->sell_price);
+            $newSold = $inventoryGeneral->sold - ($outputDetail->quantity * $effectivePrice);
 
             $inventoryGeneral->update([
                 'stock' => $newStock,
@@ -113,10 +115,22 @@ class OutputService
 
     public function calculateDetailProfit($inventory, $quantity)
     {
+        $product = $inventory->product;
+        $sellPrice = $product->sale_type === 'weight' && $product->price_per_kg
+            ? $product->price_per_kg / 1000
+            : $product->sell_price;
+
         $totalCost = round($inventory->cost_per_unit * $quantity, 2);
-        $totalSold = round($inventory->product->sell_price * $quantity, 2);
+        $totalSold = round($sellPrice * $quantity, 2);
         $totalProfit = round($totalSold - $totalCost, 2);
 
         return $totalProfit;
+    }
+
+    public function getEffectiveSellPrice($product)
+    {
+        return $product->sale_type === 'weight' && $product->price_per_kg
+            ? $product->price_per_kg / 1000
+            : $product->sell_price;
     }
 }
