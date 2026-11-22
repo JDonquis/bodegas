@@ -14,6 +14,12 @@
     <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+    <script>
+        window.addEventListener('beforeinstallprompt', function(event) {
+            event.preventDefault();
+            window.__pwaPrompt = event;
+        });
+    </script>
 
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
@@ -200,6 +206,19 @@
                     </div>
 
                 </form>
+
+                <div class="mt-4">
+                    <button type="button" id="login-pwa-install"
+                        class="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-[0.99] text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition">
+                        <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" x2="12" y1="15" y2="3"></line>
+                        </svg>
+                        Descargar App
+                    </button>
+                </div>
             </div>
 
             <footer class="mt-8 pt-4 border-t border-slate-100 text-center space-y-2">
@@ -235,6 +254,52 @@
                 `;
             }
         });
+    </script>
+
+    <script>
+        (function() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').catch(function(error) {
+                        console.error('No se pudo registrar el service worker:', error);
+                    });
+                });
+            }
+
+            const installButton = document.getElementById('login-pwa-install');
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+            if (!installButton) return;
+
+            if (isStandalone) {
+                installButton.style.display = 'none';
+                return;
+            }
+
+            installButton.addEventListener('click', async function() {
+                if (window.__pwaPrompt) {
+                    window.__pwaPrompt.prompt();
+
+                    const choice = await window.__pwaPrompt.userChoice;
+                    window.__pwaPrompt = null;
+
+                    if (choice.outcome === 'accepted') {
+                        installButton.style.display = 'none';
+                    }
+
+                    return;
+                }
+
+                if (isIOS) {
+                    alert('Para instalar la app en iPhone/iPad: abre esta página en Safari, toca el botón Compartir y elige "Añadir a pantalla de inicio".');
+                    return;
+                }
+
+                alert('Para instalar la app, abre esta página en Chrome o Edge y usa el menú del navegador > Instalar aplicación.');
+            });
+        })();
     </script>
 </body>
 
