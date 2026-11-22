@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        name="viewport" />
+    <title>MiBodega - Compras de Inventario</title>
+    <!-- Tailwind CSS v3 with Forms & Container Plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind Configuration for MiBodega Theme -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            navy: '#0b1e36',
+                            navyLight: '#162e4e',
+                            emerald: '#00c07f',
+                            emeraldDark: '#00a86b',
+                            surface: '#f8f9ff',
+                            card: '#ffffff',
+                            subtle: '#8f9bb3',
+                            border: '#edf1f7',
+                            accentBg: '#eef4ff'
+                        }
+                    },
+                    boxShadow: {
+                        'card': '0 10px 25px -5px rgba(11, 30, 54, 0.05), 0 8px 10px -6px rgba(11, 30, 54, 0.03)',
+                        'float': '0 15px 35px -5px rgba(11, 30, 54, 0.12), 0 0 1px 1px rgba(0, 0, 0, 0.04)',
+                        'sheet': '0 -15px 40px -10px rgba(11, 30, 54, 0.25)',
+                        'btn': '0 8px 20px -4px rgba(11, 30, 54, 0.28)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style data-purpose="base-styling">
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f0f3fa;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        /* Smooth transition for bottom sheet */
+        #detailSheet {
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out;
+        }
+
+        #backdrop {
+            transition: opacity 0.3s ease-out;
+        }
+
+        /* Hide scrollbar for horizontal product pill-table on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="flex justify-center items-start min-h-screen antialiased text-[#0b1e36]">
+    <!-- Mobile Viewport Container -->
+    <div
+        class="relative w-full max-w-md min-h-screen bg-[#f8f9ff] flex flex-col justify-between overflow-x-hidden shadow-2xl border-x border-[#e9ecf5]">
+        <!-- BEGIN: TopHeader -->
+        <header
+            class="sticky top-0 z-20 bg-white/95 backdrop-blur-md px-5 pt-3 pb-3 border-b border-[#edf1f7] flex items-center justify-between shadow-sm">
+            <!-- App Brand Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0b1e36] to-[#1a385f] flex items-center justify-center text-white shadow-md shadow-brand-navy/20">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                        viewbox="0 0 24 24">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round"
+                            stroke-linejoin="round"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-tight text-brand-navy leading-none">MiBodega</h1>
+                    <p class="text-[10px] tracking-wider font-bold text-gray-400 uppercase mt-0.5">Control de Stock</p>
+                </div>
+            </div>
+            <!-- Header Action Icons (Receipt & Avatar) -->
+            <div class="flex items-center gap-2.5">
+                <button aria-label="Historial de comprobantes"
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-[#556987] hover:bg-[#eef4ff] active:scale-95 transition-all"
+                    type="button">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+                        <path
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <div
+                    class="w-9 h-9 rounded-full bg-[#eef4ff] border-2 border-[#d6e4ff] text-[#2b5fd9] font-bold text-xs flex items-center justify-center shadow-inner">
+                    AD
+                </div>
+            </div>
+        </header>
+        <!-- END: TopHeader -->
+        <!-- BEGIN: MainContentArea -->
+        <main class="flex-1 px-4.5 pt-5 pb-24 overflow-y-auto space-y-4">
+            <!-- Screen Header Description -->
+            <section class="px-1" data-purpose="screen-title">
+                <h2 class="text-2xl font-extrabold text-brand-navy tracking-tight leading-tight">
+                    Compras de <br /><span class="text-brand-navy">Inventario</span>
+                </h2>
+                <p class="text-xs text-gray-500 font-medium mt-1 leading-relaxed">
+                    Registro histórico de ingresos de mercancía y reposición a la bodega.
+                </p>
+                <!-- CTA Nueva Compra Button -->
+                <button
+                    class="mt-4 w-full py-3.5 px-4 bg-brand-navy active:bg-[#071424] hover:shadow-lg text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-btn transition-transform active:scale-[0.98]"
+                    type="button">
+                    <svg class="w-5 h-5 text-brand-emerald" fill="none" stroke="currentColor" stroke-width="2.2"
+                        viewbox="0 0 24 24">
+                        <path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                            stroke-linejoin="round"></path>
+                    </svg>
+                    <span>Nueva Compra</span>
+                </button>
+            </section>
+            <!-- Stat Metric Card -->
+            <section class="grid grid-cols-2 gap-3" data-purpose="metric-card">
+                <div
+                    class="bg-white rounded-2xl p-3.5 shadow-card border border-[#edf1f7] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">Total Registros</p>
+                            <span
+                                class="text-[10px] font-semibold text-brand-emerald bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100">+2
+                                hoy</span>
+                        </div>
+                        <div class="flex items-baseline gap-1.5 mt-1.5"><span
+                                class="text-2xl font-extrabold text-brand-navy tracking-tight">12</span><span
+                                class="text-[11px] font-medium text-gray-400">compras</span></div>
+                    </div>
+                    <div class="mt-2 pt-2 border-t border-gray-100 flex items-center gap-1 text-[10px] text-gray-500">
+                        <svg class="w-3 h-3 text-brand-emerald flex-shrink-0" fill="none" stroke="currentColor"
+                            stroke-width="2" viewbox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg><span class="truncate">100% inventariadas</span></div>
+                </div>
+                <div
+                    class="bg-white rounded-2xl p-3.5 shadow-card border border-[#edf1f7] flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">Inversión Mes</p>
+                            <div class="flex items-baseline gap-1 mt-1.5"><span
+                                    class="text-2xl font-extrabold text-brand-navy tracking-tight">$1,420</span><span
+                                    class="text-xs font-bold text-brand-navy">.50</span></div>
+                        </div><button aria-label="Actualizar registros"
+                            class="w-8 h-8 rounded-xl bg-[#f0f4ff] flex items-center justify-center text-[#2b5fd9] hover:bg-[#e2ecff] active:scale-95 transition-colors flex-shrink-0"
+                            type="button"><svg class="w-4 h-4 stroke-[2.2]" fill="none" stroke="currentColor"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg></button>
+                    </div>
+                    <div
+                        class="mt-2 pt-2 border-t border-gray-100 flex items-center gap-1 text-[10px] text-gray-500 font-mono">
+                        <span class="text-gray-400 font-sans">Aprox:</span><span class="font-bold text-brand-navy">Bs.
+                            1.306k</span></div>
+                </div>
+            </section>
+            <!-- Search Input Container -->
+            <section class="space-y-2.5" data-purpose="search-box">
+                <div
+                    class="relative bg-white rounded-2xl border border-[#edf1f7] shadow-sm flex items-center px-3.5 py-1 focus-within:ring-2 focus-within:ring-brand-emerald/30 focus-within:border-brand-emerald transition-all">
+                    <svg class="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor"
+                        stroke-width="2.2" viewbox="0 0 24 24">
+                        <path d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"
+                            stroke-linejoin="round"></path>
+                    </svg><input
+                        class="w-full text-xs font-medium text-brand-navy placeholder-gray-400 bg-transparent border-0 focus:ring-0 p-1.5 leading-snug"
+                        placeholder="Buscar por factura, proveedor o SKU..." type="text" /><button
+                        aria-label="Escanear código de barras"
+                        class="p-1.5 rounded-lg text-gray-400 hover:text-brand-navy active:scale-90 transition flex-shrink-0"
+                        type="button"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                            viewbox="0 0 24 24">
+                            <path
+                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg></button></div>
+                <div class="flex items-center gap-1.5 overflow-x-hidden text-xs"><button
+                        class="px-3 py-1 rounded-xl bg-brand-navy text-white text-[11px] font-bold shadow-sm flex-shrink-0"
+                        type="button">Todos (12)</button><button
+                        class="px-3 py-1 rounded-xl bg-white border border-[#edf1f7] text-gray-600 hover:text-brand-navy hover:bg-gray-50 text-[11px] font-semibold flex-shrink-0 shadow-sm transition"
+                        type="button">Últimos 7 días</button><button
+                        class="px-3 py-1 rounded-xl bg-white border border-[#edf1f7] text-gray-600 hover:text-brand-navy hover:bg-gray-50 text-[11px] font-semibold flex-shrink-0 shadow-sm transition"
+                        type="button">Este mes</button><button
+                        class="px-3 py-1 rounded-xl bg-white border border-[#edf1f7] text-gray-600 hover:text-brand-navy hover:bg-gray-50 text-[11px] font-semibold flex-shrink-0 shadow-sm transition"
+                        type="button">Polar C.A.</button></div>
+            </section>
+            <!-- Purchase Table / Feed Container -->
+            <section class="space-y-3" data-purpose="purchases-feed">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Historial de Ingresos</h3><span
+                        class="text-[11px] font-medium text-gray-400">Ordenados por fecha reciente</span>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-[#edf1f7] hover:border-[#d6e4ff] cursor-pointer transition-all active:scale-[0.99] space-y-3"
+                    id="rowTrigger1">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div
+                                class="w-9 h-9 rounded-xl bg-[#eef4ff] text-[#2454b5] flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                    <path
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg></div>
+                            <div>
+                                <div class="flex items-center gap-2"><span
+                                        class="text-xs font-extrabold text-brand-navy font-mono tracking-tight">Fact
+                                        #883</span><span
+                                        class="px-2 py-0.5 rounded-full bg-emerald-50 text-brand-emerald text-[9px] font-extrabold uppercase border border-emerald-100">Ingresado</span>
+                                </div>
+                                <p class="text-xs font-bold text-gray-700 mt-0.5">Distribuidora Polar C.A.</p>
+                            </div>
+                        </div>
+                        <div class="text-right"><span
+                                class="text-sm font-extrabold text-brand-navy font-mono">$31.96</span>
+                            <p class="text-[10px] text-gray-400 font-mono">Bs. 29.397</p>
+                        </div>
+                    </div>
+                    <div class="pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2"><span
+                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#eaf0fc] text-brand-navy font-bold text-[10px] border border-[#d8e3fa]"><svg
+                                    class="w-3 h-3 text-[#345ea8]" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg><span>2 productos (9 uds)</span></span><span
+                                class="text-[10px] font-medium text-gray-400">22 Nov · 10:45 AM</span></div><button
+                            class="flex items-center gap-1 text-[11px] font-bold text-[#2454b5] hover:text-brand-navy transition"
+                            title="Ver detalle completo de la compra" type="button"><span>Detalle</span><svg
+                                class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewbox="0 0 24 24">
+                                <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg></button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-[#edf1f7] hover:border-[#d6e4ff] cursor-pointer transition-all active:scale-[0.99] space-y-3"
+                    id="rowTrigger2">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div
+                                class="w-9 h-9 rounded-xl bg-[#eef4ff] text-[#2454b5] flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                    <path
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg></div>
+                            <div>
+                                <div class="flex items-center gap-2"><span
+                                        class="text-xs font-extrabold text-brand-navy font-mono tracking-tight">Fact
+                                        #879</span><span
+                                        class="px-2 py-0.5 rounded-full bg-emerald-50 text-brand-emerald text-[9px] font-extrabold uppercase border border-emerald-100">Ingresado</span>
+                                </div>
+                                <p class="text-xs font-bold text-gray-700 mt-0.5">Alimentos Cargill de Vzla</p>
+                            </div>
+                        </div>
+                        <div class="text-right"><span
+                                class="text-sm font-extrabold text-brand-navy font-mono">$84.50</span>
+                            <p class="text-[10px] text-gray-400 font-mono">Bs. 77.724</p>
+                        </div>
+                    </div>
+                    <div class="pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2"><span
+                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#eaf0fc] text-brand-navy font-bold text-[10px] border border-[#d8e3fa]"><svg
+                                    class="w-3 h-3 text-[#345ea8]" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg><span>6 productos (24 uds)</span></span><span
+                                class="text-[10px] font-medium text-gray-400">18 Nov · 03:12 PM</span></div><button
+                            class="flex items-center gap-1 text-[11px] font-bold text-[#2454b5] hover:text-brand-navy transition"
+                            title="Ver detalle completo de la compra" type="button"><span>Detalle</span><svg
+                                class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewbox="0 0 24 24">
+                                <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg></button>
+                    </div>
+                </div>
+                <div
+                    class="bg-white rounded-2xl p-3.5 border border-[#edf1f7] shadow-sm flex items-center justify-between">
+                    <p class="text-[11px] font-semibold text-gray-400">Página <strong class="text-brand-navy">1</strong>
+                        de 2 (12 reg.)</p>
+                    <div class="flex items-center gap-1"><button
+                            class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-300 hover:text-brand-navy hover:bg-gray-100 transition"><svg
+                                class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewbox="0 0 24 24">
+                                <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg></button><button
+                            class="w-7 h-7 rounded-lg bg-brand-navy text-white text-xs font-bold shadow-sm shadow-brand-navy/20">1</button><button
+                            class="w-7 h-7 rounded-lg bg-white border border-[#edf1f7] text-gray-600 text-xs font-semibold hover:bg-gray-50">2</button><button
+                            class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-brand-navy hover:bg-gray-100 transition"><svg
+                                class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewbox="0 0 24 24">
+                                <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg></button></div>
+                </div>
+            </section>
+        </main>
+        <!-- END: MainContentArea -->
+        <!-- BEGIN: BottomNavigationBar -->
+        <nav
+            class="sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-[#edf1f7] px-4 py-2 flex justify-around items-center shadow-lg">
+            <!-- Tab: Inventario -->
+            <button class="flex flex-col items-center py-1 text-gray-400 hover:text-brand-navy transition group"
+                type="button">
+                <svg class="w-5 h-5 stroke-[1.8] group-hover:scale-110 transition-transform" fill="none"
+                    stroke="currentColor" viewbox="0 0 24 24">
+                    <path
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Inventario</span>
+            </button>
+            <!-- Tab: Productos -->
+            <button class="flex flex-col items-center py-1 text-gray-400 hover:text-brand-navy transition group"
+                type="button">
+                <svg class="w-5 h-5 stroke-[1.8] group-hover:scale-110 transition-transform" fill="none"
+                    stroke="currentColor" viewbox="0 0 24 24">
+                    <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Productos</span>
+            </button>
+            <!-- Tab: Inicio -->
+            <button class="flex flex-col items-center py-1 text-gray-400 hover:text-brand-navy transition group"
+                type="button">
+                <svg class="w-5 h-5 stroke-[1.8] group-hover:scale-110 transition-transform" fill="none"
+                    stroke="currentColor" viewbox="0 0 24 24">
+                    <path
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Inicio</span>
+            </button>
+            <!-- Tab: Compras (Active) -->
+            <button class="flex flex-col items-center py-1 text-brand-emerald font-bold relative" type="button">
+                <svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                    <path
+                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[10px] mt-1 font-bold">Compras</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-emerald absolute -top-0.5"></span>
+            </button>
+            <!-- Tab: Ventas -->
+            <button class="flex flex-col items-center py-1 text-gray-400 hover:text-brand-navy transition group"
+                type="button">
+                <svg class="w-5 h-5 stroke-[1.8] group-hover:scale-110 transition-transform" fill="none"
+                    stroke="currentColor" viewbox="0 0 24 24">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Ventas</span>
+            </button>
+        </nav>
+        <!-- END: BottomNavigationBar -->
+        <!-- BEGIN: DetailedPurchaseModalBottomSheet -->
+        <!-- Backdrop Overlay -->
+        <div aria-hidden="true"
+            class="fixed inset-0 z-40 bg-[#0b1e36]/65 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+            id="backdrop"></div>
+        <!-- Slide-up Bottom Sheet Container -->
+        <section aria-labelledby="sheetTitle" aria-modal="true"
+            class="fixed inset-x-0 bottom-0 z-50 max-w-md mx-auto bg-white rounded-t-[34px] shadow-sheet border-t border-white/60 transform translate-y-full flex flex-col max-h-[92vh] overflow-hidden"
+            data-purpose="modal-compra-detallada" id="detailSheet" role="dialog">
+            <!-- Sheet Pull Handle for Ergonomic Swipe Gestures -->
+            <div class="pt-3 pb-1 flex justify-center">
+                <div class="w-11 h-1.2 rounded-full bg-gray-300/80"></div>
+            </div>
+            <!-- Sheet Header -->
+            <div class="px-5 pt-2 pb-3.5 border-b border-[#edf1f7] flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <!-- Icon badge -->
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-[#eaf0fc] flex items-center justify-center text-[#2b5fd9] shadow-sm">
+                        <svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold text-brand-navy tracking-tight leading-tight" id="sheetTitle">
+                            Compra Detallada</h3>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Noviembre 22,
+                            2026</p>
+                    </div>
+                </div>
+                <!-- Close Button (X) -->
+                <button aria-label="Cerrar ventana"
+                    class="w-9 h-9 rounded-full bg-[#f3f5fa] hover:bg-gray-200 text-gray-500 hover:text-brand-navy flex items-center justify-center active:scale-90 transition"
+                    id="closeSheetBtn" type="button">
+                    <svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Scrollable Products Detail Body -->
+            <div class="px-5 py-4 overflow-y-auto space-y-4 no-scrollbar">
+                <!-- Table Products Card -->
+                <div class="bg-[#f8faff] rounded-2xl border border-[#edf1f7] overflow-hidden shadow-sm">
+                    <!-- Product Table Subheader -->
+                    <div
+                        class="px-4 py-2.5 bg-[#f0f4fc] border-b border-[#e2e9f6] flex items-center justify-between text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">
+                        <span>Producto / SKU</span>
+                        <div class="flex gap-4">
+                            <span>Cant. / Costo</span>
+                            <span>Lote / Venc.</span>
+                        </div>
+                    </div>
+                    <!-- Product Item 1: Harina PAN / Example -->
+                    <div class="p-3.5 border-b border-[#edf1f7] bg-white flex flex-col gap-2">
+                        <div class="flex items-start justify-between">
+                            <div class="space-y-0.5">
+                                <h4 class="text-xs font-extrabold text-brand-navy leading-snug">Harina PAN Maíz Blanco
+                                    1kg</h4>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[10px] font-mono text-gray-400">SKU: 7591000100100</span>
+                                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                    <span class="text-[10px] font-medium text-brand-emerald">Alimentos</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-extrabold text-brand-navy font-mono">$20.00</span>
+                                <p class="text-[9px] text-gray-400">Subtotal</p>
+                            </div>
+                        </div>
+                        <!-- Quantitative Details Pills -->
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-2">
+                                <!-- Quantity Badge -->
+                                <span
+                                    class="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-[#e8f0fe] text-[#1d4ed8] text-xs font-bold">
+                                    4 uds
+                                </span>
+                                <span class="text-xs font-semibold text-gray-600">
+                                    @ <strong class="text-brand-navy">5.00$</strong>
+                                </span>
+                            </div>
+                            <!-- Batch & Expiry Tag -->
+                            <div
+                                class="flex items-center gap-1.5 bg-[#f5f8ff] px-2.5 py-1 rounded-lg border border-[#e1e9fa]">
+                                <span class="text-[10px] font-bold text-gray-500 font-mono">L-20261121-6293</span>
+                                <span class="text-[10px] text-gray-400">•</span>
+                                <span class="text-[10px] font-medium text-amber-700">Vence: 21 Nov 27</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product Item 2: Aceite Vegetal Vatel 1L -->
+                    <div class="p-3.5 bg-white flex flex-col gap-2">
+                        <div class="flex items-start justify-between">
+                            <div class="space-y-0.5">
+                                <h4 class="text-xs font-extrabold text-brand-navy leading-snug">Aceite Vegetal Vatel 1L
+                                </h4>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[10px] font-mono text-gray-400">SKU: 7591001080777</span>
+                                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                    <span class="text-[10px] font-medium text-brand-emerald">Víveres</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-extrabold text-brand-navy font-mono">$11.95</span>
+                                <p class="text-[9px] text-gray-400">Subtotal</p>
+                            </div>
+                        </div>
+                        <!-- Quantitative Details Pills -->
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-2">
+                                <!-- Quantity Badge -->
+                                <span
+                                    class="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-[#e8f0fe] text-[#1d4ed8] text-xs font-bold">
+                                    5 uds
+                                </span>
+                                <span class="text-xs font-semibold text-gray-600">
+                                    @ <strong class="text-brand-navy">2.39$</strong>
+                                </span>
+                            </div>
+                            <!-- Batch & Expiry Tag -->
+                            <div
+                                class="flex items-center gap-1.5 bg-[#f5f8ff] px-2.5 py-1 rounded-lg border border-[#e1e9fa]">
+                                <span class="text-[10px] font-bold text-gray-500 font-mono">L-20261121-1346</span>
+                                <span class="text-[10px] text-gray-400">•</span>
+                                <span class="text-[10px] font-medium text-amber-700">Vence: 21 Nov 28</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Supplier & Payment Meta Card -->
+                <div
+                    class="p-3 bg-[#f8faff] rounded-2xl border border-[#edf1f7] flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-emerald"></span>
+                        <span class="text-gray-500 font-medium">Proveedor:</span>
+                        <span class="font-bold text-brand-navy">Distribuidora Polar C.A.</span>
+                    </div>
+                    <span
+                        class="px-2 py-0.5 rounded-md bg-emerald-50 text-brand-emerald text-[10px] font-extrabold border border-emerald-100">PAGADO</span>
+                </div>
+            </div>
+            <!-- Sheet Footer & High-Impact Total Calculation -->
+            <div class="p-5 pt-3 bg-white border-t border-[#edf1f7] space-y-4 shadow-inner">
+                <!-- Total Container -->
+                <div
+                    class="text-center bg-gradient-to-b from-[#f8faff] to-[#eef4fc] p-3 rounded-2xl border border-[#dfe7f6]">
+                    <p class="text-[10px] uppercase font-extrabold tracking-widest text-gray-400">Total de la Operación
+                    </p>
+                    <div class="flex items-baseline justify-center gap-1.5 mt-0.5">
+                        <span class="text-3xl font-extrabold text-brand-emerald tracking-tight font-mono">31.96$</span>
+                    </div>
+                    <!-- Conversion to Venezuelan Bolivares -->
+                    <div class="flex items-center justify-center gap-1 text-[11px] font-semibold text-gray-500 mt-1">
+                        <span>Aprox.</span>
+                        <span class="font-bold text-brand-navy">Bs. 29.397,45</span>
+                        <span
+                            class="text-[9px] bg-white px-1.5 py-0.5 rounded border border-gray-200 text-gray-400 font-mono">Tasa:
+                            919.82</span>
+                    </div>
+                </div>
+                <!-- Operational CTA Buttons -->
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <!-- Delete Purchase Button -->
+                    <button
+                        class="py-3 px-3 rounded-2xl border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100 active:bg-red-200 flex items-center justify-center gap-1.5 text-xs font-bold transition active:scale-95"
+                        id="btnDeletePurchase" type="button">
+                        <svg class="w-4 h-4 text-red-500 stroke-[2]" fill="none" stroke="currentColor"
+                            viewbox="0 0 24 24">
+                            <path
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>Eliminar Registro</span>
+                    </button>
+                    <!-- Edit Purchase / Print Receipt Button -->
+                    <button
+                        class="py-3 px-3 rounded-2xl bg-brand-navy hover:bg-[#071424] text-white flex items-center justify-center gap-1.5 text-xs font-bold transition shadow-btn active:scale-95"
+                        type="button">
+                        <svg class="w-4 h-4 text-brand-emerald stroke-[2.2]" fill="none" stroke="currentColor"
+                            viewbox="0 0 24 24">
+                            <path
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>Editar Compra</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- END: DetailedPurchaseModalBottomSheet -->
+    </div>
+    <!-- Interactive JavaScript logic for Drawer & Modal gestures -->
+    <script data-purpose="sheet-interactivity">
+        document.addEventListener('DOMContentLoaded', () => {
+            const sheet = document.getElementById('detailSheet');
+            const backdrop = document.getElementById('backdrop');
+            const closeBtn = document.getElementById('closeSheetBtn');
+            const rowTrigger1 = document.getElementById('rowTrigger1');
+            const rowTrigger2 = document.getElementById('rowTrigger2');
+            const btnDelete = document.getElementById('btnDeletePurchase');
+
+            // Function to open the Bottom Sheet
+            function openSheet() {
+                backdrop.classList.remove('pointer-events-none', 'opacity-0');
+                backdrop.classList.add('pointer-events-auto', 'opacity-100');
+                sheet.classList.remove('translate-y-full');
+                sheet.classList.add('translate-y-0');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            // Function to close the Bottom Sheet
+            function closeSheet() {
+                sheet.classList.remove('translate-y-0');
+                sheet.classList.add('translate-y-full');
+                backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+                backdrop.classList.add('opacity-0', 'pointer-events-none');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            // Open on click of table items
+            if (rowTrigger1) rowTrigger1.addEventListener('click', openSheet);
+            if (rowTrigger2) rowTrigger2.addEventListener('click', openSheet);
+
+            // Close handlers
+            if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+            if (backdrop) backdrop.addEventListener('click', closeSheet);
+
+            // Delete confirmation feedback
+            if (btnDelete) {
+                btnDelete.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const confirmed = confirm('¿Está seguro de eliminar este registro de compra del inventario? Esta acción descontará las existencias agregadas.');
+                    if (confirmed) {
+                        closeSheet();
+                    }
+                });
+            }
+
+            // Keyboard Esc close support
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeSheet();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

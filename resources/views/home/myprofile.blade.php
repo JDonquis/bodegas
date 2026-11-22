@@ -38,19 +38,19 @@
                     <div class="flex flex-col gap-2">
                         <label for="name" class="text-xs font-black uppercase tracking-widest text-outline">Nombre</label>
                         <input type="text" id="name" name="name" value="{{ auth()->user()->name }}"
-                               class="w-full px-4 py-3 bg-surface rounded-2xl border border-outline-variant/30 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                               class="w-full px-4 py-3 bg-surface rounded-2xl border border-outline-variant/30 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all">
                     </div>
 
                     <div class="flex flex-col gap-2">
                         <label for="lastName" class="text-xs font-black uppercase tracking-widest text-outline">Apellido</label>
                         <input type="text" id="lastName" name="lastName" value="{{ auth()->user()->last_name }}"
-                               class="w-full px-4 py-3 bg-surface rounded-2xl border border-outline-variant/30 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                               class="w-full px-4 py-3 bg-surface rounded-2xl border border-outline-variant/30 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all">
                     </div>
 
                     <div class="flex flex-col gap-2">
                         <label for="ci" class="text-xs font-black uppercase tracking-widest text-outline">Cédula</label>
                         <input type="text" id="ci" name="ci" value="{{ auth()->user()->ci }}"
-                               class="w-full px-4 py-3 bg-surface rounded-2xl border border-outline-variant/30 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                               class="w-full px-4 py-3 bg-surface rounded-2xl border border-outline-variant/30 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all">
                     </div>
                 </div>
 

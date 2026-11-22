@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-slate-100" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+        name="viewport" />
+    <title>MiBodega - Nuevo Producto</title>
+    <!-- Tailwind CSS v3 with Plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        bodega: {
+                            navy: '#0b1e36',
+                            navyLight: '#152f52',
+                            surface: '#f8fafc',
+                            emerald: '#059669',
+                            emeraldLight: '#ecfdf5',
+                            accent: '#2563eb',
+                            border: '#e2e8f0'
+                        }
+                    },
+                    boxShadow: {
+                        'subtle': '0 2px 10px rgba(11, 30, 54, 0.04)',
+                        'card': '0 8px 24px rgba(11, 30, 54, 0.06)',
+                        'floating': '0 -4px 20px rgba(11, 30, 54, 0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- BEGIN: Custom CSS -->
+    <style data-purpose="custom-scrollbars">
+        /* Ocultar barra de scroll para un aspecto de app móvil nativa */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    <style data-purpose="ios-tap-optimizations">
+        /* Mejorar feedback táctil en pantallas iOS */
+        button,
+        input,
+        select {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+    <!-- END: Custom CSS -->
+</head>
+
+<body class="h-full text-slate-800 antialiased selection:bg-slate-200">
+    <!-- BEGIN: MobileDeviceFrame -->
+    <!-- Contenedor general que simula y ajusta el ancho móvil estándar (390px - 430px iPhone) -->
+    <div
+        class="mx-auto flex flex-col h-full max-w-md bg-[#f8faff] min-h-screen relative shadow-2xl overflow-x-hidden pb-36">
+        <!-- BEGIN: TopBar -->
+        <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 pt-3 pb-3">
+            <!-- Fila superior: Logo corporativo y estado -->
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-2">
+                    <!-- Logo MiBodega -->
+                    <div
+                        class="w-7 h-7 rounded-lg bg-bodega-navy flex items-center justify-center text-white shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span
+                            class="text-xs font-black tracking-tight text-bodega-navy block leading-none">MiBodega</span>
+                        <span
+                            class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Control
+                            de Stock</span>
+                    </div>
+                </div>
+                <!-- Estado en línea / Borrador -->
+                <div
+                    class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[10px] font-semibold text-emerald-800 tracking-wide uppercase">En Línea</span>
+                </div>
+            </div>
+            <!-- Barra de navegación y título -->
+            <div class="flex items-center gap-3 pt-1">
+                <button aria-label="Volver al catálogo"
+                    class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 active:scale-95 transition-all"
+                    type="button">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2.2"></path>
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="text-xl font-black text-bodega-navy tracking-tight leading-tight">Nuevo Producto</h1>
+                    <p class="text-xs text-slate-500 font-medium">Registra un nuevo artículo en el catálogo</p>
+                </div>
+            </div>
+        </header>
+        <!-- END: TopBar -->
+        <!-- BEGIN: MainContent -->
+        <main class="flex-1 px-4 py-4 space-y-4">
+            <!-- BEGIN: BCVWidget -->
+            <!-- Tarjeta destacada de Tasa BCV Actual con sincronización dinámica -->
+            <section
+                class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-white border border-emerald-200/80 p-3.5 shadow-subtle"
+                data-purpose="bcv-exchange-rate">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2.2"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Tasa Oficial
+                                    BCV</span>
+                                <span
+                                    class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-600 text-white uppercase tracking-tight">Hoy</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 font-medium">Actualización automática</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-black text-emerald-800 tracking-tight leading-none">
+                            919.82 <span class="text-xs font-bold text-emerald-600">Bs/$</span>
+                        </div>
+                        <span class="text-[10px] text-emerald-600/80 font-semibold">Tasa del día activa</span>
+                    </div>
+                </div>
+            </section>
+            <!-- END: BCVWidget -->
+            <!-- Formulario de Producto -->
+            <form class="space-y-4" id="product-form" onsubmit="event.preventDefault();">
+                <!-- BEGIN: SectionBarcode -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label
+                            class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5"
+                            for="barcode">
+                            <span>Código de Barras</span>
+                            <span class="text-slate-400 font-normal text-[11px]">(Opcional)</span>
+                        </label>
+                        <button class="text-xs font-bold text-bodega-accent hover:underline flex items-center gap-1"
+                            id="btn-generate-code" type="button">
+                            <span>Generar</span>
+                        </button>
+                    </div>
+                    <div
+                        class="relative flex items-center rounded-xl bg-slate-50 border border-slate-200 focus-within:border-bodega-navy focus-within:ring-2 focus-within:ring-bodega-navy/10 transition-all">
+                        <!-- Icono decorativo de código -->
+                        <div class="pl-3.5 pr-2 text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M12 4v16m8-14v12m-4-10v8M4 8v8m4-12v16" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <input
+                            class="w-full bg-transparent border-0 py-3 text-sm font-mono font-medium text-slate-800 placeholder:text-slate-400 focus:ring-0"
+                            id="barcode" name="barcode" placeholder="7591031000123..." type="text" />
+                        <!-- Botón táctil para escanear con cámara -->
+                        <button aria-label="Escanear con cámara"
+                            class="m-1.5 flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-bold active:scale-95 transition-all"
+                            type="button">
+                            <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                                <path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                            <span>Escanear</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- END: SectionBarcode -->
+                <!-- BEGIN: SectionBasicInfo -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle space-y-3.5">
+                    <!-- Nombre del Producto -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider"
+                            for="product_name">
+                            Nombre del Producto <span class="text-rose-500">*</span>
+                        </label>
+                        <div
+                            class="relative flex items-center rounded-xl bg-slate-50 border border-slate-200 focus-within:border-bodega-navy focus-within:ring-2 focus-within:ring-bodega-navy/10 transition-all">
+                            <div class="pl-3.5 pr-2 text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+                                </svg>
+                            </div>
+                            <input
+                                class="w-full bg-transparent border-0 py-3 text-sm font-semibold text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:ring-0"
+                                id="product_name" name="product_name"
+                                placeholder="Ej. Harina PAN 1kg, Amoxicilina 500mg" required="" type="text" />
+                        </div>
+                    </div>
+                    <!-- Categoría y Ubicación en Grid Móvil -->
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <!-- Categoría -->
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider"
+                                for="category">
+                                Categoría
+                            </label>
+                            <div class="relative">
+                                <select
+                                    class="w-full appearance-none rounded-xl bg-slate-50 border border-slate-200 py-2.5 pl-3 pr-8 text-xs font-semibold text-slate-700 focus:border-bodega-navy focus:ring-2 focus:ring-bodega-navy/10"
+                                    id="category" name="category">
+                                    <option value="viveres">Abarrotes / Víveres</option>
+                                    <option value="bebidas">Bebidas y Licores</option>
+                                    <option selected="" value="farmacia">Farmacia y Cuidado</option>
+                                    <option value="refrigerados">Lácteos / Embutidos</option>
+                                    <option value="limpieza">Limpieza del Hogar</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                        <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ubicación en Estante -->
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider"
+                                for="location">
+                                Ubicación
+                            </label>
+                            <input
+                                class="w-full rounded-xl bg-slate-50 border border-slate-200 py-2.5 px-3 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:border-bodega-navy focus:ring-2 focus:ring-bodega-navy/10"
+                                id="location" name="location" placeholder="Ej. Pasillo 2-B" type="text" />
+                        </div>
+                    </div>
+                </div>
+                <!-- END: SectionBasicInfo -->
+                <!-- BEGIN: SectionSaleType -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Tipo de Venta <span class="text-rose-500">*</span>
+                    </label>
+                    <!-- Control segmentado interactivo -->
+                    <div class="grid grid-cols-2 p-1 bg-slate-100/90 rounded-xl gap-1">
+                        <!-- Opción: Por Unidad -->
+                        <label class="cursor-pointer">
+                            <input checked="" class="peer sr-only" name="sale_type" type="radio" value="unit" />
+                            <div
+                                class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all peer-checked:bg-bodega-navy peer-checked:text-white peer-checked:shadow-sm text-slate-600 hover:text-slate-900">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                                </svg>
+                                <span>Por Unidad</span>
+                            </div>
+                        </label>
+                        <!-- Opción: Por Peso -->
+                        <label class="cursor-pointer">
+                            <input class="peer sr-only" name="sale_type" type="radio" value="weight" />
+                            <div
+                                class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all peer-checked:bg-bodega-navy peer-checked:text-white peer-checked:shadow-sm text-slate-600 hover:text-slate-900">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                    <path
+                                        d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                                </svg>
+                                <span>Por Peso (Kg/g)</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <!-- END: SectionSaleType -->
+                <!-- BEGIN: SectionPricing -->
+                <!-- Tarjeta de fijación de precios bimoneda con cálculo automático -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle space-y-3.5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <h2
+                            class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>Estructura de Precios</span>
+                        </h2>
+                        <span class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Auto-conversión
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Precio en Dólares (Input Primario) -->
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700" for="price_usd">
+                                Precio USD ($) <span class="text-rose-500">*</span>
+                            </label>
+                            <div
+                                class="relative flex items-center rounded-xl bg-slate-50 border border-slate-200 focus-within:border-bodega-navy focus-within:ring-2 focus-within:ring-bodega-navy/10">
+                                <div class="pl-3.5 pr-1 text-slate-500 font-extrabold text-base">$</div>
+                                <input
+                                    class="w-full bg-transparent border-0 py-3 pr-3 text-base font-extrabold text-slate-900 placeholder:text-slate-300 focus:ring-0"
+                                    id="price_usd" min="0" name="price_usd" placeholder="0.00" step="0.01"
+                                    type="number" />
+                            </div>
+                        </div>
+                        <!-- Precio en Bolívares (Calculado) -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold text-slate-700" for="price_bs">
+                                    Precio en Bolívares (Bs)
+                                </label>
+                                <span
+                                    class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium">Tasa
+                                    BCV</span>
+                            </div>
+                            <div
+                                class="relative flex items-center rounded-xl bg-emerald-50/50 border border-emerald-200/80 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20">
+                                <div class="pl-3.5 pr-1 text-emerald-700 font-extrabold text-xs">Bs</div>
+                                <input
+                                    class="w-full bg-transparent border-0 py-3 pr-3 text-base font-black text-emerald-900 placeholder:text-emerald-400/60 focus:ring-0"
+                                    id="price_bs" name="price_bs" placeholder="0.00" readonly="" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between px-2 pt-1 text-[11px] text-slate-400">
+                        <span>Fórmula: USD × 919.82 Bs</span>
+                        <span class="font-medium text-slate-500">I.V.A no incluido</span>
+                    </div>
+                </div>
+                <!-- END: SectionPricing -->
+                <!-- BEGIN: SectionInventoryControl -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle space-y-3">
+                    <h2 class="text-xs font-black text-slate-800 uppercase tracking-wider">
+                        Control de Existencias
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Cantidad Inicial en Stock con Stepper táctil -->
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700">
+                                Stock Inicial
+                            </label>
+                            <div class="flex items-center rounded-xl bg-slate-50 border border-slate-200 p-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white shadow-xs border border-slate-200/60 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-sm"
+                                    id="btn-stock-dec" type="button">
+                                    -
+                                </button>
+                                <input
+                                    class="w-full bg-transparent border-0 py-1 text-center font-bold text-sm text-slate-800 focus:ring-0 p-0"
+                                    id="stock_qty" min="0" name="stock_qty" type="number" value="1" />
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white shadow-xs border border-slate-200/60 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-sm"
+                                    id="btn-stock-inc" type="button">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Stock Mínimo para Alerta -->
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700" for="min_stock">
+                                Alerta Mínima
+                            </label>
+                            <div class="relative flex items-center rounded-xl bg-slate-50 border border-slate-200">
+                                <input
+                                    class="w-full bg-transparent border-0 py-2.5 px-3 text-sm font-bold text-slate-800 focus:ring-0"
+                                    id="min_stock" min="0" name="min_stock" type="number" value="5" />
+                                <span class="pr-3 text-[11px] font-semibold text-slate-400">Unds</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: SectionInventoryControl -->
+            </form>
+        </main>
+        <!-- END: MainContent -->
+        <!-- BEGIN: FloatingActionBar -->
+        <!-- Barra inferior ergonómica con botón primario navy y secundario cancelar -->
+        <div
+            class="fixed bottom-[65px] left-0 right-0 max-w-md mx-auto z-40 px-4 py-2.5 bg-white/90 backdrop-blur-md border-t border-slate-200/80 shadow-floating">
+            <div class="flex items-center gap-3">
+                <!-- Botón Cancelar -->
+                <button
+                    class="w-2/5 py-3 px-3 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100 active:scale-95 transition-all text-center"
+                    type="button">
+                    Descartar
+                </button>
+                <!-- Botón Guardar Producto -->
+                <button
+                    class="w-3/5 py-3 px-4 rounded-xl bg-bodega-navy text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-bodega-navy/20 active:scale-98 hover:bg-bodega-navyLight transition-all"
+                    form="product-form" type="submit">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                    </svg>
+                    <span class="tracking-wide text-sm">Guardar Producto</span>
+                </button>
+            </div>
+        </div>
+        <!-- END: FloatingActionBar -->
+        <!-- BEGIN: BottomNavigation -->
+        <!-- Barra de navegación global consistente con la suite MiBodega -->
+        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-50 bg-white border-t border-slate-200 px-2 py-1.5">
+            <div class="grid grid-cols-5 items-center text-center">
+                <!-- Tab: Inventario -->
+                <a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors"
+                    href="#inventario">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+                    </svg>
+                    <span class="text-[10px] font-semibold tracking-tight">Inventario</span>
+                </a>
+                <!-- Tab: Productos (Activo) -->
+                <a class="flex flex-col items-center justify-center py-1 text-emerald-700 font-bold transition-colors"
+                    href="#productos">
+                    <div class="relative">
+                        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+                        </svg>
+                        <span
+                            class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-600 ring-2 ring-white"></span>
+                    </div>
+                    <span class="text-[10px] tracking-tight">Productos</span>
+                </a>
+                <!-- Tab: Inicio -->
+                <a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors"
+                    href="#inicio">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+                    </svg>
+                    <span class="text-[10px] font-semibold tracking-tight">Inicio</span>
+                </a>
+                <!-- Tab: Compras -->
+                <a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors"
+                    href="#compras">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+                    </svg>
+                    <span class="text-[10px] font-semibold tracking-tight">Compras</span>
+                </a>
+                <!-- Tab: Ventas -->
+                <a class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-800 transition-colors"
+                    href="#ventas">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+                    </svg>
+                    <span class="text-[10px] font-semibold tracking-tight">Ventas</span>
+                </a>
+            </div>
+        </nav>
+        <!-- END: BottomNavigation -->
+    </div>
+    <!-- END: MobileDeviceFrame -->
+    <!-- BEGIN: LogicScripts -->
+    <!-- Cálculo dinámico de tasa BCV y contadores de stock -->
+    <script data-purpose="currency-and-stock-logic">
+        document.addEventListener('DOMContentLoaded', () => {
+            const bcvRate = 919.82;
+            const usdInput = document.getElementById('price_usd');
+            const bsInput = document.getElementById('price_bs');
+
+            // Calcular precio en bolívares en tiempo real
+            if (usdInput && bsInput) {
+                usdInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val) && val >= 0) {
+                        const result = (val * bcvRate).toLocaleString('es-VE', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                        bsInput.value = result;
+                    } else {
+                        bsInput.value = '';
+                    }
+                });
+            }
+
+            // Stepper de Stock Inicial
+            const stockInput = document.getElementById('stock_qty');
+            const btnDec = document.getElementById('btn-stock-dec');
+            const btnInc = document.getElementById('btn-stock-inc');
+
+            if (stockInput && btnDec && btnInc) {
+                btnDec.addEventListener('click', () => {
+                    let current = parseInt(stockInput.value, 10) || 0;
+                    if (current > 0) {
+                        stockInput.value = current - 1;
+                    }
+                });
+
+                btnInc.addEventListener('click', () => {
+                    let current = parseInt(stockInput.value, 10) || 0;
+                    stockInput.value = current + 1;
+                });
+            }
+
+            // Generador de código de barras dummy
+            const btnGen = document.getElementById('btn-generate-code');
+            const barcodeInput = document.getElementById('barcode');
+            if (btnGen && barcodeInput) {
+                btnGen.addEventListener('click', () => {
+                    const randomCode = '759' + Math.floor(100000000 + Math.random() * 900000000);
+                    barcodeInput.value = randomCode;
+                });
+            }
+        });
+    </script>
+    <!-- END: LogicScripts -->
+</body>
+
+</html>

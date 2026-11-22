@@ -5,11 +5,35 @@
     --font-headline: "Manrope", ui-sans-serif, system-ui, sans-serif;
     --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-label: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-jakarta: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
     /* --- Bordes --- */
     --radius-default: 0.25rem;
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
+
+    /* --- Login --- */
+    --color-brand-navy: #0b1e36;
+    --color-brand-navy-dark: #061324;
+    --color-brand-navy-light: #132d4e;
+    --color-brand-mint: #2dd4bf;
+    --color-brand-mint-dark: #0d9488;
+    --color-brand-emerald: #10b981;
+    --color-brand-surface: #f8fafc;
+    --color-brand-primary: #0e294b;
+    --color-brand-accent: #00c08b;
+    --color-brand-accent-dark: #00a375;
+    --color-brand-mint-soft: #e6faf3;
+    --color-brand-mint-border: #b9f2df;
+    --color-brand-border: #e8edf5;
+    --color-brand-muted: #64748b;
+    --color-brand-slate-bg: #f4f7fb;
+    --shadow-card: 0 -10px 30px -5px rgba(0, 0, 0, 0.12), 0 20px 30px -10px rgba(11, 30, 54, 0.08);
+    --shadow-elevated: 0 12px 24px -6px rgba(11, 30, 54, 0.28);
+    --shadow-brand-card: 0 4px 20px -2px rgba(11, 30, 54, 0.05), 0 2px 6px -1px rgba(11, 30, 54, 0.02);
+    --shadow-brand-float: 0 10px 30px -5px rgba(0, 192, 139, 0.25);
+    --shadow-brand-sheet: 0 -15px 40px -10px rgba(11, 30, 54, 0.25);
+    --shadow-brand-btn: 0 8px 20px -4px rgba(11, 30, 54, 0.28);
 
     /* --- Colores Personalizados --- */
     --color-surface: #f8f9ff;
@@ -72,8 +96,14 @@
 
 /* --- Estilos Globales --- */
 @layer base {
+    html {
+        scrollbar-gutter: stable;
+        overflow-x: clip;
+    }
+
     body {
         @apply bg-surface text-on-surface font-body;
+        overflow-x: clip;
     }
 
     h1,
@@ -84,9 +114,54 @@
     h6 {
         @apply font-headline;
     }
+
+    input:not([type="checkbox"]):not([type="radio"]):focus,
+    input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+    select:focus,
+    select:focus-visible,
+    textarea:focus,
+    textarea:focus-visible {
+        outline: none;
+    }
 }
 
 /* --- Clases de Utilidad Específicas --- */
 .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* --- Skeleton Loaders --- */
+@keyframes skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #eef1f6;
+    pointer-events: none;
+}
+
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+    animation: skeleton-shimmer 1.4s infinite;
 }

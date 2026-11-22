@@ -30,7 +30,23 @@ class EntryController extends Controller
 
         $entries = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
-        return view('home.entries')->with(compact('entries', 'search'));
+        $todayEntries = EntryGeneral::whereDate('created_at', now()->toDateString())->count();
+        $monthInvestment = EntryGeneral::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('total_expense');
+
+        $bcvService = new BCVService;
+        $usdRate = $bcvService->getUSDValue() ?? 0;
+        $monthInvestmentBs = round($monthInvestment * $usdRate, 2);
+
+        return view('home.entries')->with(compact(
+            'entries',
+            'search',
+            'todayEntries',
+            'monthInvestment',
+            'monthInvestmentBs',
+            'usdRate'
+        ));
     }
 
     /**
@@ -57,10 +73,25 @@ class EntryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $bcvService = new BCVService;
         $usdRate = $bcvService->getUSDValue();
+
+        $preselectedProduct = null;
+
+        if ($request->filled('product')) {
+            $product = \App\Models\Product::find($request->input('product'));
+
+            if ($product) {
+                $preselectedProduct = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'sale_type' => $product->sale_type,
+                ];
+            }
+        }
 
         $oldProducts = [];
         if (old('products')) {
@@ -71,6 +102,7 @@ class EntryController extends Controller
                         'id' => $product->id,
                         'name' => $product->name,
                         'barcode' => $product->barcode,
+                        'sale_type' => $product->sale_type,
                         'quantity' => $oldProduct['quantity'],
                         'cost' => $oldProduct['cost'],
                         'cost_bs' => $oldProduct['cost_bs'] ?? 0,
@@ -81,7 +113,7 @@ class EntryController extends Controller
             }
         }
 
-        return view('home.entries.create')->with(compact('usdRate', 'oldProducts'));
+        return view('home.entries.create')->with(compact('usdRate', 'oldProducts', 'preselectedProduct'));
     }
 
     /**
@@ -101,7 +133,7 @@ class EntryController extends Controller
 
             DB::commit();
 
-            return redirect('home/entradas')->with(['success' => 'Entrada creada exitosamente']);
+            return redirect()->route('entries')->with(['success' => 'Compra creada exitosamente']);
         } catch (\Exception $error) {
 
             DB::rollBack();
@@ -130,7 +162,12 @@ class EntryController extends Controller
     {
         $entries = Entry::with('product')->where('entry_general_id', $entry->id)->get();
 
-        return view('home.entries.edit')->with(['entries' => $entries, 'entryGeneral' => $entry]);
+        $bcvService = new BCVService;
+        $usdRate = $bcvService->getUSDValue();
+
+        $entryGeneral = $entry;
+
+        return view('home.entries.edit')->with(compact('entries', 'entryGeneral', 'usdRate'));
     }
 
     /**
@@ -150,7 +187,7 @@ class EntryController extends Controller
 
             DB::commit();
 
-            return redirect()->route('entries')->with(['success' => 'Entrada actualizada exitosamente']);
+            return redirect()->route('entries')->with(['success' => 'Compra actualizada exitosamente']);
         } catch (\Exception $error) {
 
             DB::rollBack();
@@ -176,7 +213,7 @@ class EntryController extends Controller
 
             DB::commit();
 
-            return redirect()->route('entries')->with(['success' => 'Entrada eliminada exitosamente']);
+            return redirect()->route('entries')->with(['success' => 'Compra eliminada exitosamente']);
         } catch (\Exception $error) {
 
             DB::rollBack();

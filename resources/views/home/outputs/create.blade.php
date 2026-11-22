@@ -1,391 +1,573 @@
 @extends('layout.app')
 
+@section('styles')
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+@endsection
+
 @section('content')
-<div class="max-w-7xl mx-auto">
-    <!-- Header -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
-        <div>
-            <h2 class="text-3xl font-extrabold text-primary tracking-tight mb-2 font-headline">Nueva Salida de Mercancía</h2>
-            <p class="text-outline font-body">Registra ventas o egresos de productos con control de inventario.</p>
-        </div>
-        <div class="flex gap-4 w-full md:w-auto">
-            <button type="button" onclick="window.location.href='{{ route('outputs') }}'" 
-                    class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-outline-variant text-primary font-bold hover:bg-surface-container transition-all active:scale-95">
-                <span class="material-symbols-outlined">close</span>
+    <div class="mx-auto flex w-full max-w-md flex-col gap-4 font-jakarta">
+
+        <section class="space-y-3">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-brand-navy">Nueva Venta de Mercancía</h1>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Registra ventas o egresos de productos con control de inventario en tiempo real.
+                </p>
+            </div>
+
+            <div
+                class="flex items-center justify-between bg-white border border-emerald-100 rounded-xl px-3.5 py-2 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-xs font-semibold text-slate-600">Tasa BCV Oficial:</span>
+                    <span class="text-xs font-bold text-brand-navy">{{ number_format($usdRate ?? 0, 2) }} Bs / USD</span>
+                </div>
+                <span
+                    class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">En
+                    Vivo</span>
+            </div>
+
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-100 shadow-brand-card p-4 space-y-3.5">
+            <div class="flex items-center gap-2.5 border-b border-slate-50 pb-2.5">
+                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[16px]">person_add</span>
+                </div>
+                <h2 class="text-sm font-bold text-brand-navy">Identificación del Cliente</h2>
+            </div>
+
+            <div class="grid grid-cols-2 p-1 bg-slate-100/80 rounded-xl text-xs font-semibold">
+                <button type="button" onclick="toggleClientType('registered')" id="tab-registered"
+                    class="py-1.5 rounded-lg bg-white text-brand-navy shadow-sm text-center transition">
+                    REGISTRADO
+                </button>
+                <button type="button" onclick="toggleClientType('casual')" id="tab-casual"
+                    class="py-1.5 rounded-lg text-slate-500 hover:text-slate-700 text-center transition">
+                    NO REGISTRADO
+                </button>
+            </div>
+
+            <div id="section-registered" class="space-y-1.5">
+                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Seleccionar Cliente</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                    </div>
+                    <select id="client_id_select"
+                        class="w-full pl-10 pr-9 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-brand-navy focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition appearance-none">
+                        <option value="">-- Seleccione un cliente --</option>
+                        @foreach ($clients as $client)
+                            <option value="{{ $client->id }}" data-debt="{{ $client->debt ?? 0 }}">
+                                {{ $client->name }} ({{ $client->ci }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-casual" class="hidden space-y-1.5">
+                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nombre del Cliente <span class="normal-case font-normal text-slate-400">(Opcional)</span></label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[18px]">person_edit</span>
+                    </div>
+                    <input type="text" id="client_name_input" placeholder="Nombre del cliente (opcional)"
+                        class="w-full pl-10 pr-4 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-brand-navy placeholder:text-slate-400 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition">
+                </div>
+            </div>
+
+            <div id="client-info"
+                class="hidden items-center justify-between text-[11px] bg-slate-50/75 rounded-lg px-2.5 py-1.5 border border-slate-100 text-slate-600">
+                <span>Deuda actual: <strong id="client-debt" class="text-rose-600 font-bold">$0.00</strong></span>
+                <span class="inline-flex items-center gap-1 font-medium text-slate-500">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Cliente registrado
+                </span>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-100 shadow-brand-card p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-50 pb-2.5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[16px]">search</span>
+                    </div>
+                    <h2 class="text-sm font-bold text-brand-navy">Buscador de Stock</h2>
+                </div>
+                <span class="text-[10px] font-semibold text-slate-400">Stock disponible</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[18px]">barcode_scanner</span>
+                    </div>
+                    <input
+                        class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-brand-navy placeholder:text-slate-400 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition"
+                        placeholder="Escanea o busca producto..." type="text" oninput="searchProduct()"
+                        id="html5-search-input">
+                </div>
+                <button type="button" onclick="focusSearch()" aria-label="Escanear Código de Barras"
+                    class="h-9 px-3 rounded-xl bg-slate-900 text-white flex items-center gap-1.5 text-xs font-semibold active:scale-95 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px] text-brand-accent">photo_camera</span>
+                    Scan
+                </button>
+            </div>
+
+            <div id="search-results" class="space-y-2">
+                <p class="p-3 text-center text-[11px] text-slate-400">Busca productos en stock...</p>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-100 shadow-brand-card p-4 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-50 pb-2.5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[16px]">shopping_bag</span>
+                    </div>
+                    <h2 class="text-sm font-bold text-brand-navy">Carrito de Venta</h2>
+                </div>
+                <span id="cart-badge"
+                    class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">0
+                    ítems</span>
+            </div>
+
+            <form action="{{ route('outputs.store') }}" method="POST" id="output-form">
+                @csrf
+                <input type="hidden" name="client_id" id="final_client_id">
+                <input type="hidden" name="client_name" id="final_client_name">
+                <input type="hidden" name="total_sold" id="final_total_sold">
+                <input type="hidden" name="payment_method" id="final_payment_method">
+
+                <div id="added-products" class="space-y-3"></div>
+
+                <div id="empty-state" class="py-12 flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                        <span class="material-symbols-outlined text-4xl text-slate-300">production_quantity_limits</span>
+                    </div>
+                    <p class="font-black text-[11px] uppercase tracking-widest text-slate-400">Selecciona productos del
+                        inventario</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Usa el buscador para agregar mercancía.</p>
+                </div>
+
+                <div id="total-summary"
+                    class="hidden mt-4 pt-3 border-t border-slate-100 space-y-2">
+                    <div class="flex justify-between text-xs text-slate-500 font-medium">
+                        <span>Subtotal en Divisas:</span>
+                        <span id="total-sold-subtotal" class="text-brand-navy font-semibold">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500 font-medium">
+                        <span>Subtotal en Bolívares:</span>
+                        <span id="total-sold-subtotal-bs" class="text-brand-navy font-semibold">Bs. 0.00</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500 font-medium">
+                        <span>Utilidad estimada:</span>
+                        <span class="text-right">
+                            <span id="total-profit-preview" class="text-emerald-600 font-semibold">$0.00</span>
+                            <span id="total-profit-bs-preview" class="block text-[10px] font-normal text-slate-400">Bs. 0.00</span>
+                        </span>
+                    </div>
+                    <div
+                        class="bg-gradient-to-r from-slate-900 to-brand-navy rounded-xl p-3 text-white flex items-center justify-between shadow-md">
+                        <div>
+                            <div class="text-[10px] font-bold text-brand-accent uppercase tracking-widest">TOTAL A COBRAR
+                            </div>
+                            <div class="text-xs text-slate-300 font-mono mt-0.5">Bs. <span
+                                    id="total-sold-bs">0.00</span></div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-2xl font-black text-brand-accent tracking-tight">$<span
+                                    id="total-sold-preview">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 pt-1">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Método de
+                            Pago</label>
+                        <div class="grid grid-cols-2 gap-2 text-center">
+                            <button type="button" data-payment="Pago móvil" onclick="selectPaymentMethod(this)"
+                                class="payment-method-btn flex flex-col items-center gap-1 py-2 px-1 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-[11px] transition">
+                                <span class="material-symbols-outlined text-[18px] text-slate-500">smartphone</span>
+                                Pago móvil
+                            </button>
+                            <button type="button" data-payment="Punto de venta" onclick="selectPaymentMethod(this)"
+                                class="payment-method-btn flex flex-col items-center gap-1 py-2 px-1 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-[11px] transition">
+                                <span class="material-symbols-outlined text-[18px] text-slate-500">point_of_sale</span>
+                                Punto de venta
+                            </button>
+                            <button type="button" data-payment="Efectivo Bs" onclick="selectPaymentMethod(this)"
+                                class="payment-method-btn flex flex-col items-center gap-1 py-2 px-1 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-[11px] transition">
+                                <span class="material-symbols-outlined text-[18px] text-slate-500">payments</span>
+                                Efectivo Bs
+                            </button>
+                            <button type="button" data-payment="Efectivo Dolares" onclick="selectPaymentMethod(this)"
+                                class="payment-method-btn flex flex-col items-center gap-1 py-2 px-1 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-[11px] transition">
+                                <span class="material-symbols-outlined text-[18px] text-slate-500">attach_money</span>
+                                Efectivo Dolares
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <div class="grid grid-cols-2 gap-2.5">
+            <a href="{{ route('outputs') }}"
+                class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-slate-200 bg-white font-semibold text-xs text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition shadow-sm">
+                <span class="material-symbols-outlined text-[16px] text-slate-400">close</span>
                 Cancelar
-            </button>
+            </a>
             <button type="submit" form="output-form" id="btn-create-output" disabled
-                    class="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-primary text-white font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:pointer-events-none">
-                <span class="material-symbols-outlined">shopping_bag</span>
+                class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-brand-navy text-white font-bold text-xs shadow-md shadow-brand-navy/20 active:scale-[0.98] transition disabled:opacity-30 disabled:pointer-events-none">
+                <span class="material-symbols-outlined text-[18px] text-brand-accent">shopping_bag</span>
                 Confirmar Venta
             </button>
         </div>
-    </header>
-
-    <div class="grid grid-cols-12 gap-8">
-        
-        <!-- Sidebar: Client & Search -->
-        <div class="col-span-12 lg:col-span-4 space-y-6">
-            
-            <!-- Client Selection Card -->
-            <section class="bg-surface-container-lowest p-8 rounded-[2.5rem] border-t-8 border-secondary shadow-sm">
-                <h3 class="text-lg font-bold text-primary font-headline mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-secondary">person_add</span>
-                    Identificación del Cliente
-                </h3>
-
-                <div class="space-y-6">
-                    <!-- Toggle Type -->
-                    <div class="bg-surface-container-low p-1.5 rounded-2xl flex gap-1">
-                        <button type="button" onclick="toggleClientType('registered')" id="tab-registered" 
-                                class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-primary shadow-sm">
-                            Registrado
-                        </button>
-                        <button type="button" onclick="toggleClientType('casual')" id="tab-casual" 
-                                class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-outline hover:text-primary">
-                            Casual / Nuevo
-                        </button>
-                    </div>
-
-                    <!-- Registered Client Select -->
-                    <div id="section-registered" class="space-y-2">
-                        <label class="block text-[10px] font-black text-outline uppercase tracking-widest ml-1">Seleccionar Cliente</label>
-                        <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline/60">group</span>
-                            <select id="client_id_select" class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-secondary/40 text-on-surface font-bold text-sm appearance-none transition-all">
-                                <option value="">-- Seleccione un cliente --</option>
-                                @foreach($clients as $client)
-                                    <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->ci }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Casual Client Input -->
-                    <div id="section-casual" class="hidden space-y-2">
-                        <label class="block text-[10px] font-black text-outline uppercase tracking-widest ml-1">Nombre del Cliente</label>
-                        <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline/60">person_edit</span>
-                            <input type="text" id="client_name_input" placeholder="Nombre completo..." 
-                                   class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-secondary/40 text-on-surface font-bold text-sm transition-all">
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Product Search Card -->
-            <section class="bg-surface-container-lowest p-8 rounded-[2.5rem] border-t-8 border-primary shadow-sm">
-                <h3 class="text-lg font-bold text-primary font-headline mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined">search</span>
-                    Buscador de Stock
-                </h3>
-
-                <div class="relative group">
-                    <div class="relative flex items-center">
-                        <span class="material-symbols-outlined absolute left-4 text-outline/60">barcode_scanner</span>
-                        <input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/40 text-on-surface placeholder-outline/40 transition-all font-body" 
-                               placeholder="Escanea o busca producto..." 
-                               type="text" 
-                               oninput="searchProduct()" 
-                               id="html5-search-input">
-                    </div>
-                </div>
-
-                <div class="mt-6 overflow-hidden rounded-2xl border border-outline-variant/10 bg-white">
-                    <table class="w-full text-left border-collapse">
-                        <tbody id="search-results" class="text-sm font-body divide-y divide-surface-container">
-                            <tr>
-                                <td class="px-6 py-10 text-center opacity-30 italic text-xs">Busca productos en stock...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
-
-        <!-- Main Content: Basket -->
-        <div class="col-span-12 lg:col-span-8">
-            <section class="bg-surface-container-lowest p-8 rounded-[3rem] border-t-8 border-primary shadow-sm min-h-[600px] flex flex-col relative overflow-hidden">
-                <!-- Watermark Icon -->
-                <div class="absolute -top-10 -right-10 opacity-[0.03] pointer-events-none">
-                    <span class="material-symbols-outlined text-[20rem]">shopping_basket</span>
-                </div>
-
-                <div class="flex items-center gap-3 mb-8 relative z-10">
-                    <div class="w-12 h-12 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined text-3xl">local_mall</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-primary font-headline">Carrito de Salida</h3>
-                </div>
-
-                <form action="{{ route('outputs.store') }}" method="POST" id="output-form" class="flex-1 flex flex-col relative z-10">
-                    @csrf
-                    <!-- Hidden inputs for backend logic -->
-                    <input type="hidden" name="client_id" id="final_client_id">
-                    <input type="hidden" name="client_name" id="final_client_name">
-                    <input type="hidden" name="total_sold" id="final_total_sold">
-
-                    <div class="overflow-x-auto flex-1 -mx-4">
-                        <table class="w-full text-left border-separate border-spacing-y-3">
-                            <thead>
-                                <tr class="text-outline text-[10px] uppercase tracking-[0.15em] font-black px-4">
-                                    <th class="pb-2 pl-6">Producto / Lote</th>
-                                    <th class="pb-2 text-center w-24">Cantidad</th>
-                                    <th class="pb-2 text-right w-32">Precio Unit.</th>
-                                    <th class="pb-2 text-right pr-6 w-32">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody id="added-products" class="text-sm font-body">
-                                <!-- JS Injection -->
-                            </tbody>
-                        </table>
-
-                        <div id="empty-state" class="py-32 flex flex-col items-center justify-center text-outline/20">
-                            <span class="material-symbols-outlined text-7xl mb-4">production_quantity_limits</span>
-                            <p class="font-black text-xs uppercase tracking-[0.2em]">Selecciona productos del inventario</p>
-                        </div>
-                    </div>
-
-                    <!-- Totals Panel -->
-                    <div id="total-summary" class="mt-auto pt-8 border-t border-outline-variant/30 hidden">
-                        <div class="bg-surface-container-low p-8 rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-center gap-8">
-                            <div class="flex gap-12">
-                                <div>
-                                    <p class="text-[10px] font-black text-outline uppercase tracking-widest mb-1">Ítems</p>
-                                    <p class="text-4xl font-black text-primary font-headline" id="items-count">0</p>
-                                </div>
-                                <div class="h-14 w-px bg-outline-variant/30"></div>
-                                <div>
-                                    <p class="text-[10px] font-black text-outline uppercase tracking-widest mb-1">Total a Cobrar</p>
-                                    <div class="flex flex-col">
-                                        <p class="text-4xl font-black text-secondary font-headline" id="total-sold-preview">0.00$</p>
-                                        <p class="text-xs font-bold text-primary/40" id="total-sold-bs">≈ 0.00 Bs</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="w-full sm:w-auto">
-                                <div class="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-white flex flex-col gap-1 shadow-sm">
-                                    <div class="flex justify-between gap-6">
-                                        <span class="text-[9px] font-bold text-outline uppercase">Utilidad Estimada:</span>
-                                        <span class="text-xs font-black text-primary" id="total-profit-preview">0.00$</span>
-                                    </div>
-                                    <div class="h-1 bg-surface-container rounded-full overflow-hidden">
-                                        <div class="h-full bg-secondary w-full opacity-30"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </section>
-        </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
-<script>
-    const productsAdded = [];
-    const usdRate = parseFloat("{{ $usdRate ?? 0 }}");
-    let currentClientType = 'registered';
+    <script>
+        const productsAdded = [];
+        const usdRate = parseFloat("{{ $usdRate ?? 0 }}") || 0;
+        let currentClientType = 'registered';
+        let searchInventories = [];
 
-    function toggleClientType(type) {
-        currentClientType = type;
-        const regTab = document.getElementById('tab-registered');
-        const casTab = document.getElementById('tab-casual');
-        const regSec = document.getElementById('section-registered');
-        const casSec = document.getElementById('section-casual');
-
-        if (type === 'registered') {
-            regTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-primary shadow-sm";
-            casTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-outline hover:text-primary";
-            regSec.classList.remove('hidden');
-            casSec.classList.add('hidden');
-            document.getElementById('client_name_input').value = "";
-        } else {
-            casTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-primary shadow-sm";
-            regTab.className = "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-outline hover:text-primary";
-            casSec.classList.remove('hidden');
-            regSec.classList.add('hidden');
-            document.getElementById('client_id_select').value = "";
-        }
-        syncClientData();
-    }
-
-    function syncClientData() {
-        document.getElementById('final_client_id').value = document.getElementById('client_id_select').value;
-        document.getElementById('final_client_name').value = document.getElementById('client_name_input').value;
-    }
-
-    document.getElementById('client_id_select').addEventListener('change', syncClientData);
-    document.getElementById('client_name_input').addEventListener('input', syncClientData);
-
-    function searchProduct() {
-        let searchInput = document.getElementById('html5-search-input').value;
-        if (searchInput.length < 1) {
-            document.getElementById('search-results').innerHTML = '<tr><td class="px-6 py-10 text-center opacity-30 italic text-xs">Busca productos en stock...</td></tr>';
-            return;
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function(char) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                } [char];
+            });
         }
 
-        fetch(`/home/inventario/search-lots/${encodeURIComponent(searchInput)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.inventories.length === 0) {
-                    document.getElementById('search-results').innerHTML = '<tr><td class="px-6 py-10 text-center text-error/60 text-xs font-black uppercase tracking-widest">Sin stock disponible</td></tr>';
-                    return;
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('client_id_select').addEventListener('change', syncClientData);
+            document.getElementById('client_name_input').addEventListener('input', syncClientData);
+            syncClientData();
+        });
 
-                document.getElementById('search-results').innerHTML = data.inventories.map(inv => {
-                    const invJson = JSON.stringify(inv).replace(/"/g, '&quot;');
-                    let isAdded = productsAdded.some(p => p.inventoryID === inv.id);
-                    
-                    // Formatear fecha de vencimiento
-                    let expiredInfo = 'Sin Vencimiento';
-                    if(inv.expired_date) {
-                        const date = new Date(inv.expired_date);
-                        expiredInfo = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        function toggleClientType(type) {
+            currentClientType = type;
+            const regTab = document.getElementById('tab-registered');
+            const casTab = document.getElementById('tab-casual');
+            const regSec = document.getElementById('section-registered');
+            const casSec = document.getElementById('section-casual');
+
+            if (type === 'registered') {
+                regTab.className = 'py-1.5 rounded-lg bg-white text-brand-navy shadow-sm text-center transition';
+                casTab.className =
+                    'py-1.5 rounded-lg text-slate-500 hover:text-slate-700 text-center transition';
+                regSec.classList.remove('hidden');
+                casSec.classList.add('hidden');
+                document.getElementById('client_name_input').value = '';
+            } else {
+                casTab.className = 'py-1.5 rounded-lg bg-white text-brand-navy shadow-sm text-center transition';
+                regTab.className =
+                    'py-1.5 rounded-lg text-slate-500 hover:text-slate-700 text-center transition';
+                casSec.classList.remove('hidden');
+                regSec.classList.add('hidden');
+                document.getElementById('client_id_select').value = '';
+            }
+
+            syncClientData();
+        }
+
+        function syncClientData() {
+            const select = document.getElementById('client_id_select');
+            const nameInput = document.getElementById('client_name_input');
+            const info = document.getElementById('client-info');
+
+            document.getElementById('final_client_id').value = currentClientType === 'registered' ? select.value :
+                '';
+            document.getElementById('final_client_name').value = currentClientType === 'casual' ? nameInput.value :
+                '';
+
+            if (currentClientType === 'registered' && select.value) {
+                const option = select.options[select.selectedIndex];
+                document.getElementById('client-debt').textContent = '$' + (parseFloat(option.dataset.debt) || 0)
+                    .toFixed(2);
+                info.classList.remove('hidden');
+                info.classList.add('flex');
+            } else {
+                info.classList.add('hidden');
+                info.classList.remove('flex');
+            }
+        }
+
+        function focusSearch() {
+            const input = document.getElementById('html5-search-input');
+            input.focus();
+            const length = input.value.length;
+            input.setSelectionRange(length, length);
+        }
+
+        function searchProduct() {
+            const input = document.getElementById('html5-search-input');
+            const term = input.value.trim();
+            const resultsEl = document.getElementById('search-results');
+
+            if (term.length < 1) {
+                searchInventories = [];
+                resultsEl.innerHTML =
+                    '<p class="p-3 text-center text-[11px] text-slate-400">Busca productos en stock...</p>';
+                return;
+            }
+
+            fetch(`${window.tenantBase}/home/inventario/search-lots/${encodeURIComponent(term)}`)
+                .then(response => response.json())
+                .then(data => {
+                    searchInventories = data.inventories || [];
+
+                    if (searchInventories.length === 0) {
+                        resultsEl.innerHTML =
+                            '<div class="p-3 text-center text-error/70 text-[11px] font-bold uppercase tracking-widest">Sin stock disponible</div>';
+                        return;
                     }
 
-                    return `<tr class="hover:bg-primary/5 transition-colors group">
-                        <td class="px-6 py-4 cursor-pointer" onclick="${isAdded ? '' : `addProduct(${invJson})`}">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-primary text-sm">${inv.product.name}</span>
-                                <div class="flex flex-wrap gap-2 mt-1">
-                                    <span class="text-[8px] font-black bg-secondary-container/40 text-secondary px-1.5 py-0.5 rounded uppercase tracking-tighter">Lote: ${inv.lote_number || 'S/L'}</span>
-                                    <span class="text-[8px] font-bold text-outline bg-surface-container-low px-1.5 py-0.5 rounded uppercase">Vence: ${expiredInfo}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex flex-col items-end">
-                                <span class="text-xs font-black text-primary">${inv.stock} ${inv.product.sale_type === 'weight' ? 'g' : 'uds'}</span>
-                                <button type="button" ${isAdded ? 'disabled' : ''} onclick="addProduct(${invJson})" 
-                                        class="mt-1 p-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-all disabled:opacity-20">
-                                    <span class="material-symbols-outlined text-xs">add_shopping_cart</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>`;
-                }).join('');
-            });
-    }
+                    resultsEl.innerHTML = searchInventories.map(inv => {
+                        const product = inv.product || {};
+                        const added = productsAdded.some(p => p.inventoryID === inv.id);
+                        const isWeight = product.sale_type === 'weight';
+                        const unitLabel = isWeight ? 'g' : 'uds';
+                        const priceUsd = isWeight && product.price_per_kg ?
+                            parseFloat(product.price_per_kg) :
+                            parseFloat(product.sell_price || 0);
+                        const priceUsdLabel = isWeight ? `$${priceUsd.toFixed(2)}/kg` :
+                            `$${priceUsd.toFixed(2)}`;
+                        const priceBsLabel = isWeight ? `Bs ${(priceUsd * usdRate).toFixed(2)}/kg` :
+                            `Bs ${(priceUsd * usdRate).toFixed(2)}`;
+                        const expired = inv.expired_date ? new Date(inv.expired_date).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        }) : 'Sin vencimiento';
 
-    function addProduct(inventory) {
-        if (!productsAdded.some(p => p.inventoryID === inventory.id)) {
-            const isWeight = inventory.product.sale_type === 'weight';
-            const effectivePrice = isWeight && inventory.product.price_per_kg 
-                ? inventory.product.price_per_kg / 1000 
-                : parseFloat(inventory.product.sell_price);
-            
-            productsAdded.unshift({
-                inventoryID: inventory.id,
-                productID: inventory.product_id,
-                name: inventory.product.name,
-                barcode: inventory.product.barcode,
-                lote: inventory.lote_number,
-                maxStock: inventory.stock,
-                quantity: 1,
-                sell_price: effectivePrice,
-                display_price: inventory.product.price_per_kg || inventory.product.sell_price,
-                cost_per_unit: parseFloat(inventory.cost_per_unit),
-                sale_type: isWeight ? 'weight' : 'unit'
-            });
+                        return `<div class="bg-slate-50/80 rounded-xl p-2.5 border border-dashed border-slate-200 flex items-center justify-between gap-2">
+                            <div class="min-w-0 space-y-0.5">
+                                <h3 class="text-xs font-bold text-brand-navy truncate">${escapeHtml(product.name)}</h3>
+                                <p class="text-[10px] text-slate-400 font-mono truncate">Lote: ${escapeHtml(inv.lote_number || 'S/L')} • Vence: ${escapeHtml(expired)}</p>
+                                <p class="text-[11px] text-slate-500 font-medium">Stock: ${parseFloat(inv.stock) || 0} ${unitLabel}</p>
+                                <p class="text-[11px] font-bold text-brand-navy">${priceUsdLabel} <span class="font-medium text-slate-400">· ${priceBsLabel}</span></p>
+                            </div>
+                            <button type="button" ${added ? 'disabled' : ''} onclick="addProductById(${inv.id})"
+                                class="w-7 h-7 shrink-0 rounded-lg bg-brand-accent text-white flex items-center justify-center font-bold text-sm shadow-brand-float active:scale-90 transition disabled:opacity-30">
+                                <span class="material-symbols-outlined text-[16px]">${added ? 'check' : 'add'}</span>
+                            </button>
+                        </div>`;
+                    }).join('');
+                })
+                .catch(error => {
+                    console.error(error);
+                    resultsEl.innerHTML =
+                        '<div class="p-3 text-center text-error/70 text-[11px] font-bold uppercase tracking-widest">Error al buscar</div>';
+                });
         }
-        refreshBasket();
-    }
 
-    function refreshBasket() {
-        const createBtn = document.getElementById('btn-create-output');
-        const emptyState = document.getElementById('empty-state');
-        const summary = document.getElementById('total-summary');
-        
-        if (productsAdded.length > 0) {
-            createBtn.disabled = false;
-            emptyState.classList.add('hidden');
-            summary.classList.remove('hidden');
+        function addProductById(id) {
+            const inventory = searchInventories.find(inv => inv.id == id);
+
+            if (inventory) {
+                addProduct(inventory);
+            }
+        }
+
+        function addProduct(inventory) {
+            if (!productsAdded.some(p => p.inventoryID === inventory.id)) {
+                const isWeight = inventory.product.sale_type === 'weight';
+                const effectivePrice = isWeight && inventory.product.price_per_kg ?
+                    inventory.product.price_per_kg / 1000 :
+                    parseFloat(inventory.product.sell_price);
+
+                productsAdded.unshift({
+                    inventoryID: inventory.id,
+                    productID: inventory.product_id,
+                    name: inventory.product.name,
+                    barcode: inventory.product.barcode,
+                    lote: inventory.lote_number,
+                    maxStock: inventory.stock,
+                    quantity: 1,
+                    sell_price: effectivePrice,
+                    display_price: inventory.product.price_per_kg || inventory.product.sell_price,
+                    cost_per_unit: parseFloat(inventory.cost_per_unit),
+                    sale_type: isWeight ? 'weight' : 'unit'
+                });
+            }
+
+            refreshBasket();
+        }
+
+        function refreshBasket() {
+            const createBtn = document.getElementById('btn-create-output');
+            const emptyState = document.getElementById('empty-state');
+            const summary = document.getElementById('total-summary');
+            const hasProducts = productsAdded.length > 0;
+
+            createBtn.disabled = !hasProducts;
+            emptyState.classList.toggle('hidden', hasProducts);
+            summary.classList.toggle('hidden', !hasProducts);
+
+            document.getElementById('cart-badge').textContent =
+                `${productsAdded.length} ${productsAdded.length === 1 ? 'ítem' : 'ítems'}`;
+
+            document.getElementById('added-products').innerHTML = productsAdded.map((p, index) =>
+                renderCartItem(p, index)).join('');
+
             updateBasketTotals();
-        } else {
-            createBtn.disabled = true;
-            emptyState.classList.remove('hidden');
-            summary.classList.add('hidden');
         }
 
-        document.getElementById('added-products').innerHTML = productsAdded.map((p, index) => {
+        function renderCartItem(p, index) {
             const unitLabel = p.sale_type === 'weight' ? 'g' : 'uds';
-            const inputStep = p.sale_type === 'weight' ? '1' : '1';
-            const inputMin = p.sale_type === 'weight' ? '1' : '1';
-            return `<tr class="bg-white hover:shadow-md transition-all group border border-outline-variant/10">
-                <td class="py-4 pl-6 rounded-l-3xl">
-                    <input type="hidden" name="products[${index}][productID]" value="${p.productID}">
-                    <input type="hidden" name="products[${index}][inventoryID]" value="${p.inventoryID}">
-                    <div class="flex items-center gap-4">
-                        <button type="button" onclick="removeProduct(${p.inventoryID})" class="text-outline/30 hover:text-error transition-all scale-100 hover:scale-125">
-                            <span class="material-symbols-outlined text-xl">remove_circle</span>
-                        </button>
-                        <div class="flex flex-col">
-                            <span class="font-black text-primary text-base leading-none">${p.name}</span>
-                            <span class="text-[9px] text-outline font-mono mt-1 uppercase tracking-tighter">Lote: ${p.lote || 'S/L'} • SKU: ${p.barcode || '---'}</span>
-                        </div>
-                    </div>
-                </td>
-                <td class="py-4 px-2">
-                    <div class="flex flex-col items-center gap-1">
-                        <input class="w-20 bg-surface-container-low border-none rounded-xl py-2 text-sm text-center focus:ring-2 focus:ring-primary/40 font-black text-primary" 
-                               required type="number" step="${inputStep}" min="${inputMin}" max="${p.maxStock}" 
-                               name="products[${index}][quantity]" value="${p.quantity}" oninput="updateQty(${p.inventoryID}, this)">
-                        <span class="text-[8px] font-bold text-outline/40">${unitLabel}</span>
-                        <span class="text-[8px] font-bold text-outline/40">Max: ${p.maxStock}</span>
-                    </div>
-                </td>
-                <td class="py-4 px-2 text-right">
-                    ${p.sale_type === 'weight' 
-                        ? `<span class="text-sm font-black text-primary/60">${parseFloat(p.display_price).toFixed(2)}$/kg</span>` 
-                        : `<span class="text-sm font-black text-primary/60">${p.sell_price.toFixed(2)}$</span>`}
-                </td>
-                <td class="py-4 pr-6 rounded-r-3xl text-right">
-                    <span class="subtotal text-base font-black text-primary">${(p.sell_price * p.quantity).toFixed(2)}$</span>
-                </td>
-            </tr>`;
-        }).join('');
-    }
+            const subtotal = p.sell_price * p.quantity;
+            const subtotalBs = subtotal * usdRate;
+            const unitPriceUsd = p.sale_type === 'weight' ? parseFloat(p.display_price || 0) : parseFloat(p.sell_price);
+            const unitPriceBs = unitPriceUsd * usdRate;
+            const unitPriceUsdLabel = p.sale_type === 'weight' ?
+                `$${unitPriceUsd.toFixed(2)}/kg` :
+                `$${unitPriceUsd.toFixed(2)}`;
+            const unitPriceBsLabel = p.sale_type === 'weight' ?
+                `Bs ${unitPriceBs.toFixed(2)}/kg` :
+                `Bs ${unitPriceBs.toFixed(2)}`;
 
-    function updateQty(id, element) {
-        const p = productsAdded.find(x => x.inventoryID === id);
-        if (p) {
-            let val = parseFloat(element.value) || 0;
-            if (p.sale_type === 'weight') {
-                val = Math.max(1, Math.round(val));
-            } else {
-                val = Math.max(1, Math.floor(val));
+            return `<article data-cart-row="${p.inventoryID}" class="p-3 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-2 relative">
+                <input type="hidden" name="products[${index}][productID]" value="${p.productID}">
+                <input type="hidden" name="products[${index}][inventoryID]" value="${p.inventoryID}">
+                <div class="flex items-start justify-between">
+                    <div class="min-w-0">
+                        <h3 class="text-xs font-bold text-brand-navy leading-tight truncate">${escapeHtml(p.name)}</h3>
+                        <p class="text-[10px] text-slate-400 font-mono mt-0.5 truncate">SKU: ${escapeHtml(p.barcode || 'SIN SKU')} • Lote: ${escapeHtml(p.lote || 'S/L')}</p>
+                    </div>
+                    <button type="button" onclick="removeProduct(${p.inventoryID})" aria-label="Eliminar producto"
+                        class="text-slate-400 hover:text-red-500 p-1 -mr-1 transition shrink-0">
+                        <span class="material-symbols-outlined text-[16px]">delete</span>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 gap-2">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center border border-slate-200 bg-white rounded-lg p-0.5">
+                            <button type="button" onclick="stepQuantity(${p.inventoryID}, -1)"
+                                class="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-bold active:scale-90">−</button>
+                            <input id="qty-${p.inventoryID}" type="number" min="1" max="${p.maxStock}" required
+                                name="products[${index}][quantity]" value="${p.quantity}"
+                                oninput="updateQty(${p.inventoryID}, this)"
+                                class="w-10 bg-transparent border-0 p-0 text-center font-bold text-xs text-brand-navy focus:ring-0">
+                            <button type="button" onclick="stepQuantity(${p.inventoryID}, 1)"
+                                class="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-bold active:scale-90">+</button>
+                        </div>
+                        <span class="text-[8px] font-bold text-slate-400">${unitLabel} • Max: ${p.maxStock}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] text-slate-500 font-medium">P. Unit: ${unitPriceUsdLabel}</div>
+                        <div class="text-[9px] text-slate-400">${unitPriceBsLabel}</div>
+                        <div class="text-[10px] text-slate-400 font-medium mt-1">Subtotal</div>
+                        <div class="text-sm font-extrabold text-brand-navy">$<span id="subtotal-${p.inventoryID}">${subtotal.toFixed(2)}</span></div>
+                        <div class="text-[10px] font-semibold text-slate-500">Bs. <span id="subtotal-bs-${p.inventoryID}">${subtotalBs.toFixed(2)}</span></div>
+                    </div>
+                </div>
+            </article>`;
+        }
+
+        function updateQty(id, element) {
+            const p = productsAdded.find(x => x.inventoryID === id);
+
+            if (!p) return;
+
+            let value = parseFloat(element.value) || 0;
+            value = p.sale_type === 'weight' ? Math.max(1, Math.round(value)) : Math.max(1, Math.floor(value));
+
+            if (value > p.maxStock) {
+                value = p.maxStock;
             }
-            if (val > p.maxStock) {
-                val = p.maxStock;
-            }
-            p.quantity = val;
-            element.value = val;
-            const row = element.closest('tr');
-            row.querySelector('.subtotal').textContent = (p.sell_price * val).toFixed(2) + '$';
+
+            p.quantity = value;
+            element.value = value;
+
+            const subtotal = p.sell_price * value;
+            setText(`subtotal-${id}`, subtotal.toFixed(2));
+            setText(`subtotal-bs-${id}`, (subtotal * usdRate).toFixed(2));
             updateBasketTotals();
         }
-    }
 
-    function removeProduct(id) {
-        const idx = productsAdded.findIndex(x => x.inventoryID === id);
-        if (idx !== -1) productsAdded.splice(idx, 1);
-        refreshBasket();
-    }
+        function stepQuantity(id, delta) {
+            const p = productsAdded.find(x => x.inventoryID === id);
+            const input = document.getElementById(`qty-${id}`);
 
-    function updateBasketTotals() {
-        const totalSold = productsAdded.reduce((sum, p) => sum + (p.sell_price * p.quantity), 0);
-        const totalCost = productsAdded.reduce((sum, p) => sum + (p.cost_per_unit * p.quantity), 0);
-        const profit = totalSold - totalCost;
+            if (!p || !input) return;
 
-        document.getElementById('items-count').innerText = productsAdded.length;
-        document.getElementById('total-sold-preview').innerText = totalSold.toFixed(2) + '$';
-        document.getElementById('total-sold-bs').innerText = `≈ ${(totalSold * usdRate).toFixed(2)} Bs`;
-        document.getElementById('total-profit-preview').innerText = profit.toFixed(2) + '$';
-        document.getElementById('final_total_sold').value = totalSold.toFixed(2);
-    }
-</script>
+            const current = parseInt(input.value, 10) || 1;
+            const next = Math.min(p.maxStock, Math.max(1, current + delta));
+            input.value = next;
+            updateQty(id, input);
+        }
+
+        function removeProduct(id) {
+            const index = productsAdded.findIndex(x => x.inventoryID === id);
+
+            if (index !== -1) {
+                productsAdded.splice(index, 1);
+            }
+
+            refreshBasket();
+        }
+
+        function updateBasketTotals() {
+            const totalSold = productsAdded.reduce((sum, p) => sum + (p.sell_price * p.quantity), 0);
+            const totalCost = productsAdded.reduce((sum, p) => sum + (p.cost_per_unit * p.quantity), 0);
+            const profit = totalSold - totalCost;
+
+            setText('total-sold-subtotal', '$' + totalSold.toFixed(2));
+            setText('total-sold-subtotal-bs', 'Bs. ' + (totalSold * usdRate).toFixed(2));
+            setText('total-sold-preview', totalSold.toFixed(2));
+            setText('total-sold-bs', (totalSold * usdRate).toFixed(2));
+            setText('total-profit-preview', '$' + profit.toFixed(2));
+            setText('total-profit-bs-preview', 'Bs. ' + (profit * usdRate).toFixed(2));
+            document.getElementById('final_total_sold').value = totalSold.toFixed(2);
+        }
+
+        function selectPaymentMethod(button) {
+            const activeClasses = ['border-brand-accent/50', 'bg-emerald-50/60', 'text-brand-navy', 'shadow-sm'];
+            const inactiveClasses = ['border-slate-200', 'bg-white', 'text-slate-600'];
+
+            document.querySelectorAll('.payment-method-btn').forEach(function(item) {
+                item.classList.remove(...activeClasses);
+                item.classList.add(...inactiveClasses);
+            });
+
+            button.classList.remove(...inactiveClasses);
+            button.classList.add(...activeClasses);
+            document.getElementById('final_payment_method').value = button.dataset.payment;
+        }
+
+        function setText(id, value) {
+            const element = document.getElementById(id);
+
+            if (element) {
+                element.textContent = value;
+            }
+        }
+    </script>
 @endsection

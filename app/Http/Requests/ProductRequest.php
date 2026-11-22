@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Tenancy\TenantContext;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,10 +30,13 @@ class ProductRequest extends FormRequest
             'sellPrice' => ['required', 'numeric'],
             'sellPriceBs' => ['nullable', 'numeric'],
             'saleType' => ['required', 'in:unit,weight'],
+            'lowStockThreshold' => ['required', 'integer', 'min:0'],
             'barcode' => [
                 'nullable',
                 'string',
-                Rule::unique('products', 'barcode')->ignore($productId),
+                Rule::unique('products', 'barcode')
+                    ->where('tenant_id', app(TenantContext::class)->id())
+                    ->ignore($productId),
             ],
         ];
     }

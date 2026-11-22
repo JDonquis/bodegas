@@ -10,14 +10,30 @@ class ProductService
     public function get()
     {
         $products = Product::query()
+            ->with('inventoryGeneral')
             ->when(request()->input('search'), function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
                         ->orWhere('barcode', 'LIKE', '%'.$search.'%');
                 });
             })
+            ->when(request()->input('type') === 'unit', function ($query) {
+                return $query->where('sale_type', 'unit');
+            })
+            ->when(request()->input('type') === 'weight', function ($query) {
+                return $query->where('sale_type', 'weight');
+            })
+            ->when(request()->input('type') === 'low', function ($query) {
+                return $query->where(function ($q) {
+                    $q->whereDoesntHave('inventoryGeneral')
+                        ->orWhereHas('inventoryGeneral', function ($inventory) {
+                            $inventory->whereColumn('inventory_generals.stock', '<=', 'products.low_stock_threshold');
+                        });
+                });
+            })
             ->orderBy('id', 'desc')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return $products;
     }
@@ -32,6 +48,7 @@ class ProductService
             'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null,
             'sale_type' => $data->saleType ?? 'unit',
             'price_per_kg' => $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null,
+            'low_stock_threshold' => (int) $data->lowStockThreshold,
         ]);
 
         return $product;
@@ -48,6 +65,7 @@ class ProductService
             'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null,
             'sale_type' => $data->saleType ?? 'unit',
             'price_per_kg' => $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null,
+            'low_stock_threshold' => (int) $data->lowStockThreshold,
         ]);
 
         return $product;
@@ -58,11 +76,11 @@ class ProductService
     {
 
         if ($product->entries()->exists()) {
-            throw new Exception('No se puede eliminar el producto porque tiene entradas registradas.', 400);
+            throw new Exception('No se puede eliminar el producto porque tiene compras registradas.', 400);
         }
 
         if ($product->outputs()->exists()) {
-            throw new Exception('No se puede eliminar el producto porque tiene salidas registradas.', 400);
+            throw new Exception('No se puede eliminar el producto porque tiene ventas registradas.', 400);
         }
 
         $product->delete();

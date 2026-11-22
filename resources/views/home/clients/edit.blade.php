@@ -1,96 +1,235 @@
 @extends('layout.app')
 
+@section('styles')
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+@endsection
+
 @section('content')
-<!-- Header Section -->
-<section class="mb-10 flex items-end gap-4">
-    <a href="{{ route('clients') }}" class="p-2 hover:bg-surface-container-high rounded-full transition-colors text-primary">
-        <span class="material-symbols-outlined text-2xl">arrow_back</span>
-    </a>
-    <div>
-        <h1 class="text-4xl font-extrabold text-primary tracking-tight mb-2 font-headline">Editar Cliente</h1>
-        <p class="text-on-surface-variant font-body">Actualiza el perfil y estado de cuenta del contacto.</p>
-    </div>
-</section>
+    @php
+        $oldCI = old('clientCI', $client->ci ?? '');
+        preg_match('/^\s*([VEJG])[-\s]?/i', $oldCI, $matches);
+        $ciPrefix = strtoupper($matches[1] ?? 'V');
+        $ciNumber = $matches ? preg_replace('/^\s*[VEJG][-\s]?/i', '', $oldCI) : $oldCI;
+        $clientType = in_array($ciPrefix, ['J', 'G'], true) ? 'business' : 'natural';
+    @endphp
 
-<div class="max-w-4xl">
-    <div class="bg-surface-container-lowest p-10 rounded-[3rem] shadow-sm border border-outline-variant/30">
-        <form method="POST" action="{{ route('clients.update', ['client' => $client->id]) }}" class="space-y-8">
-            @csrf
-            @method('PUT')
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Nombre del Cliente -->
-                <div class="space-y-2 md:col-span-2">
-                    <label for="clientName" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Nombre Completo</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">person</span>
-                        <input type="text" name="clientName" id="clientName" required autofocus
-                            value="{{ $client->name }}"
-                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-bold"
-                            placeholder="Nombre del cliente">
-                    </div>
-                </div>
-
-                <!-- Cédula -->
-                <div class="space-y-2">
-                    <label for="clientCI" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Cédula / ID</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">badge</span>
-                        <input type="text" name="clientCI" id="clientCI"
-                            value="{{ $client->ci }}"
-                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-bold"
-                            placeholder="Cédula">
-                    </div>
-                </div>
-
-                <!-- Teléfono -->
-                <div class="space-y-2">
-                    <label for="clientPhoneNumber" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Teléfono</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">phone</span>
-                        <input type="text" name="clientPhoneNumber" id="clientPhoneNumber"
-                            value="{{ $client->phone_number }}"
-                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-bold"
-                            placeholder="Teléfono">
-                    </div>
-                </div>
-
-                <!-- Deuda Actual -->
-                <div class="space-y-2">
-                    <label for="clientDebt" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Saldo Deudor ($)</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-error">account_balance_wallet</span>
-                        <input type="number" step="0.01" min="0" name="clientDebt" id="clientDebt"
-                            value="{{ $client->debt }}"
-                            class="w-full bg-error-container/10 border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-error/20 placeholder:text-on-surface-variant/40 transition-all font-black text-error"
-                            placeholder="0.00">
-                    </div>
-                    <p class="text-[10px] text-error/60 ml-1 italic font-medium">Modifica este valor solo para ajustes manuales de cuenta.</p>
-                </div>
-
-                <!-- Dirección -->
-                <div class="space-y-2 md:col-span-2">
-                    <label for="clientAddress" class="text-sm font-black text-primary ml-1 uppercase tracking-widest">Dirección de Habitación</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-4 text-on-surface-variant">location_on</span>
-                        <textarea name="clientAddress" id="clientAddress" rows="3"
-                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40 transition-all font-medium"
-                            placeholder="Dirección completa...">{{ $client->address }}</textarea>
-                    </div>
-                </div>
+    <div class="mx-auto w-full max-w-md px-1 font-jakarta">
+        <div class="flex items-start gap-3.5 mb-5 px-1">
+            <a href="{{ route('clients') }}" aria-label="Regresar a clientes"
+                class="mt-0.5 w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm active:scale-90 transition-transform">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-2xl font-extrabold text-brand-navy tracking-tight">Editar Cliente</h1>
+                <p class="text-xs text-slate-600 font-medium leading-relaxed mt-0.5">Actualiza el perfil y estado de
+                    cuenta del contacto.</p>
             </div>
+        </div>
 
-            <!-- Form Actions -->
-            <div class="pt-8 border-t border-outline-variant/30 flex items-center justify-end gap-4">
-                <a href="{{ route('clients') }}" class="px-8 py-4 rounded-2xl text-sm font-black uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-high transition-colors">
-                    Cancelar
-                </a>
-                <button type="submit" class="bg-secondary hover:bg-on-secondary-container text-white px-10 py-4 rounded-2xl flex items-center gap-3 transition-all font-headline font-black uppercase tracking-widest shadow-xl shadow-secondary/20 transform active:scale-95">
-                    <span class="material-symbols-outlined">save</span>
-                    Guardar Cambios
-                </button>
-            </div>
-        </form>
+        <div class="bg-white rounded-3xl p-5 border border-blue-50/80 shadow-brand-card">
+            <form method="POST" action="{{ route('clients.update', ['client' => $client->id]) }}" id="client-form"
+                class="space-y-4">
+                @csrf
+                @method('PUT')
+
+                <div class="p-1 bg-[#f0f4ff] rounded-2xl flex items-center gap-1 border border-blue-100/60">
+                    <button type="button" id="tab-natural" onclick="setClientType('natural')"
+                        class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px]">person</span>
+                        Persona Natural
+                    </button>
+                    <button type="button" id="tab-business" onclick="setClientType('business')"
+                        class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px]">storefront</span>
+                        Empresa (RIF)
+                    </button>
+                </div>
+
+                <div>
+                    <label id="client-name-label" for="clientName"
+                        class="block text-[11px] font-bold text-slate-700 tracking-wider uppercase mb-1.5">Nombre Completo
+                        <span class="text-rose-500">*</span></label>
+                    <div class="relative flex items-center">
+                        <div class="absolute left-3.5 pointer-events-none text-slate-600">
+                            <span class="material-symbols-outlined text-[20px]">person</span>
+                        </div>
+                        <input type="text" name="clientName" id="clientName"
+                            value="{{ old('clientName', $client->name) }}" placeholder="Ej: Juan Pérez" required
+                            autofocus
+                            class="w-full pl-11 pr-4 py-3 bg-[#f0f4ff]/80 focus:bg-white text-sm font-semibold text-brand-navy placeholder:text-slate-500 rounded-2xl border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                    </div>
+                    @error('clientName')
+                        <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label id="client-id-label" for="ci-number"
+                        class="block text-[11px] font-bold text-slate-700 tracking-wider uppercase mb-1.5">Cédula / ID
+                        Documento</label>
+                    <div class="flex items-center gap-2">
+                        <div class="relative w-24">
+                            <select id="ci-prefix"
+                                class="w-full py-3 pl-3 pr-7 bg-[#f0f4ff]/80 text-sm font-bold text-brand-navy rounded-2xl border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                                <option value="V" @selected($ciPrefix === 'V')>V -</option>
+                                <option value="E" @selected($ciPrefix === 'E')>E -</option>
+                                <option value="J" @selected($ciPrefix === 'J')>J -</option>
+                                <option value="G" @selected($ciPrefix === 'G')>G -</option>
+                            </select>
+                            <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
+                                <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                            </div>
+                        </div>
+                        <div class="relative flex-1 flex items-center">
+                            <div class="absolute left-3.5 pointer-events-none text-slate-600">
+                                <span class="material-symbols-outlined text-[18px]">badge</span>
+                            </div>
+                            <input type="text" id="ci-number" value="{{ $ciNumber }}" placeholder="12345678"
+                                class="w-full pl-10 pr-4 py-3 bg-[#f0f4ff]/80 focus:bg-white text-sm font-semibold text-brand-navy placeholder:text-slate-500 rounded-2xl border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                        </div>
+                    </div>
+                    <input type="hidden" name="clientCI" id="clientCI" value="{{ old('clientCI', $client->ci) }}">
+                    @error('clientCI')
+                        <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="clientPhoneNumber"
+                        class="block text-[11px] font-bold text-slate-700 tracking-wider uppercase mb-1.5">Teléfono
+                        Móvil</label>
+                    <div class="relative flex items-center">
+                        <div class="absolute left-3.5 pointer-events-none text-slate-600">
+                            <span class="material-symbols-outlined text-[18px]">call</span>
+                        </div>
+                        <input type="tel" name="clientPhoneNumber" id="clientPhoneNumber"
+                            value="{{ old('clientPhoneNumber', $client->phone_number) }}"
+                            placeholder="0412-0000000"
+                            class="w-full pl-10 pr-12 py-3 bg-[#f0f4ff]/80 focus:bg-white text-sm font-semibold text-brand-navy placeholder:text-slate-500 rounded-2xl border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                        <div
+                            class="absolute right-3 w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200 pointer-events-none">
+                            <span class="material-symbols-outlined text-[15px]">chat</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div class="p-3 bg-rose-50/50 rounded-2xl border border-rose-100">
+                        <label for="clientDebt"
+                            class="block text-[10px] font-bold text-rose-800 tracking-wider uppercase mb-1">Saldo
+                            Deudor ($)</label>
+                        <div class="relative flex items-center">
+                            <span class="text-rose-500 font-bold text-sm mr-1.5">$</span>
+                            <input type="number" step="0.01" min="0" name="clientDebt" id="clientDebt"
+                                value="{{ old('clientDebt', $client->debt) }}"
+                                class="w-full p-0 bg-transparent text-rose-700 font-extrabold text-base border-none focus:ring-0 outline-none">
+                        </div>
+                        <p class="text-[9px] text-rose-600/80 italic mt-1 leading-snug">Ajuste manual de cuenta</p>
+                    </div>
+
+                    <div class="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                        <label for="clientCreditLimit"
+                            class="block text-[10px] font-bold text-emerald-800 tracking-wider uppercase mb-1">Límite
+                            Crédito ($)</label>
+                        <div class="relative flex items-center">
+                            <span class="text-emerald-600 font-bold text-sm mr-1.5">$</span>
+                            <input type="number" step="0.01" min="0" name="clientCreditLimit" id="clientCreditLimit"
+                                value="{{ old('clientCreditLimit', $client->credit_limit ?? 0) }}" placeholder="50.00"
+                                class="w-full p-0 bg-transparent text-emerald-700 font-extrabold text-base border-none focus:ring-0 outline-none placeholder:text-emerald-400">
+                        </div>
+                        <p class="text-[9px] text-emerald-700/80 italic mt-1 leading-snug">Monto máx. para fiado</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="clientAddress"
+                        class="block text-[11px] font-bold text-slate-700 tracking-wider uppercase mb-1.5">Dirección de
+                        Habitación / Entrega</label>
+                    <div class="relative">
+                        <div class="absolute left-3.5 top-3.5 pointer-events-none text-slate-600">
+                            <span class="material-symbols-outlined text-[18px]">location_on</span>
+                        </div>
+                        <textarea name="clientAddress" id="clientAddress" rows="2"
+                            placeholder="Calle, Sector, Edificio o Punto de Referencia..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-[#f0f4ff]/80 focus:bg-white text-xs font-medium text-brand-navy placeholder:text-slate-500 rounded-2xl border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none resize-none transition-all">{{ old('clientAddress', $client->address) }}</textarea>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-between gap-3">
+                    <a href="{{ route('clients') }}"
+                        class="w-1/3 py-3.5 px-3 rounded-2xl text-slate-500 hover:text-slate-800 text-xs font-bold tracking-wide uppercase active:scale-95 transition-all text-center">Descartar</a>
+                    <button type="submit"
+                        class="w-2/3 py-3.5 px-4 rounded-2xl bg-brand-navy text-white text-xs font-extrabold tracking-wide uppercase shadow-brand-btn active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px] text-brand-accent">save</span>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+@endsection
+
+@section('scripts')
+    <script>
+        const initialClientType = @json($clientType);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setClientType(initialClientType);
+            updateHiddenCI();
+
+            document.getElementById('ci-prefix').addEventListener('change', updateHiddenCI);
+            document.getElementById('ci-number').addEventListener('input', updateHiddenCI);
+            document.getElementById('client-form').addEventListener('submit', updateHiddenCI);
+        });
+
+        function setClientType(type) {
+            const naturalTab = document.getElementById('tab-natural');
+            const businessTab = document.getElementById('tab-business');
+            const prefix = document.getElementById('ci-prefix');
+            const nameLabel = document.getElementById('client-name-label');
+            const idLabel = document.getElementById('client-id-label');
+
+            const activeClasses = ['bg-brand-navy', 'text-white', 'shadow-sm'];
+            const inactiveClasses = ['text-slate-600', 'hover:text-slate-900'];
+
+            [naturalTab, businessTab].forEach(function(tab) {
+                tab.classList.remove(...activeClasses);
+                tab.classList.add(...inactiveClasses);
+            });
+
+            if (type === 'business') {
+                businessTab.classList.remove(...inactiveClasses);
+                businessTab.classList.add(...activeClasses);
+
+                if (!['J', 'G'].includes(prefix.value)) {
+                    prefix.value = 'J';
+                }
+
+                nameLabel.innerHTML = 'Razón Social <span class="text-rose-500">*</span>';
+                idLabel.textContent = 'RIF';
+            } else {
+                naturalTab.classList.remove(...inactiveClasses);
+                naturalTab.classList.add(...activeClasses);
+
+                if (!['V', 'E'].includes(prefix.value)) {
+                    prefix.value = 'V';
+                }
+
+                nameLabel.innerHTML = 'Nombre Completo <span class="text-rose-500">*</span>';
+                idLabel.textContent = 'Cédula / ID Documento';
+            }
+
+            updateHiddenCI();
+        }
+
+        function updateHiddenCI() {
+            const prefix = document.getElementById('ci-prefix').value;
+            const number = document.getElementById('ci-number').value.trim();
+            const hidden = document.getElementById('clientCI');
+
+            hidden.value = number ? `${prefix}-${number}` : '';
+        }
+    </script>
 @endsection

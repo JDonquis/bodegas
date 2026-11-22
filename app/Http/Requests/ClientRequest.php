@@ -26,6 +26,7 @@ class ClientRequest extends FormRequest
             'clientCI' => ['sometimes'],
             'clientAddress' => ['sometimes'],
             'clientPhoneNumber' => ['sometimes'],
+            'clientCreditLimit' => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 }

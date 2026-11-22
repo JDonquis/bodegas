@@ -278,7 +278,7 @@
     function searchPatient(){
       let searchPatientValue = patientCiInput.value;
 
-      fetch(`/home/pacientes/search/${encodeURIComponent(searchPatientValue)}`)
+      fetch(`${window.tenantBase}/home/pacientes/search/${encodeURIComponent(searchPatientValue)}`)
       .then(response => response.json())
       .then(data => {
 
@@ -346,7 +346,7 @@
 
     patientObj.age = patientAgeInput.value;
 
-    fetch(`/home/pacientes`,{
+    fetch(`${window.tenantBase}/home/pacientes`,{
       method: 'POST',
       headers:{
         "Content-Type" : "application/json",
@@ -388,7 +388,7 @@
             return;
         }
 
-        fetch(`/home/patologias/search/${encodeURIComponent(searcher.value)}`)
+        fetch(`${window.tenantBase}/home/patologias/search/${encodeURIComponent(searcher.value)}`)
           .then(response => response.json())
           .then(data => {
   
@@ -489,7 +489,7 @@
       if(confirm('Esta seguro de crear este registro?')){
         let searchInput = document.getElementById('searcher-pathology').value;
 
-      fetch(`/home/patologias`,{
+      fetch(`${window.tenantBase}/home/patologias`,{
         method: 'POST',
         headers:{
           "Content-Type" : "application/json",
@@ -543,7 +543,7 @@
     
     if(confirm('Esta seguro de asignar estos medicamentos?')){
   
-      fetch(`/home/salidas/true`,{
+      fetch(`${window.tenantBase}/home/salidas/true`,{
         method: 'POST',
         // headers:{
         //   "Content-Type" : "application/json",
@@ -592,7 +592,7 @@
         }
   
         // Realizar la llamada AJAX
-        fetch(`/home/inventario/search/${encodeURIComponent(searchInput)}`)
+        fetch(`${window.tenantBase}/home/inventario/search/${encodeURIComponent(searchInput)}`)
           .then(response => response.json())
           .then(data => {
   
@@ -626,7 +626,7 @@
   
     let inventoryID = $btn.getAttribute('inventoryID');
     
-    fetch(`/home/inventario/${inventoryID}`,{
+    fetch(`${window.tenantBase}/home/inventario/${inventoryID}`,{
         method: 'GET',
         headers:{
           "Content-Type" : "application/json",
@@ -782,7 +782,7 @@
     if(confirm('Esta seguro de crear este producto?')){
       let searchInput = document.getElementById('html5-search-input').value;
   
-      fetch(`/home/productos`,{
+      fetch(`${window.tenantBase}/home/productos`,{
         method: 'POST',
         headers:{
           "Content-Type" : "application/json",

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DebtController;
 use App\Http\Controllers\EntryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InvoiceController;
@@ -9,17 +10,6 @@ use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 Route::group(['middleware' => ['guest']], function () {
     Route::get('/', [AppController::class, 'login'])->name('login');
@@ -29,7 +19,6 @@ Route::group(['middleware' => ['guest']], function () {
     Route::post('/validar-master-password', [UserController::class, 'validateMasterPassword'])->name('password.validate');
     Route::get('/restablecer-contraseña/{ci}', [UserController::class, 'showResetPassword'])->name('password.reset');
     Route::post('/actualizar-contraseña', [UserController::class, 'updatePassword'])->name('password.update');
-
 });
 
 Route::middleware(['auth'])->prefix('home')->group(function () {
@@ -44,6 +33,7 @@ Route::middleware(['auth'])->prefix('home')->group(function () {
     // ------------------------------- PRODUCTOS
     Route::get('/productos', [ProductController::class, 'index'])->middleware('role_or_permission:admin')->name('products');
     Route::get('/productos/crear', [ProductController::class, 'create'])->middleware('role_or_permission:admin')->name('products.create');
+    Route::get('/productos/exportar', [ProductController::class, 'export'])->middleware('role_or_permission:admin')->name('products.export');
     Route::get('/productos/{product}', [ProductController::class, 'show'])->middleware('role_or_permission:admin')->name('products.show');
     Route::post('/productos', [ProductController::class, 'store'])->middleware('role_or_permission:admin')->name('products.store');
     Route::delete('/productos/{product}', [ProductController::class, 'destroy'])->middleware('role_or_permission:admin')->name('products.delete');
@@ -71,25 +61,41 @@ Route::middleware(['auth'])->prefix('home')->group(function () {
     Route::put('/salidas/{output}', [OutputController::class, 'update'])->middleware('role_or_permission:admin|update-outputs')->name('outputs.update');
 
     Route::middleware(['permission:read-inventories'])->group(function () {
-
         Route::get('/inventario', [InventoryController::class, 'index'])->name('inventory');
         Route::get('/inventario/{inventory}', [InventoryController::class, 'show'])->name('inventory.show');
         Route::get('/inventario/search/{search}', [InventoryController::class, 'search']);
         Route::get('/inventario/search-lots/{search}', [InventoryController::class, 'searchLots']);
         Route::get('/productos/search/{search}', [ProductController::class, 'search']);
-        // Route::post('/productos',[ProductController::class, 'store']);
-
     });
 
-    // ------------------------------- Clients
+    // ------------------------------- CLIENTS
     Route::get('/clientes', [ClientController::class, 'index'])->middleware('role_or_permission:admin')->name('clients');
     Route::get('/clientes/crear', [ClientController::class, 'create'])->middleware('role_or_permission:admin')->name('clients.create');
+    Route::get('/clientes/{client}/historial', [ClientController::class, 'history'])->middleware('role_or_permission:admin')->name('clients.history');
     Route::post('/clientes', [ClientController::class, 'store'])->middleware('role_or_permission:admin')->name('clients.store');
     Route::get('/clientes/editar/{client}', [ClientController::class, 'edit'])->middleware('role_or_permission:admin')->name('clients.edit');
     Route::put('/clientes/{client}', [ClientController::class, 'update'])->middleware('role_or_permission:admin')->name('clients.update');
     Route::delete('/clientes/{client}', [ClientController::class, 'destroy'])->middleware('role_or_permission:admin')->name('clients.delete');
 
-    // ------------------------------- Clients
-    Route::get('/invoice/{outputID}', [InvoiceController::class, 'index'])->middleware('role_or_permission:admin')->name('invoice');
+    // ------------------------------- DEUDAS
+    Route::get('/deudas', [DebtController::class, 'index'])->middleware('role_or_permission:admin')->name('debts');
+    Route::post('/deudas', [DebtController::class, 'store'])->middleware('role_or_permission:admin')->name('debts.store');
+    Route::post('/deudas/pagos', [DebtController::class, 'storePayment'])->middleware('role_or_permission:admin')->name('debts.payments.store');
 
+    Route::get('/invoice/{outputID}', [InvoiceController::class, 'index'])->middleware('role_or_permission:admin')->name('invoice');
+});
+
+Route::prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/login', [\App\Http\Controllers\SuperAdminController::class, 'showLogin'])->name('login');
+    Route::post('/login', [\App\Http\Controllers\SuperAdminController::class, 'login'])->name('login.post');
+
+    Route::middleware('auth:superadmin')->group(function () {
+        Route::get('/', [\App\Http\Controllers\SuperAdminController::class, 'dashboard'])->name('dashboard');
+        Route::post('/tenants', [\App\Http\Controllers\SuperAdminController::class, 'storeTenant'])->name('tenants.store');
+        Route::post('/tenants/{tenant}/toggle', [\App\Http\Controllers\SuperAdminController::class, 'toggleTenant'])->name('tenants.toggle');
+        Route::get('/billing', [\App\Http\Controllers\SuperAdminController::class, 'billing'])->name('billing');
+        Route::post('/billing/payments', [\App\Http\Controllers\SuperAdminController::class, 'storePayment'])->name('billing.payments.store');
+        Route::post('/credentials', [\App\Http\Controllers\SuperAdminController::class, 'updateCredentials'])->name('credentials.update');
+        Route::post('/logout', [\App\Http\Controllers\SuperAdminController::class, 'logout'])->name('logout');
+    });
 });

@@ -9,6 +9,7 @@ class ClientService
 {
     public function get(){
         $products = Client::query()
+        ->excludingDefault()
         ->when(request()->input('search'), function ($query, $search) {
             return $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(name) LIKE ?', [strtolower('%'.$search.'%')])
@@ -16,8 +17,15 @@ class ClientService
                   ->orWhereRaw('LOWER(ci) LIKE ?', [strtolower('%'.$search.'%')]);
             });
         })
+        ->when(request()->input('filter') === 'debt', function ($query) {
+            return $query->where('debt', '>', 0);
+        })
+        ->when(request()->input('filter') === 'solvent', function ($query) {
+            return $query->where('debt', '<=', 0);
+        })
         ->orderBy('id','desc')
-        ->paginate(15);
+        ->paginate(15)
+        ->withQueryString();
 
         return $products;   
     }
@@ -31,6 +39,7 @@ class ClientService
         'phone_number' => $data->clientPhoneNumber ?? null , 
         'address' => $data->clientAddress ?? null , 
         'debt' => $data->clientDebt ?? 0,
+        'credit_limit' => $data->clientCreditLimit ?? 0,
     ]);
 
         return $client;
@@ -45,6 +54,7 @@ class ClientService
             'phone_number' => $data->clientPhoneNumber ?? null , 
             'address' => $data->clientAddress ?? null , 
             'debt' => $data->clientDebt ?? 0,
+            'credit_limit' => $data->clientCreditLimit ?? 0,
         ]);
 
         return $client;

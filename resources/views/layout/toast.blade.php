@@ -1,5 +1,5 @@
 @if(session('success') || $errors->any())
-<div id="toast-notification" class="fixed top-24 right-8 z-[60] flex items-center w-full max-w-xs p-4 space-x-4 text-white {{ session('success') ? 'bg-secondary' : 'bg-error' }} rounded-xl shadow-lg transform transition-all duration-300 translate-x-0" role="alert">
+<div id="toast-notification" class="fixed top-20 inset-x-4 sm:inset-x-auto sm:right-8 z-[60] flex items-center gap-3 p-4 text-white {{ session('success') ? 'bg-secondary' : 'bg-error' }} rounded-xl shadow-lg transform transition-all duration-300 translate-x-0 sm:max-w-xs" role="alert">
     <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg bg-white/20">
         <span class="material-symbols-outlined text-xl">
             {{ session('success') ? 'check_circle' : 'error' }}
@@ -20,6 +20,6 @@
             toast.style.transform = 'translateX(150%)';
             setTimeout(() => toast.remove(), 300);
         }
-    }, 5000);
+    }, {{ session('success') ? 3000 : 6000 }});
 </script>
 @endif

@@ -94,7 +94,7 @@ class EntryService
             $newExpense = round($inventoryGeneral->expense - $entryDetail->cost, 2); 
 
             if($newStock < 0)
-                throw new Exception("No se puede eliminar esta entrada ya que el producto: ". $inventoryGeneral->product->name . ' quedaría en negativo', 500);
+                throw new Exception("No se puede eliminar esta compra ya que el producto: ". $inventoryGeneral->product->name . ' quedaría en negativo', 500);
                 
             $inventoryGeneral->update(['stock' => $newStock, 'entries' => $newEntries, 'expense' => $newExpense]);
         }

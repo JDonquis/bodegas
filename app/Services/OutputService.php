@@ -10,7 +10,7 @@ use Exception;
 
 class OutputService
 {
-    public function create($products, $client_id, $totalSold, $client_name = null)
+    public function create($products, $client_id, $totalSold, $client_name = null, $paymentMethod = null)
     {
 
         $totalOutputProfit = 0;
@@ -20,6 +20,7 @@ class OutputService
             'client_name' => $client_name,
             'total_sold' => round(floatval($totalSold), 2),
             'total_profit' => 0,
+            'payment_method' => $paymentMethod ?: null,
         ]);
 
         foreach ($products as $product) {

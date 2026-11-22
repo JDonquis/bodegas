@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OutputGeneral extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = [
 
@@ -16,6 +17,7 @@ class OutputGeneral extends Model
         'quantity_products',
         'total_sold',
         'total_profit',
+        'payment_method',
 
     ];
 

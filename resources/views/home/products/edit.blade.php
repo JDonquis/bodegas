@@ -1,176 +1,331 @@
 @extends('layout.app')
 
-@section('content')
-<!-- Header Section -->
-<section class="mb-10 flex items-end gap-4">
-    <a href="{{ route('products') }}" class="p-2 hover:bg-surface-container-high rounded-full transition-colors text-primary">
-        <span class="material-symbols-outlined text-2xl">arrow_back</span>
-    </a>
-    <div>
-        <h1 class="text-4xl font-extrabold text-primary tracking-tight mb-2">Editar Producto</h1>
-        <p class="text-on-surface-variant font-body">Actualiza la información técnica del artículo.</p>
-    </div>
-</section>
+@section('styles')
+    <style>
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
-<div class="max-w-2xl">
-    <div class="bg-surface-container-lowest p-8 rounded-[2.5rem] shadow-sm border border-outline-variant/30">
-        <form method="POST" action="{{ route('products.update', ['product' => $product->id]) }}" class="space-y-8">
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+@endsection
+
+@section('content')
+    <div class="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-24 lg:pb-0">
+
+        <!-- Cabecera de página -->
+        <section class="flex items-center gap-3">
+            <a href="{{ route('products') }}" aria-label="Volver al catálogo"
+                class="w-9 h-9 shrink-0 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+            </a>
+            <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+                    <span class="text-[10px] font-label font-semibold uppercase tracking-wider text-secondary">En línea</span>
+                </div>
+                <h1 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface leading-tight">Editar
+                    Producto</h1>
+                <p class="text-xs text-on-surface-variant">Actualiza la información del artículo en el catálogo</p>
+            </div>
+        </section>
+
+        <!-- Tasa BCV -->
+        <section
+            class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary-container/40 via-secondary-fixed/20 to-surface-container-lowest border border-secondary-container/60 p-3.5 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-secondary-container/50 border border-secondary-container flex items-center justify-center text-secondary">
+                        <span class="material-symbols-outlined text-[22px]">trending_up</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-label font-bold tracking-wider text-on-surface-variant uppercase">Tasa
+                                oficial BCV</span>
+                            <span
+                                class="inline-flex items-center px-1.5 py-0.5 rounded bg-secondary text-on-secondary text-[9px] font-extrabold uppercase tracking-tight">Hoy</span>
+                        </div>
+                        <p class="text-[11px] text-on-surface-variant font-medium">Actualización automática</p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <div class="text-lg font-black font-headline text-secondary tracking-tight leading-none">
+                        {{ number_format($usdRate ?? 0, 2) }} <span class="text-xs font-bold">Bs/$</span>
+                    </div>
+                    <span class="text-[10px] text-secondary/80 font-semibold">Tasa del día activa</span>
+                </div>
+            </div>
+            <input type="hidden" id="usd-rate" value="{{ $usdRate ?? 0 }}">
+        </section>
+
+        <!-- Formulario -->
+        <form method="POST" action="{{ route('products.update', ['product' => $product->id]) }}" id="product-form"
+            class="space-y-4">
             @csrf
             @method('PUT')
-            
-            <div class="space-y-6">
-                <!-- Tasa BCV Info -->
-                <div class="bg-secondary-container/10 p-4 rounded-2xl flex items-center justify-between border border-secondary/20">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-secondary">trending_up</span>
-                        <span class="text-sm font-bold text-primary font-headline">Tasa BCV Actual:</span>
-                    </div>
-                    <span class="text-lg font-extrabold text-secondary tracking-tight">{{ number_format($usdRate ?? 0, 2) }} Bs/USD</span>
-                    <input type="hidden" id="usd-rate" value="{{ $usdRate ?? 0 }}">
-                </div>
 
-                <!-- Código de Barras -->
-                <div class="space-y-2">
-                    <label for="barcode" class="text-sm font-bold text-primary ml-1">Código de Barras</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">barcode_scanner</span>
-                        <input type="text" name="barcode" id="barcode"
-                            value="{{ $product->barcode }}"
-                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40 transition-all"
-                            placeholder="Código de barras">
-                    </div>
+            <!-- Código de barras -->
+            <div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <label for="barcode"
+                        class="text-[11px] font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
+                        <span>Código de Barras</span>
+                        <span class="text-on-surface-variant font-normal text-[10px] normal-case">(Opcional)</span>
+                    </label>
+                    <button type="button" id="btn-generate-code"
+                        class="text-[11px] font-bold text-primary hover:underline flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px]">autorenew</span>
+                        Generar
+                    </button>
                 </div>
-
-                <!-- Nombre del Producto -->
-                <div class="space-y-2">
-                    <label for="productName" class="text-sm font-bold text-primary ml-1">Nombre del Producto</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">package_2</span>
-                        <input type="text" name="productName" id="productName" required autofocus
-                            value="{{ $product->name }}"
-                            class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40 transition-all"
-                            placeholder="Nombre del producto">
+                <div
+                    class="relative flex items-center rounded-xl bg-surface-container-low border border-outline-variant/30 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all">
+                    <div class="pl-3.5 pr-2 text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[20px]">barcode_scanner</span>
                     </div>
+                    <input type="text" name="barcode" id="barcode" value="{{ old('barcode', $product->barcode) }}"
+                        placeholder="7591031000123..."
+                        class="w-full min-w-0 bg-transparent border-0 py-3 text-sm font-mono font-medium text-on-surface placeholder:text-on-surface-variant/40 focus:ring-0">
+                    <button type="button" id="scan-barcode"
+                        class="m-1.5 shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg text-[11px] font-bold active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-[16px]">photo_camera</span>
+                        <span>Escanear</span>
+                    </button>
                 </div>
+                @error('barcode')
+                    <p class="text-[11px] text-error">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <!-- Tipo de Venta -->
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-primary ml-1">Tipo de Venta *</label>
-                    <div class="bg-surface-container-low p-1.5 rounded-2xl flex gap-1">
-                        <button type="button" onclick="setSaleType('unit')" id="btn-unit" 
-                                class="flex-1 py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-lg">inventory_2</span>
-                            Por Unidad
-                        </button>
-                        <button type="button" onclick="setSaleType('weight')" id="btn-weight" 
-                                class="flex-1 py-3 text-sm font-black rounded-xl transition-all text-outline hover:text-primary flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-lg">scale</span>
-                            Por Peso (gramos)
-                        </button>
-                    </div>
-                    <input type="hidden" name="saleType" id="saleType" value="{{ $product->sale_type }}">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Precio de Venta USD -->
-                    <div class="space-y-2">
-                        <label for="sellPrice" class="text-sm font-bold text-primary ml-1" id="label-usd">Precio USD</label>
-                        <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">attach_money</span>
-                            <input type="number" step="0.01" min="0" name="sellPrice" id="sellPrice" required
-                                value="{{ $product->sale_type === 'weight' ? $product->price_per_kg : $product->sell_price }}"
-                                class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40 transition-all"
-                                placeholder="0.00">
+            <!-- Información básica -->
+            <div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-3.5">
+                <div class="space-y-1.5">
+                    <label for="productName"
+                        class="block text-[11px] font-bold text-on-surface uppercase tracking-wider">
+                        Nombre del Producto <span class="text-error">*</span>
+                    </label>
+                    <div
+                        class="relative flex items-center rounded-xl bg-surface-container-low border border-outline-variant/30 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all">
+                        <div class="pl-3.5 pr-2 text-on-surface-variant">
+                            <span class="material-symbols-outlined text-[20px]">package_2</span>
                         </div>
+                        <input type="text" name="productName" id="productName"
+                            value="{{ old('productName', $product->name) }}"
+                            placeholder="Ej. Harina PAN 1kg, Amoxicilina 500mg" required
+                            class="w-full bg-transparent border-0 py-3 text-sm font-semibold text-on-surface placeholder:text-on-surface-variant/40 placeholder:font-normal focus:ring-0">
                     </div>
-
-                    <!-- Precio de Venta BS -->
-                    <div class="space-y-2">
-                        <label for="sellPriceBs" class="text-sm font-bold text-primary ml-1" id="label-bs">Precio Bs</label>
-                        <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">account_balance_wallet</span>
-                            <input type="number" step="0.01" min="0" name="sellPriceBs" id="sellPriceBs"
-                                value="{{ $product->sell_price_bs }}"
-                                class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40 transition-all"
-                                placeholder="0.00">
-                        </div>
-                    </div>
+                    @error('productName')
+                        <p class="text-[11px] text-error">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
-            <!-- Form Actions -->
-            <div class="pt-6 border-t border-outline-variant/30 flex items-center justify-end gap-4">
-                <a href="{{ route('products') }}" class="px-6 py-3 rounded-full text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">
-                    Cancelar
-                </a>
-                <button type="submit" class="bg-secondary hover:bg-on-secondary-container text-white px-8 py-4 rounded-full flex items-center gap-2 transition-all font-headline font-bold shadow-lg shadow-secondary/20 transform active:scale-95">
-                    <span class="material-symbols-outlined text-lg">sync</span>
-                    Actualizar Producto
-                </button>
+            <!-- Tipo de venta -->
+            <div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-2">
+                <label class="block text-[11px] font-bold text-on-surface uppercase tracking-wider">
+                    Tipo de Venta <span class="text-error">*</span>
+                </label>
+                <div class="grid grid-cols-2 p-1 bg-surface-container rounded-xl gap-1">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="saleType" value="unit" class="peer sr-only"
+                            @checked(old('saleType', $product->sale_type ?? 'unit') === 'unit')>
+                        <div
+                            class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface peer-checked:bg-primary peer-checked:text-on-primary peer-checked:shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">inventory_2</span>
+                            <span>Por Unidad</span>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="saleType" value="weight" class="peer sr-only"
+                            @checked(old('saleType', $product->sale_type ?? 'unit') === 'weight')>
+                        <div
+                            class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface peer-checked:bg-primary peer-checked:text-on-primary peer-checked:shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">scale</span>
+                            <span>Por Peso (Kg/g)</span>
+                        </div>
+                    </label>
+                </div>
+                @error('saleType')
+                    <p class="text-[11px] text-error">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Precios -->
+            <div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-3.5">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                    <h2 class="text-[11px] font-black text-on-surface uppercase tracking-wider">Estructura de Precios
+                    </h2>
+                    <span class="text-[10px] font-semibold text-secondary flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                        Auto-conversión
+                    </span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label for="sellPrice" id="label-usd" class="block text-[11px] font-bold text-on-surface">
+                            Precio USD ($) <span class="text-error">*</span>
+                        </label>
+                        <div
+                            class="relative flex items-center rounded-xl bg-surface-container-low border border-outline-variant/30 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20">
+                            <div class="pl-3.5 pr-1 text-on-surface-variant font-extrabold text-base">$</div>
+                            <input type="number" step="0.01" min="0" name="sellPrice" id="sellPrice"
+                                value="{{ old('sellPrice', $product->sale_type === 'weight' ? $product->price_per_kg : $product->sell_price) }}"
+                                placeholder="0.00" required
+                                class="w-full bg-transparent border-0 py-3 pr-3 text-base font-extrabold text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0">
+                        </div>
+                        @error('sellPrice')
+                            <p class="text-[11px] text-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label for="sellPriceBs" id="label-bs" class="block text-[11px] font-bold text-on-surface">
+                                Precio en Bolívares (Bs)
+                            </label>
+                            <span
+                                class="text-[9px] bg-surface-container text-on-surface-variant px-1.5 py-0.5 rounded font-medium">Tasa
+                                BCV</span>
+                        </div>
+                        <div
+                            class="relative flex items-center rounded-xl bg-secondary-container/20 border border-secondary-container/60 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20">
+                            <div class="pl-3.5 pr-1 text-secondary font-extrabold text-xs">Bs</div>
+                            <input type="number" step="0.01" min="0" name="sellPriceBs" id="sellPriceBs"
+                                value="{{ old('sellPriceBs', $product->sell_price_bs) }}" placeholder="0.00"
+                                class="w-full bg-transparent border-0 py-3 pr-3 text-base font-black text-secondary placeholder:text-secondary/40 focus:ring-0">
+                        </div>
+                        @error('sellPriceBs')
+                            <p class="text-[11px] text-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+                <div class="flex items-center justify-between px-1 pt-1 text-[10px] text-on-surface-variant">
+                    <span>Conversión automática · Tasa {{ number_format($usdRate ?? 0, 2) }} Bs</span>
+                    <span class="font-medium">IVA no incluido</span>
+                </div>
+            </div>
+
+            <!-- Control de existencias -->
+            <div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-3">
+                <h2 class="text-[11px] font-black text-on-surface uppercase tracking-wider">Control de Existencias</h2>
+                <div class="space-y-1.5">
+                    <label for="lowStockThreshold"
+                        class="block text-[11px] font-bold text-on-surface uppercase tracking-wider">
+                        Alerta mínima <span class="text-error">*</span>
+                    </label>
+                    <div
+                        class="relative flex items-center rounded-xl bg-amber-50 border border-amber-200 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all">
+                        <div class="pl-3.5 pr-2 text-amber-700">
+                            <span class="material-symbols-outlined text-[20px]">warning</span>
+                        </div>
+                        <input type="number" step="1" min="0" name="lowStockThreshold" id="lowStockThreshold"
+                            value="{{ old('lowStockThreshold', $product->low_stock_threshold ?? \App\Models\Product::DEFAULT_LOW_STOCK_THRESHOLD) }}"
+                            placeholder="10" required
+                            class="w-full bg-transparent border-0 py-3 pr-3 text-sm font-bold text-amber-800 placeholder:text-amber-700/40 focus:ring-0">
+                        <span class="pr-3.5 text-[11px] font-semibold text-amber-700/80">uds</span>
+                    </div>
+                    <p class="text-[11px] text-amber-700/80 px-1">
+                        Umbral usado para marcar productos con bajo stock en el catálogo.
+                    </p>
+                    @error('lowStockThreshold')
+                        <p class="text-[11px] text-error px-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
         </form>
+
+        <!-- Barra de acciones -->
+        <div class="fixed inset-x-0 z-30 px-4 py-2.5 bg-surface-container-lowest/90 backdrop-blur-md border-t border-outline-variant/20 shadow-[0_-4px_20px_rgba(11,30,54,0.08)] lg:static lg:z-auto lg:mt-1 lg:px-0 lg:py-0 lg:bg-transparent lg:border-0 lg:shadow-none"
+            style="bottom: calc(4rem + env(safe-area-inset-bottom));">
+            <div class="flex items-center gap-3 max-w-2xl mx-auto">
+                <a href="{{ route('products') }}"
+                    class="w-2/5 py-3 px-3 rounded-xl border border-outline-variant/40 text-on-surface-variant font-bold text-xs hover:bg-surface-container active:scale-95 transition-all text-center">
+                    Descartar
+                </a>
+                <button type="submit" form="product-form"
+                    class="w-3/5 py-3 px-4 rounded-xl bg-primary text-on-primary font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-[0.98] hover:bg-primary-container transition-all">
+                    <span class="material-symbols-outlined text-[18px] text-secondary-fixed">save</span>
+                    <span class="tracking-wide">Actualizar Producto</span>
+                </button>
+            </div>
+        </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const usdInput = document.getElementById('sellPrice');
-    const bsInput = document.getElementById('sellPriceBs');
-    const rate = parseFloat(document.getElementById('usd-rate').value) || 0;
-    const currentType = document.getElementById('saleType').value;
-    updateSaleTypeButtons(currentType);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rate = parseFloat(document.getElementById('usd-rate').value) || 0;
+            const usdInput = document.getElementById('sellPrice');
+            const bsInput = document.getElementById('sellPriceBs');
+            const labelUsd = document.getElementById('label-usd');
+            const labelBs = document.getElementById('label-bs');
+            const barcodeInput = document.getElementById('barcode');
+            const generateButton = document.getElementById('btn-generate-code');
+            const scanButton = document.getElementById('scan-barcode');
 
-    if (rate > 0) {
-        usdInput.addEventListener('input', function() {
-            const usd = parseFloat(this.value) || 0;
-            bsInput.value = (usd * rate).toFixed(2);
+            function updatePriceLabels() {
+                const selected = document.querySelector('input[name="saleType"]:checked');
+                const type = selected ? selected.value : 'unit';
+
+                if (type === 'weight') {
+                    labelUsd.innerHTML = 'Precio por Kg (USD) <span class="text-error">*</span>';
+                    labelBs.textContent = 'Precio por Kg (Bs)';
+                } else {
+                    labelUsd.innerHTML = 'Precio USD ($) <span class="text-error">*</span>';
+                    labelBs.textContent = 'Precio en Bolívares (Bs)';
+                }
+            }
+
+            function syncBsPrice() {
+                const usd = parseFloat(usdInput.value);
+
+                if (!isNaN(usd) && usd >= 0 && rate > 0) {
+                    bsInput.value = (usd * rate).toFixed(2);
+                } else {
+                    bsInput.value = '';
+                }
+            }
+
+            function syncUsdPrice() {
+                const bs = parseFloat(bsInput.value);
+
+                if (!isNaN(bs) && bs >= 0 && rate > 0) {
+                    usdInput.value = (bs / rate).toFixed(2);
+                } else {
+                    usdInput.value = '';
+                }
+            }
+
+            document.querySelectorAll('input[name="saleType"]').forEach(function(radio) {
+                radio.addEventListener('change', updatePriceLabels);
+            });
+
+            if (rate > 0) {
+                usdInput.addEventListener('input', syncBsPrice);
+                bsInput.addEventListener('input', syncUsdPrice);
+            }
+
+            if (generateButton && barcodeInput) {
+                generateButton.addEventListener('click', function() {
+                    barcodeInput.value = '759' + Math.floor(100000000 + Math.random() * 900000000);
+                    barcodeInput.focus();
+                });
+            }
+
+            if (scanButton && barcodeInput) {
+                scanButton.addEventListener('click', function() {
+                    barcodeInput.focus();
+                    const length = barcodeInput.value.length;
+                    barcodeInput.setSelectionRange(length, length);
+                });
+            }
+
+            updatePriceLabels();
         });
-
-        bsInput.addEventListener('input', function() {
-            const bs = parseFloat(this.value) || 0;
-            usdInput.value = (bs / rate).toFixed(2);
-        });
-    }
-});
-
-function setSaleType(type) {
-    document.getElementById('saleType').value = type;
-    updateSaleTypeButtons(type);
-    updatePriceLabels(type);
-}
-
-function updateSaleTypeButtons(type) {
-    const btnUnit = document.getElementById('btn-unit');
-    const btnWeight = document.getElementById('btn-weight');
-    
-    if (type === 'weight') {
-        btnWeight.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all bg-primary text-white shadow-sm flex items-center justify-center gap-2';
-        btnUnit.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all text-outline hover:text-primary flex items-center justify-center gap-2';
-    } else {
-        btnUnit.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all bg-primary text-white shadow-sm flex items-center justify-center gap-2';
-        btnWeight.className = 'flex-1 py-3 text-sm font-black rounded-xl transition-all text-outline hover:text-primary flex items-center justify-center gap-2';
-    }
-}
-
-function updatePriceLabels(type) {
-    const labelUsd = document.getElementById('label-usd');
-    const labelBs = document.getElementById('label-bs');
-    
-    if (type === 'weight') {
-        labelUsd.textContent = 'Precio por Kg (USD)';
-        labelBs.textContent = 'Precio por Kg (Bs)';
-    } else {
-        labelUsd.textContent = 'Precio USD';
-        labelBs.textContent = 'Precio Bs';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const currentType = document.getElementById('saleType').value;
-    updateSaleTypeButtons(currentType);
-    updatePriceLabels(currentType);
-});
-</script>
+    </script>
 @endsection

@@ -37,7 +37,31 @@ class OutputController extends Controller
 
         $outputs = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
-        return view('home.outputs')->with(compact('outputs', 'search'));
+        $totalSales = OutputGeneral::sum('total_sold');
+        $totalProfit = OutputGeneral::sum('total_profit');
+        $totalMargin = $totalSales > 0 ? round(($totalProfit / $totalSales) * 100, 1) : 0;
+        $todayOutputs = OutputGeneral::whereDate('created_at', now()->toDateString())->count();
+        $todayUnits = Output::whereHas('outputGeneral', function ($query) {
+            $query->whereDate('created_at', now()->toDateString());
+        })->sum('quantity');
+
+        $bcvService = new BCVService;
+        $usdRate = $bcvService->getUSDValue() ?? 0;
+        $totalSalesBs = $totalSales * $usdRate;
+        $totalProfitBs = $totalProfit * $usdRate;
+
+        return view('home.outputs')->with(compact(
+            'outputs',
+            'search',
+            'totalSales',
+            'totalProfit',
+            'totalMargin',
+            'todayOutputs',
+            'todayUnits',
+            'usdRate',
+            'totalSalesBs',
+            'totalProfitBs'
+        ));
     }
 
     /**
@@ -91,16 +115,21 @@ class OutputController extends Controller
             $client_id = $request->input('client_id');
             $client_name = $request->input('client_name');
             $totalSold = $request->input('total_sold');
+            $paymentMethod = $request->input('payment_method');
+
+            if ($client_id && ! Client::whereKey($client_id)->exists()) {
+                $client_id = null;
+            }
 
             $outputService = new OutputService;
-            $newOutputGeneral = $outputService->create($products, $client_id, $totalSold, $client_name);
+            $newOutputGeneral = $outputService->create($products, $client_id, $totalSold, $client_name, $paymentMethod);
 
             DB::commit();
 
             if ($json == null) {
-                return redirect('home/salidas')->with(['success' => 'Salida creada exitosamente']);
+                return redirect()->route('outputs')->with(['success' => 'Venta creada exitosamente']);
             } else {
-                return response()->json(['success' => 'Salida creada exitosamente', 'outputGeneralID' => $newOutputGeneral->id]);
+                return response()->json(['success' => 'Venta creada exitosamente', 'outputGeneralID' => $newOutputGeneral->id]);
             }
 
         } catch (\Exception $error) {
@@ -118,7 +147,10 @@ class OutputController extends Controller
     {
         $outputs = Output::with('product', 'inventory')->where('output_general_id', $output->id)->get();
 
-        return response()->json(['outputs' => $outputs]);
+        return response()->json([
+            'outputs' => $outputs,
+            'outputGeneral' => $output->load('client'),
+        ]);
     }
 
     /**
@@ -154,12 +186,17 @@ class OutputController extends Controller
             $client_id = $request->input('client_id');
             $client_name = $request->input('client_name');
             $totalSold = $request->input('total_sold');
+            $paymentMethod = $request->input('payment_method', $output->payment_method);
 
-            $outputService->create($products, $client_id, $totalSold, $client_name);
+            if ($client_id && ! Client::whereKey($client_id)->exists()) {
+                $client_id = null;
+            }
+
+            $outputService->create($products, $client_id, $totalSold, $client_name, $paymentMethod);
 
             DB::commit();
 
-            return redirect()->route('outputs')->with(['success' => 'Salida actualizada exitosamente']);
+            return redirect()->route('outputs')->with(['success' => 'Venta actualizada exitosamente']);
 
         } catch (\Exception $error) {
             DB::rollBack();
@@ -182,7 +219,7 @@ class OutputController extends Controller
 
             DB::commit();
 
-            return redirect()->route('outputs')->with(['success' => 'Salida eliminada exitosamente']);
+            return redirect()->route('outputs')->with(['success' => 'Venta eliminada exitosamente']);
 
         } catch (\Exception $error) {
             DB::rollBack();

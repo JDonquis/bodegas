@@ -7,7 +7,7 @@
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Buscar productos</h5>
-          <small class="text-muted float-end">Salidas</small>
+          <small class="text-muted float-end">Ventas</small>
         </div>
         <div class="card-body">
           <form>
@@ -50,7 +50,7 @@
       <div class="card mb-6" style="max-height: 800px; overflow-y: scroll;">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Productos a vender</h5>
-          <small class="text-muted float-end">Salidas</small>
+          <small class="text-muted float-end">Ventas</small>
         </div>
         <div class="card-body">
           <form action="{{ route('outputs.update' , ['output' => $outputGeneral->id]) }}" method="POST">
@@ -121,7 +121,7 @@
               </div>
              
             <div class="w-full d-flex justify-content-end">  
-              <button disabled type="submit" id="btn-create-output" class="btn btn-primary mt-3">Actualizar salida</button>
+              <button disabled type="submit" id="btn-create-output" class="btn btn-primary mt-3">Actualizar venta</button>
             </div>
           </form>
         </div>
@@ -207,7 +207,7 @@
       }
 
       // Realizar la llamada AJAX
-      fetch(`/home/inventario/search/${encodeURIComponent(searchInput)}`)
+      fetch(`${window.tenantBase}/home/inventario/search/${encodeURIComponent(searchInput)}`)
         .then(response => response.json())
         .then(data => {
 
@@ -244,7 +244,7 @@ function showDetail($btn){
 
 let inventoryID = $btn.getAttribute('inventoryID');
 
-fetch(`/home/inventario/${inventoryID}`,{
+fetch(`${window.tenantBase}/home/inventario/${inventoryID}`,{
     method: 'GET',
     headers:{
       "Content-Type" : "application/json",
@@ -420,7 +420,7 @@ function createProduct(){
   if(confirm('Esta seguro de crear este producto?')){
     let searchInput = document.getElementById('html5-search-input').value;
 
-    fetch(`/home/productos`,{
+    fetch(`${window.tenantBase}/home/productos`,{
       method: 'POST',
       headers:{
         "Content-Type" : "application/json",

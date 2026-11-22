@@ -73,7 +73,18 @@ class UserController extends Controller
             return redirect('/')->withErrors(['error' => 'Creedenciales incorrectas']);
         }
 
-        return redirect()->intended('/home')->with(['success' => 'Bienvenido ' . auth()->user()->name . '!']);
+        $user = auth()->user();
+        $tenant = $user->tenant;
+
+        if (! $tenant || ! $tenant->is_active) {
+            Auth::logout();
+
+            return redirect('/')->withErrors([
+                'error' => 'Su bodega ha sido inhabilitada, por favor comunicarse con el administrador.',
+            ])->onlyInput('ci');
+        }
+
+        return redirect()->intended(route('home'))->with(['success' => 'Bienvenido ' . auth()->user()->name . '!']);
     }
 
     public function logout(Request $request)

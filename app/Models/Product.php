@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
+
+    public const DEFAULT_LOW_STOCK_THRESHOLD = 10;
 
     protected $fillable = [
         'name',
@@ -16,15 +19,22 @@ class Product extends Model
         'sell_price_bs',
         'sale_type',
         'price_per_kg',
+        'low_stock_threshold',
     ];
 
     protected $casts = [
         'sale_type' => 'string',
+        'low_stock_threshold' => 'integer',
     ];
 
     public function getUnitLabelAttribute()
     {
         return $this->sale_type === 'weight' ? 'g' : 'uds';
+    }
+
+    public function inventoryGeneral()
+    {
+        return $this->hasOne(InventoryGeneral::class);
     }
 
     public function getEffectivePriceAttribute()

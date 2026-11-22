@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-slate-50" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        name="viewport" />
+    <title>MiBodega - Catálogo Maestro de Productos</title>
+    <!-- Tailwind CSS v3 CDN with plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind Custom Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f5fa',
+                            100: '#e1eaf3',
+                            200: '#c3d5e7',
+                            600: '#1d4878',
+                            800: '#102a4b',
+                            900: '#0b1e36', // Primary Navy from MiBodega
+                            950: '#071324',
+                        },
+                        accent: {
+                            emerald: '#10b981',
+                            mint: '#059669',
+                            amber: '#f59e0b',
+                            coral: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    boxShadow: {
+                        'card': '0 4px 20px -2px rgba(11, 30, 54, 0.05), 0 2px 6px -1px rgba(11, 30, 54, 0.02)',
+                        'nav': '0 -4px 24px rgba(11, 30, 54, 0.06)',
+                        'float': '0 10px 25px -4px rgba(11, 30, 54, 0.25)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Styles for Mobile Ergonomics and Scrollbars -->
+    <style data-purpose="base-enhancements">
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Native iOS Safe Area padding */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 16px);
+        }
+    </style>
+</head>
+
+<body
+    class="h-full font-sans text-slate-800 bg-[#f8faff] flex flex-col antialiased selection:bg-brand-900 selection:text-white">
+    <!-- BEGIN: MobileDeviceFrame -->
+    <div
+        class="relative w-full max-w-md mx-auto min-h-screen flex flex-col bg-[#f8faff] shadow-2xl overflow-x-hidden pb-28">
+        <!-- BEGIN: TopStatusBarAndNavigation -->
+        <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 pt-safe transition-all"
+            data-purpose="app-header">
+            <div class="px-4 py-3 flex items-center justify-between">
+                <!-- Left: Brand Logo & Context -->
+                <div class="flex items-center space-x-2.5">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-brand-900 flex items-center justify-center text-white shadow-sm ring-2 ring-brand-900/10">
+                        <!-- Box Icon -->
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="font-bold text-base tracking-tight text-brand-900">MiBodega</span>
+                            <span
+                                class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                Online
+                            </span>
+                        </div>
+                        <p class="text-[11px] font-medium text-slate-400 -mt-0.5 tracking-wide">CONTROL DE STOCK</p>
+                    </div>
+                </div>
+                <!-- Right: Actions (Notification & User Profile) -->
+                <div class="flex items-center space-x-2">
+                    <!-- Notification Bell -->
+                    <button aria-label="Notificaciones"
+                        class="relative p-2 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-xl transition-colors"
+                        type="button">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+                            <path
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span
+                            class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+                    </button>
+                    <!-- User Badge / Avatar -->
+                    <button aria-label="Perfil de usuario"
+                        class="w-9 h-9 rounded-xl bg-brand-50 border border-brand-200/80 text-brand-900 font-bold text-xs flex items-center justify-center tracking-wider shadow-inner"
+                        type="button">
+                        AD
+                    </button>
+                </div>
+            </div>
+            <!-- Warehouse Location Indicator Chip -->
+            <div
+                class="px-4 pb-2.5 pt-0.5 flex items-center justify-between text-xs text-slate-500 border-t border-slate-50">
+                <div class="flex items-center space-x-1.5 font-medium">
+                    <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2"
+                        viewbox="0 0 24 24">
+                        <path
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span class="text-slate-600">Bodega Central</span>
+                    <span class="text-slate-300">•</span>
+                    <span class="text-emerald-600 font-semibold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Principal
+                    </span>
+                </div>
+                <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium">Pasillos
+                    A-F</span>
+            </div>
+        </header>
+        <!-- END: TopStatusBarAndNavigation -->
+        <!-- BEGIN: MainContent -->
+        <main class="flex-1 px-4 pt-4 space-y-4">
+            <!-- Title & Header Description -->
+            <div class="flex items-start justify-between">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-brand-900 tracking-tight">Productos</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">Catálogo maestro de artículos en inventario</p>
+                </div>
+                <button
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-900 bg-brand-50 border border-brand-200 hover:bg-brand-100 transition-colors"
+                    type="button">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round"
+                            stroke-linejoin="round"></path>
+                    </svg>
+                    Exportar
+                </button>
+            </div>
+            <!-- Quick Action Button (+ Nuevo Producto) -->
+            <button
+                class="w-full h-12 bg-brand-900 active:bg-brand-950 text-white rounded-xl font-semibold text-sm flex items-center justify-center space-x-2 shadow-lg shadow-brand-900/15 hover:shadow-brand-900/25 transition-all transform active:scale-[0.99]"
+                data-purpose="new-product-cta" type="button">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+                    <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>Nuevo Producto</span>
+            </button>
+            <!-- BEGIN: CompactKPIs -->
+            <!-- Mini Dashboard Summary Cards -->
+            <div class="grid grid-cols-3 gap-2.5" data-purpose="kpi-summary">
+                <!-- KPI 1: Total -->
+                <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-card">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total</span>
+                        <div class="p-1 rounded bg-blue-50 text-brand-600">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
+                                viewbox="0 0 24 24">
+                                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black text-brand-900 mt-1">20</div>
+                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">Artículos reg.</p>
+                </div>
+                <!-- KPI 2: En Stock -->
+                <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-card">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Activos</span>
+                        <div class="p-1 rounded bg-emerald-50 text-emerald-600">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2"
+                                viewbox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black text-emerald-700 mt-1">17</div>
+                    <p class="text-[10px] text-emerald-600/80 font-medium mt-0.5">85% con stock</p>
+                </div>
+                <!-- KPI 3: Críticos / Agotados -->
+                <div class="bg-white p-3 rounded-2xl border border-rose-100/80 shadow-card bg-rose-50/20">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-rose-500 uppercase tracking-wider">Alerta</span>
+                        <div class="p-1 rounded bg-rose-50 text-rose-600">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-xl font-black text-rose-600 mt-1">3</div>
+                    <p class="text-[10px] text-rose-500 font-medium mt-0.5">Bajo stock</p>
+                </div>
+            </div>
+            <!-- END: CompactKPIs -->
+            <!-- BEGIN: SearchAndFilters -->
+            <section class="space-y-3" data-purpose="search-and-filtering">
+                <!-- Modern Search Input with Barcode Scanner Icon -->
+                <div class="relative flex items-center">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <input
+                        class="w-full h-11 pl-10 pr-20 bg-white border border-slate-200/90 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-900/20 focus:border-brand-900 shadow-sm transition-all"
+                        placeholder="Buscar por nombre, código o categoría..." type="search" />
+                    <div class="absolute inset-y-0 right-1.5 flex items-center space-x-1">
+                        <button
+                            class="h-8 px-2 bg-brand-50 hover:bg-brand-100 text-brand-900 border border-brand-200/60 rounded-lg flex items-center gap-1 text-[11px] font-semibold active:scale-95 transition-transform"
+                            title="Escanear Código de Barras" type="button">
+                            <!-- Barcode scan icon -->
+                            <svg class="w-4 h-4 text-brand-900" fill="none" stroke="currentColor" stroke-width="2"
+                                viewbox="0 0 24 24">
+                                <path
+                                    d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"
+                                    stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M7 9v6m4-6v6m3-6v6m3-6v6" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                            </svg>
+                            <span>Scan</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Filter Chips (Horizontal Scrollable) -->
+                <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-0.5 text-xs font-semibold">
+                    <button class="px-3.5 py-1.5 rounded-full bg-brand-900 text-white whitespace-nowrap shadow-sm"
+                        type="button">
+                        Todos (20)
+                    </button>
+                    <button
+                        class="px-3.5 py-1.5 rounded-full bg-white text-slate-600 border border-slate-200 whitespace-nowrap hover:bg-slate-50 transition-colors"
+                        type="button">
+                        Abarrotes (8)
+                    </button>
+                    <button
+                        class="px-3.5 py-1.5 rounded-full bg-white text-slate-600 border border-slate-200 whitespace-nowrap hover:bg-slate-50 transition-colors"
+                        type="button">
+                        Bebidas (3)
+                    </button>
+                    <button
+                        class="px-3.5 py-1.5 rounded-full bg-white text-slate-600 border border-slate-200 whitespace-nowrap hover:bg-slate-50 transition-colors"
+                        type="button">
+                        Cuidado Personal (3)
+                    </button>
+                    <button
+                        class="px-3.5 py-1.5 rounded-full bg-white text-slate-600 border border-slate-200 whitespace-nowrap hover:bg-slate-50 transition-colors"
+                        type="button">
+                        Limpieza (4)
+                    </button>
+                    <button
+                        class="px-3.5 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap hover:bg-rose-100 transition-colors flex items-center gap-1"
+                        type="button">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse"></span>
+                        Bajo Stock (3)
+                    </button>
+                </div>
+            </section>
+            <!-- END: SearchAndFilters -->
+            <!-- BEGIN: ProductsList -->
+            <!-- Modern Touch-Friendly Product Cards (Redesigned from raw table) -->
+            <section class="space-y-2.5 pt-1" data-purpose="product-items-container">
+                <!-- Product 1: Adobo La Comadre -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-slate-100/90 shadow-card hover:border-brand-200 transition-all flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <!-- Category Icon Badge -->
+                            <div
+                                class="w-11 h-11 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                🧂
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Adobo La Comadre 200g</h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Abarrotes
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001002020
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Price -->
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$1.20</span>
+                        </div>
+                    </div>
+                    <!-- Bottom Row: Stock status & Quick Actions -->
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                Stock: 48 uds
+                            </span>
+                            <span class="text-[11px] text-slate-400">Estante B-03</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 2: Shampoo Every Night (Low Stock Alert) -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-rose-200/80 shadow-card flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-purple-50 text-purple-700 border border-purple-100 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                🧴
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Shampoo Every Night 400ml</h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Cuidado Personal
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001001919
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$3.40</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5 animate-ping"></span>
+                                Stock: 3 uds (Crítico)
+                            </span>
+                            <span class="text-[11px] text-slate-400">Estante D-01</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 3: Crema Dental Colgate -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-slate-100/90 shadow-card flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-700 border border-cyan-100 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                🪥
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Crema Dental Colgate 100ml
+                                </h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Cuidado Personal
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001001818
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$2.10</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                Stock: 72 uds
+                            </span>
+                            <span class="text-[11px] text-slate-400">Estante D-02</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 4: Papel Higiénico Scott -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-slate-100/90 shadow-card flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                🧻
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Papel Higiénico Scott 4 rollos
+                                </h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Limpieza
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001001717
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$2.80</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                Stock: 110 paq.
+                            </span>
+                            <span class="text-[11px] text-slate-400">Estante E-01</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 5: Detergente Las Llaves -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-slate-100/90 shadow-card flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-teal-50 text-teal-700 border border-teal-100 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                🧼
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Detergente Las Llaves 1kg</h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Limpieza
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001001616
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$2.50</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                Stock: 35 uds
+                            </span>
+                            <span class="text-[11px] text-slate-400">Estante E-04</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 6: Cerveza Polar Light -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-slate-100/90 shadow-card flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/80 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                🍺
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Cerveza Polar Light 355ml</h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Bebidas
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001001414
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$1.15</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                Stock: 144 uds
+                            </span>
+                            <span class="text-[11px] text-slate-400">Cámara C-1</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 7: Café Fama de América -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-slate-100/90 shadow-card flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-orange-50 text-orange-800 border border-orange-200/80 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                ☕
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Café Fama de América 250g</h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Abarrotes
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001001010
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$2.90</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                                Stock: 8 uds (Bajo)
+                            </span>
+                            <span class="text-[11px] text-slate-400">Estante A-02</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <!-- Product 8: Atún Margarita -->
+                <article
+                    class="bg-white rounded-2xl p-3.5 border border-slate-100/90 shadow-card flex flex-col space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="w-11 h-11 rounded-xl bg-blue-50 text-blue-800 border border-blue-200/80 flex items-center justify-center flex-shrink-0 font-bold text-base shadow-sm">
+                                🐟
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold text-brand-900 leading-snug">Atún Margarita Aceite 140g
+                                </h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
+                                        Abarrotes
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-500 font-medium">
+                                        7591001000888
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Ref.</span>
+                            <span class="text-sm font-extrabold text-brand-900">$1.65</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                Stock: 56 uds
+                            </span>
+                            <span class="text-[11px] text-slate-400">Estante B-01</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button aria-label="Ajustar Stock"
+                                class="p-1.5 text-slate-500 hover:text-brand-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button aria-label="Editar Producto"
+                                class="p-1.5 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <button aria-label="Eliminar"
+                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                                type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewbox="0 0 24 24">
+                                    <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            </section>
+            <!-- END: ProductsList -->
+            <!-- BEGIN: PaginationAndFooterInfo -->
+            <footer class="pt-3 pb-4 space-y-3" data-purpose="pagination-controls">
+                <p class="text-center text-xs text-slate-500 font-medium">
+                    Mostrando <span class="font-bold text-brand-900">1 a 8</span> de <span
+                        class="font-bold text-brand-900">20</span> productos
+                </p>
+                <!-- Elegant Touch-Friendly Pagination Controls -->
+                <div class="flex items-center justify-center space-x-1.5">
+                    <!-- First -->
+                    <button
+                        class="w-8 h-8 rounded-xl bg-slate-100 text-slate-300 flex items-center justify-center cursor-not-allowed"
+                        disabled="" type="button">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewbox="0 0 24 24">
+                            <path d="M11 19l-7-7 7-7m8 14l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                        </svg>
+                    </button>
+                    <!-- Prev -->
+                    <button
+                        class="w-8 h-8 rounded-xl bg-slate-100 text-slate-300 flex items-center justify-center cursor-not-allowed"
+                        disabled="" type="button">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewbox="0 0 24 24">
+                            <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <!-- Current Page 1 -->
+                    <button
+                        class="w-9 h-9 rounded-xl bg-brand-900 text-white font-bold text-xs flex items-center justify-center shadow-md shadow-brand-900/20"
+                        type="button">
+                        1
+                    </button>
+                    <!-- Page 2 -->
+                    <button
+                        class="w-9 h-9 rounded-xl bg-white text-slate-600 hover:bg-slate-100 font-semibold text-xs border border-slate-200 flex items-center justify-center transition-colors"
+                        type="button">
+                        2
+                    </button>
+                    <!-- Page 3 -->
+                    <button
+                        class="w-9 h-9 rounded-xl bg-white text-slate-600 hover:bg-slate-100 font-semibold text-xs border border-slate-200 flex items-center justify-center transition-colors"
+                        type="button">
+                        3
+                    </button>
+                    <!-- Next -->
+                    <button
+                        class="w-8 h-8 rounded-xl bg-white text-brand-900 hover:bg-slate-100 border border-slate-200 flex items-center justify-center transition-colors"
+                        type="button">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewbox="0 0 24 24">
+                            <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <!-- Last -->
+                    <button
+                        class="w-8 h-8 rounded-xl bg-white text-brand-900 hover:bg-slate-100 border border-slate-200 flex items-center justify-center transition-colors"
+                        type="button">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewbox="0 0 24 24">
+                            <path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                </div>
+            </footer>
+            <!-- END: PaginationAndFooterInfo -->
+        </main>
+        <!-- END: MainContent -->
+        <!-- BEGIN: FloatingAddButton -->
+        <!-- Sticky Floating Action Button (Alternative quick access) -->
+        <div class="fixed bottom-20 right-4 max-w-md mx-auto pointer-events-none z-20">
+            <button aria-label="Registrar producto rápido"
+                class="pointer-events-auto w-12 h-12 rounded-full bg-brand-900 hover:bg-brand-800 text-white shadow-float flex items-center justify-center active:scale-95 transition-transform"
+                type="button">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+                    <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- END: FloatingAddButton -->
+        <!-- BEGIN: BottomNavigationBar -->
+        <!-- Faithful implementation of the MiBodega bottom tab bar with modern glassmorphism -->
+        <nav class="fixed bottom-0 inset-x-0 z-40 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 pt-2 pb-safe shadow-nav"
+            data-purpose="bottom-tab-bar">
+            <div class="grid grid-cols-5 items-center justify-items-center text-[10px] font-semibold text-slate-400">
+                <!-- Tab 1: Inventario -->
+                <a class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-500 hover:text-brand-900 transition-colors w-full"
+                    href="#inventario">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+                        <path
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span class="tracking-tight">Inventario</span>
+                </a>
+                <!-- Tab 2: Productos (ACTIVE) -->
+                <a class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-emerald-700 relative w-full font-bold"
+                    href="#productos">
+                    <div class="relative">
+                        <!-- Active Indicator Pill -->
+                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full"></span>
+                        <svg class="w-5 h-5 mb-1 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2.2"
+                            viewbox="0 0 24 24">
+                            <path
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <span class="tracking-tight">Productos</span>
+                </a>
+                <!-- Tab 3: Inicio -->
+                <a class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-500 hover:text-brand-900 transition-colors w-full"
+                    href="#inicio">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+                        <path
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span class="tracking-tight">Inicio</span>
+                </a>
+                <!-- Tab 4: Compras -->
+                <a class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-500 hover:text-brand-900 transition-colors w-full"
+                    href="#compras">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+                        <path
+                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span class="tracking-tight">Compras</span>
+                </a>
+                <!-- Tab 5: Ventas -->
+                <a class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-500 hover:text-brand-900 transition-colors w-full"
+                    href="#ventas">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+                        <path
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span class="tracking-tight">Ventas</span>
+                </a>
+            </div>
+        </nav>
+        <!-- END: BottomNavigationBar -->
+    </div>
+    <!-- END: MobileDeviceFrame -->
+</body>
+
+</html>

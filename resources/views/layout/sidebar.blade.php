@@ -45,12 +45,12 @@
         <ul class="menu-sub">
           <li class="menu-item {{ request()->routeIs('entries.*') ? 'active' : ''}} {{ request()->routeIs('entries') ? 'active' : ''}}">
             <a href="{{ route('entries') }}" class="menu-link">
-              <div class="text-truncate" data-i18n="Account">Entradas</div>
+              <div class="text-truncate" data-i18n="Account">Compras</div>
             </a>
           </li>
           <li class="menu-item {{ request()->routeIs('outputs.*') ? 'active' : ''}} {{ request()->routeIs('outputs') ? 'active' : ''}}">
             <a href="{{ route('outputs') }}" class="menu-link">
-              <div class="text-truncate" data-i18n="Account">Salidas</div>
+              <div class="text-truncate" data-i18n="Account">Ventas</div>
             </a>
           </li>
           <li class="menu-item {{ request()->routeIs('inventory') ? 'active' : ''}}">

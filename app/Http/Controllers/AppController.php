@@ -34,6 +34,10 @@ class AppController extends Controller
         $now = Carbon::now();
 
         switch ($period) {
+            case 'today':
+                $start = $now->copy()->startOfDay();
+                $end = $now->copy()->endOfDay();
+                break;
             case 'week':
                 $start = $now->copy()->startOfWeek();
                 $end = $now->copy()->endOfWeek();
@@ -105,6 +109,22 @@ class AppController extends Controller
         $totalProfits = OutputGeneral::whereBetween('created_at', [$start, $end])->sum('total_profit');
         $totalOutputs = OutputGeneral::whereBetween('created_at', [$start, $end])->count();
 
+        $days = max(1, (int) round($start->copy()->startOfDay()->diffInDays($end->copy()->startOfDay()) + 1));
+        $previousEnd = $start->copy()->subSecond();
+        $previousStart = $start->copy()->subDays($days)->startOfDay();
+
+        $previousSales = OutputGeneral::whereBetween('created_at', [$previousStart, $previousEnd])->sum('total_sold');
+        $previousProfits = OutputGeneral::whereBetween('created_at', [$previousStart, $previousEnd])->sum('total_profit');
+        $previousOutputs = OutputGeneral::whereBetween('created_at', [$previousStart, $previousEnd])->count();
+
+        $calculateChange = function ($current, $previous) {
+            if ($previous <= 0) {
+                return null;
+            }
+
+            return round((($current - $previous) / $previous) * 100, 1);
+        };
+
         return response()->json([
             'labels' => $labels,
             'sales' => $salesData,
@@ -114,6 +134,21 @@ class AppController extends Controller
                 'sales' => round($totalSales, 2),
                 'profits' => round($totalProfits, 2),
                 'outputs' => $totalOutputs,
+            ],
+            'previous' => [
+                'sales' => round($previousSales, 2),
+                'profits' => round($previousProfits, 2),
+                'outputs' => $previousOutputs,
+            ],
+            'changes' => [
+                'sales' => $calculateChange($totalSales, $previousSales),
+                'profits' => $calculateChange($totalProfits, $previousProfits),
+                'outputs' => $calculateChange($totalOutputs, $previousOutputs),
+            ],
+            'range' => [
+                'start' => $start->toDateString(),
+                'end' => $end->toDateString(),
+                'days' => $days,
             ],
         ]);
     }
