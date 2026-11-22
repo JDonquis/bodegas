@@ -228,9 +228,12 @@
 
         function focusSearch() {
             const input = document.getElementById('html5-search-input');
-            input.focus();
-            const length = input.value.length;
-            input.setSelectionRange(length, length);
+
+            if (window.startBarcodeScanner) {
+                window.startBarcodeScanner(input);
+            } else {
+                input.focus();
+            }
         }
 
         function searchProduct() {

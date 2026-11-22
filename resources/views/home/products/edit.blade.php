@@ -319,9 +319,11 @@
 
             if (scanButton && barcodeInput) {
                 scanButton.addEventListener('click', function() {
-                    barcodeInput.focus();
-                    const length = barcodeInput.value.length;
-                    barcodeInput.setSelectionRange(length, length);
+                    if (window.startBarcodeScanner) {
+                        window.startBarcodeScanner(barcodeInput);
+                    } else {
+                        barcodeInput.focus();
+                    }
                 });
             }
 

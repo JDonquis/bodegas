@@ -1,3 +1,4 @@
+import './barcode-scanner';
 import './bootstrap';
 import './assets/vendor/libs/jquery/jquery.js';
 import './assets/vendor/libs/popper/popper.js';

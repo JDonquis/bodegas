@@ -447,9 +447,11 @@
 
             if (scanButton && searchInput) {
                 scanButton.addEventListener('click', function() {
-                    searchInput.focus();
-                    const length = searchInput.value.length;
-                    searchInput.setSelectionRange(length, length);
+                    if (window.startBarcodeScanner) {
+                        window.startBarcodeScanner(searchInput);
+                    } else {
+                        searchInput.focus();
+                    }
                 });
             }
         });

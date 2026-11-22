@@ -5,6 +5,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#f8f9ff">
+    <meta name="application-name" content="{{ config('app.name') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+    <script>
+        window.addEventListener('beforeinstallprompt', function(event) {
+            event.preventDefault();
+            window.__pwaPrompt = event;
+            window.dispatchEvent(new Event('pwa-prompt-ready'));
+        });
+    </script>
     <title>@yield('title-page', config('app.name'))</title>
 
     <!-- Fonts -->
@@ -37,6 +50,10 @@
                 </div>
             </a>
             <div class="flex items-center gap-1.5">
+                <button type="button" data-pwa-install aria-label="Instalar aplicación"
+                    class="hidden h-10 w-10 rounded-full items-center justify-center text-secondary active:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-[22px]">download</span>
+                </button>
                 <a href="{{ route('outputs') }}" aria-label="Movimientos recientes"
                     class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant active:bg-surface-container transition-colors">
                     <span class="material-symbols-outlined text-[22px]">receipt_long</span>
@@ -73,6 +90,11 @@
                 <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
                 Deudas
             </a>
+            <button type="button" data-pwa-install
+                class="hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-secondary hover:bg-secondary-container/30 transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">download</span>
+                Instalar App
+            </button>
             <a href="{{ route('profile') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors">
                 <span class="material-symbols-outlined text-[20px]">settings</span>
@@ -155,6 +177,11 @@
     <header
         class="hidden lg:flex justify-end items-center h-20 px-8 ml-72 bg-surface/80 dark:bg-slate-900/80 backdrop-blur-xl sticky top-0 z-40">
         <div class="flex items-center gap-4">
+            <button type="button" data-pwa-install
+                class="hidden items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-3 py-2 text-xs font-bold text-primary hover:bg-surface-container transition">
+                <span class="material-symbols-outlined text-[16px] text-secondary">download</span>
+                Instalar App
+            </button>
             <div class="flex items-center gap-3 ml-4">
                 <div class="text-right">
                     <p class="text-sm font-bold text-primary">{{ auth()->user()->name }}</p>
@@ -272,6 +299,63 @@
             window.visualViewport.addEventListener('scroll', scheduleSync);
             window.addEventListener('orientationchange', scheduleSync);
             syncBottomNav();
+        })();
+    </script>
+
+    <script>
+        (function() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').catch(function(error) {
+                        console.error('No se pudo registrar el service worker:', error);
+                    });
+                });
+            }
+
+            const installButtons = document.querySelectorAll('[data-pwa-install]');
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+            function showInstallButtons(show) {
+                installButtons.forEach(function(button) {
+                    button.classList.toggle('hidden', !show);
+                    button.classList.toggle('flex', show);
+                });
+            }
+
+            function refreshInstallButtons() {
+                showInstallButtons(!isStandalone && Boolean(window.__pwaPrompt || isIOS));
+            }
+
+            installButtons.forEach(function(button) {
+                button.addEventListener('click', async function() {
+                    if (window.__pwaPrompt) {
+                        window.__pwaPrompt.prompt();
+
+                        await window.__pwaPrompt.userChoice;
+                        window.__pwaPrompt = null;
+                        showInstallButtons(false);
+
+                        return;
+                    }
+
+                    if (isIOS) {
+                        alert('Para instalar la app en iPhone/iPad: abre esta página en Safari, toca el botón Compartir y elige "Añadir a pantalla de inicio".');
+                        return;
+                    }
+
+                    alert('Tu navegador no permite instalar la app directamente. Usa Chrome o Edge en Android/escritorio, o Safari en iPhone/iPad.');
+                });
+            });
+
+            window.addEventListener('pwa-prompt-ready', refreshInstallButtons);
+            window.addEventListener('appinstalled', function() {
+                window.__pwaPrompt = null;
+                showInstallButtons(false);
+            });
+            document.addEventListener('DOMContentLoaded', refreshInstallButtons);
+            refreshInstallButtons();
         })();
     </script>
 

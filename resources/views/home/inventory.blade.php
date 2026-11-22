@@ -62,7 +62,7 @@
                     placeholder="Buscar por producto o código..."
                     class="w-full pl-10 pr-11 py-2.5 bg-white border border-slate-200/90 rounded-xl text-xs sm:text-[13px] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-navy/15 focus:border-brand-navy transition-all shadow-sm font-medium">
                 <button type="button" aria-label="Escanear código de barras"
-                    onclick="document.getElementById('inventory-search').focus()"
+                    onclick="scanInventoryBarcode()"
                     class="absolute right-2 p-1.5 text-slate-500 hover:text-brand-navy bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[18px]">barcode_scanner</span>
                 </button>
@@ -450,6 +450,16 @@
                     }
                 })
                 .catch(error => console.error(error));
+        }
+
+        function scanInventoryBarcode() {
+            const input = document.getElementById('inventory-search');
+
+            if (window.startBarcodeScanner) {
+                window.startBarcodeScanner(input);
+            } else {
+                input.focus();
+            }
         }
 
         function escapeHtml(value) {

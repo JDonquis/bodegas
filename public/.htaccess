@@ -19,3 +19,14 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# PWA: evitar que Cloudflare/navegador cacheen el service worker
+<IfModule mod_headers.c>
+    <Files "sw.js">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Service-Worker-Allowed "/"
+    </Files>
+    <Files "manifest.json">
+        Header set Cache-Control "public, max-age=3600"
+    </Files>
+</IfModule>
