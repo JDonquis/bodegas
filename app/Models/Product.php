@@ -18,14 +18,23 @@ class Product extends Model
         'sell_price',
         'sell_price_bs',
         'sale_type',
+        'pricing_mode',
+        'profit_margin',
         'price_per_kg',
         'low_stock_threshold',
     ];
 
     protected $casts = [
         'sale_type' => 'string',
+        'pricing_mode' => 'string',
+        'profit_margin' => 'float',
         'low_stock_threshold' => 'integer',
     ];
+
+    public function isMarginPricing()
+    {
+        return $this->pricing_mode === 'margin';
+    }
 
     public function getUnitLabelAttribute()
     {

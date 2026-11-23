@@ -626,6 +626,7 @@
                         _token: "{{ csrf_token() }}",
                         productName: name,
                         sellPrice: 0,
+                        pricingMode: 'fixed',
                         sellPriceBs: 0,
                         saleType: 'unit',
                         lowStockThreshold: {{ \App\Models\Product::DEFAULT_LOW_STOCK_THRESHOLD }}

@@ -16,6 +16,13 @@ class ProductRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('pricingMode')) {
+            $this->merge(['pricingMode' => 'fixed']);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,7 +34,9 @@ class ProductRequest extends FormRequest
 
         return [
             'productName' => ['required', 'string'],
-            'sellPrice' => ['required', 'numeric'],
+            'pricingMode' => ['nullable', 'in:fixed,margin'],
+            'profitMargin' => ['nullable', 'required_if:pricingMode,margin', 'numeric', 'min:0', 'max:1000'],
+            'sellPrice' => ['nullable', 'required_if:pricingMode,fixed', 'numeric', 'min:0'],
             'sellPriceBs' => ['nullable', 'numeric'],
             'saleType' => ['required', 'in:unit,weight'],
             'lowStockThreshold' => ['required', 'integer', 'min:0'],

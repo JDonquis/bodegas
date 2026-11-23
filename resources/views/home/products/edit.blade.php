@@ -155,8 +155,75 @@
                 @enderror
             </div>
 
+            <!-- Modo de precio -->
+            <div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-2">
+                <label class="block text-[11px] font-bold text-on-surface uppercase tracking-wider">
+                    Modo de Precio <span class="text-error">*</span>
+                </label>
+                <div class="grid grid-cols-2 p-1 bg-surface-container rounded-xl gap-1">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="pricingMode" value="fixed" class="peer sr-only"
+                            @checked(old('pricingMode', $product->pricing_mode ?? 'fixed') === 'fixed')>
+                        <div
+                            class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface peer-checked:bg-primary peer-checked:text-on-primary peer-checked:shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">attach_money</span>
+                            <span>Precio Fijo</span>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="pricingMode" value="margin" class="peer sr-only"
+                            @checked(old('pricingMode', $product->pricing_mode ?? 'fixed') === 'margin')>
+                        <div
+                            class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface peer-checked:bg-primary peer-checked:text-on-primary peer-checked:shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">trending_up</span>
+                            <span>Margen de Ganancia</span>
+                        </div>
+                    </label>
+                </div>
+                @error('pricingMode')
+                    <p class="text-[11px] text-error">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Margen de ganancia -->
+            <div id="margin-section"
+                class="hidden bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-3">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                    <h2 class="text-[11px] font-black text-on-surface uppercase tracking-wider">Margen de Ganancia
+                    </h2>
+                    <span class="text-[10px] font-semibold text-secondary flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                        Automático
+                    </span>
+                </div>
+                <div class="space-y-1.5">
+                    <label for="profitMargin" class="block text-[11px] font-bold text-on-surface">
+                        Porcentaje de margen (%) <span class="text-error">*</span>
+                    </label>
+                    <div
+                        class="relative flex items-center rounded-xl bg-surface-container-low border border-outline-variant/30 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20">
+                        <div class="pl-3.5 pr-1 text-secondary font-extrabold text-base">%</div>
+                        <input type="number" step="0.01" min="0" max="1000" name="profitMargin" id="profitMargin"
+                            value="{{ old('profitMargin', $product->profit_margin) }}" placeholder="20"
+                            class="w-full bg-transparent border-0 py-3 pr-3 text-base font-extrabold text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0">
+                    </div>
+                    @error('profitMargin')
+                        <p class="text-[11px] text-error">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="flex items-center justify-between px-1">
+                    <p class="text-[11px] text-on-surface-variant">
+                        El precio se recalcula automáticamente en cada compra.
+                    </p>
+                    <span class="text-sm font-extrabold text-on-surface">
+                        ${{ number_format((float) $product->display_price, 2) }}{{ $product->sale_type === 'weight' ? '/kg' : '' }}
+                    </span>
+                </div>
+            </div>
+
             <!-- Precios -->
-            <div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-3.5">
+            <div id="fixed-price-section"
+                class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/20 shadow-sm space-y-3.5">
                 <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
                     <h2 class="text-[11px] font-black text-on-surface uppercase tracking-wider">Estructura de Precios
                     </h2>
@@ -267,6 +334,22 @@
             const barcodeInput = document.getElementById('barcode');
             const generateButton = document.getElementById('btn-generate-code');
             const scanButton = document.getElementById('scan-barcode');
+            const fixedPriceSection = document.getElementById('fixed-price-section');
+            const marginSection = document.getElementById('margin-section');
+            const marginInput = document.getElementById('profitMargin');
+
+            function updatePricingMode() {
+                const selected = document.querySelector('input[name="pricingMode"]:checked');
+                const isMargin = selected ? selected.value === 'margin' : false;
+
+                fixedPriceSection.classList.toggle('hidden', isMargin);
+                marginSection.classList.toggle('hidden', !isMargin);
+                usdInput.required = !isMargin;
+
+                if (marginInput) {
+                    marginInput.required = isMargin;
+                }
+            }
 
             function updatePriceLabels() {
                 const selected = document.querySelector('input[name="saleType"]:checked');
@@ -305,6 +388,10 @@
                 radio.addEventListener('change', updatePriceLabels);
             });
 
+            document.querySelectorAll('input[name="pricingMode"]').forEach(function(radio) {
+                radio.addEventListener('change', updatePricingMode);
+            });
+
             if (rate > 0) {
                 usdInput.addEventListener('input', syncBsPrice);
                 bsInput.addEventListener('input', syncUsdPrice);
@@ -328,6 +415,7 @@
             }
 
             updatePriceLabels();
+            updatePricingMode();
         });
     </script>
 @endsection

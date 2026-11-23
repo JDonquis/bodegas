@@ -6,6 +6,7 @@ use App\Models\Entry;
 use App\Models\EntryGeneral;
 use App\Models\Inventory;
 use App\Models\InventoryGeneral;
+use App\Models\Product;
 use Exception;
 
 class EntryService
@@ -64,6 +65,12 @@ class EntryService
                     'expense' => round($inventoryGeneral->expense + $entry->cost, 2),
                 ]);
             }
+
+            $productModel = Product::find($product['productID']);
+
+            if ($productModel) {
+                (new ProductService)->applyMarginPrice($productModel, $costPerUnit);
+            }
             
         }
 
@@ -84,6 +91,7 @@ class EntryService
         $entries = $entry->entries;
 
         $entryIds = $entries->pluck('id')->toArray();
+        $productIds = $entries->pluck('product_id')->unique()->toArray();
 
         foreach($entries as $entryDetail){
             
@@ -100,6 +108,10 @@ class EntryService
         }
 
         Inventory::whereIn('entry_id',$entryIds)->delete();
+
+        foreach (Product::whereIn('id', $productIds)->get() as $product) {
+            (new ProductService)->recalculateMarginPrice($product);
+        }
     }
 
 }

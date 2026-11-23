@@ -160,6 +160,10 @@
                                 <div class="flex flex-wrap items-center gap-2 mt-1">
                                     <span
                                         class="text-[10px] font-label font-semibold px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant uppercase">{{ $isWeight ? 'Por peso' : 'Por unidad' }}</span>
+                                    @if ($product->isMarginPricing())
+                                        <span
+                                            class="text-[10px] font-label font-semibold px-2 py-0.5 rounded-md bg-secondary-container/40 text-on-secondary-container uppercase">Margen {{ number_format((float) $product->profit_margin, 2) }}%</span>
+                                    @endif
                                     <span class="font-mono text-[11px] text-on-surface-variant">{{ $product->barcode ?? 'Sin código' }}</span>
                                 </div>
                             </div>

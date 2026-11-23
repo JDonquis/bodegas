@@ -6,7 +6,6 @@ use App\Models\Inventory;
 use App\Models\InventoryGeneral;
 use App\Models\Product;
 use Exception;
-
 class ProductService
 {
     public function get()
@@ -43,13 +42,18 @@ class ProductService
     public function store($data)
     {
 
+        $pricingMode = $data->pricingMode ?? 'fixed';
+        $isMargin = $pricingMode === 'margin';
+
         $product = Product::create([
             'name' => ucwords(strtolower($data->productName)),
             'barcode' => $data->barcode,
-            'sell_price' => round(floatval($data->sellPrice), 2),
-            'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null,
+            'sell_price' => $isMargin ? 0 : round(floatval($data->sellPrice), 2),
+            'sell_price_bs' => $isMargin ? 0 : ($data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null),
             'sale_type' => $data->saleType ?? 'unit',
-            'price_per_kg' => $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null,
+            'pricing_mode' => $pricingMode,
+            'profit_margin' => $isMargin ? round(floatval($data->profitMargin), 2) : null,
+            'price_per_kg' => ! $isMargin && $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null,
             'low_stock_threshold' => (int) $data->lowStockThreshold,
         ]);
 
@@ -60,18 +64,76 @@ class ProductService
     public function update($data, $product)
     {
 
-        $product->update([
+        $pricingMode = $data->pricingMode ?? 'fixed';
+        $isMargin = $pricingMode === 'margin';
+
+        $attributes = [
             'name' => ucwords(strtolower($data->productName)),
             'barcode' => $data->barcode,
-            'sell_price' => round(floatval($data->sellPrice), 2),
-            'sell_price_bs' => $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null,
             'sale_type' => $data->saleType ?? 'unit',
-            'price_per_kg' => $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null,
+            'pricing_mode' => $pricingMode,
+            'profit_margin' => $isMargin ? round(floatval($data->profitMargin), 2) : null,
             'low_stock_threshold' => (int) $data->lowStockThreshold,
-        ]);
+        ];
+
+        if (! $isMargin) {
+            $attributes['sell_price'] = round(floatval($data->sellPrice), 2);
+            $attributes['sell_price_bs'] = $data->sellPriceBs ? round(floatval($data->sellPriceBs), 2) : null;
+            $attributes['price_per_kg'] = $data->saleType === 'weight' ? round(floatval($data->sellPrice), 2) : null;
+        }
+
+        $product->update($attributes);
+
+        if ($isMargin) {
+            $this->recalculateMarginPrice($product);
+        }
 
         return $product;
 
+    }
+
+    public function applyMarginPrice(Product $product, float $costPerUnit)
+    {
+        if (! $product->isMarginPricing() || $product->profit_margin === null) {
+            return;
+        }
+
+        $margin = (float) $product->profit_margin;
+        $unitPrice = round($costPerUnit * (1 + ($margin / 100)), 2);
+
+        if ($product->sale_type === 'weight') {
+            $pricePerKg = round($unitPrice * 1000, 2);
+            $attributes = ['sell_price' => $pricePerKg, 'price_per_kg' => $pricePerKg];
+            $displayPrice = $pricePerKg;
+        } else {
+            $attributes = ['sell_price' => $unitPrice];
+            $displayPrice = $unitPrice;
+        }
+
+        $usdRate = (new BCVService)->getUSDValue();
+
+        if ($usdRate) {
+            $attributes['sell_price_bs'] = round($displayPrice * $usdRate, 2);
+        }
+
+        $product->update($attributes);
+    }
+
+    public function recalculateMarginPrice(Product $product)
+    {
+        if (! $product->isMarginPricing()) {
+            return;
+        }
+
+        $inventory = Inventory::where('product_id', $product->id)
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $inventory) {
+            return;
+        }
+
+        $this->applyMarginPrice($product, (float) $inventory->cost_per_unit);
     }
 
     public function delete($product)
