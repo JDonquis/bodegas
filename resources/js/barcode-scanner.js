@@ -104,41 +104,27 @@ function applyResult(target, text, options) {
 
 
 async function ensureCameraPermission() {
-    if (navigator.permissions && navigator.permissions.query) {
-        try {
-            const permission = await navigator.permissions.query({ name: 'camera' });
-
-            if (permission.state === 'denied') {
-                throw new Error('permission-denied');
-            }
-
-            if (permission.state === 'granted') {
-                return;
-            }
-        } catch (error) {
-            if (error.message === 'permission-denied') {
-                throw error;
-            }
-
-            // El navegador no soporta consultar el permiso de cámara.
-        }
+    if (!navigator.permissions || !navigator.permissions.query) {
+        // Safari/iOS no siempre permite consultar el permiso.
+        // Dejamos que html5-qrcode solicite la cámara al iniciar.
+        return;
     }
 
-    let stream = null;
-
     try {
-        stream = await navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: {
-                facingMode: { ideal: 'environment' },
-            },
-        });
-    } finally {
-        if (stream) {
-            stream.getTracks().forEach(function(track) {
-                track.stop();
-            });
+        const permission = await navigator.permissions.query({ name: 'camera' });
+
+        if (permission.state === 'denied') {
+            throw new Error('permission-denied');
         }
+
+        // Si está en "prompt", html5-qrcode dispara la solicitud al iniciar.
+        // No abrimos una cámara temporal para evitar que iOS la deje ocupada.
+    } catch (error) {
+        if (error.message === 'permission-denied') {
+            throw error;
+        }
+
+        // El navegador no soporta consultar el permiso de cámara.
     }
 }
 
@@ -259,7 +245,7 @@ export async function startBarcodeScanner(target, options = {}) {
     const scanner = new Html5Qrcode(readerId, {
         verbose: false,
         formatsToSupport: formats,
-        useBarCodeDetectorIfSupported: true,
+        useBarCodeDetectorIfSupported: false,
     });
 
     activeScanner = scanner;
@@ -296,7 +282,7 @@ export async function startBarcodeScanner(target, options = {}) {
 
     try {
         await scanner.start(
-            { facingMode: { ideal: 'environment' } },
+            { facingMode: 'environment' },
             config,
             onSuccess,
             function() {
@@ -307,7 +293,18 @@ export async function startBarcodeScanner(target, options = {}) {
         setStatus(modal, 'Apunta al código de barras.');
     } catch (error) {
         console.error('Error al iniciar la cámara:', error);
-        setStatus(modal, 'No se pudo iniciar la cámara. Verifica los permisos del navegador.', true);
+
+        let message = 'No se pudo iniciar la cámara. Verifica los permisos del navegador.';
+
+        if (error && (error.name === 'NotReadableError' || error.name === 'TrackStartError')) {
+            message = 'La cámara está siendo usada por otra aplicación. Ciérrala e intenta nuevamente.';
+        } else if (error && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
+            message = 'El permiso de cámara fue denegado. Habilítalo en los ajustes del navegador e intenta nuevamente.';
+        } else if (error && error.name === 'NotFoundError') {
+            message = 'No se encontró una cámara disponible en este dispositivo.';
+        }
+
+        setStatus(modal, message, true);
     }
 }
 
