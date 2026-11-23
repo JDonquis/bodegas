@@ -102,6 +102,66 @@ function applyResult(target, text, options) {
     }
 }
 
+
+async function ensureCameraPermission() {
+    if (navigator.permissions && navigator.permissions.query) {
+        try {
+            const permission = await navigator.permissions.query({ name: 'camera' });
+
+            if (permission.state === 'denied') {
+                throw new Error('permission-denied');
+            }
+
+            if (permission.state === 'granted') {
+                return;
+            }
+        } catch (error) {
+            if (error.message === 'permission-denied') {
+                throw error;
+            }
+
+            // El navegador no soporta consultar el permiso de cámara.
+        }
+    }
+
+    let stream = null;
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                facingMode: { ideal: 'environment' },
+            },
+        });
+    } finally {
+        if (stream) {
+            stream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+        }
+    }
+}
+
+function cameraPermissionMessage(error) {
+    if (!error) {
+        return 'No se pudo acceder a la cámara.';
+    }
+
+    if (error.message === 'permission-denied' || error.name === 'NotAllowedError' || error.name === 'SecurityError') {
+        return 'No se otorgó permiso para usar la cámara. Habilita el permiso de cámara para este sitio en tu navegador e intenta nuevamente.';
+    }
+
+    if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        return 'No se encontró una cámara disponible en este dispositivo.';
+    }
+
+    if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        return 'La cámara está siendo usada por otra aplicación. Cierra esa aplicación e intenta nuevamente.';
+    }
+
+    return 'No se pudo acceder a la cámara. Verifica los permisos del navegador.';
+}
+
 export async function startBarcodeScanner(target, options = {}) {
     if (!target) return;
 
@@ -115,6 +175,13 @@ export async function startBarcodeScanner(target, options = {}) {
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         alert('Tu navegador no permite acceder a la cámara.');
+        return;
+    }
+
+    try {
+        await ensureCameraPermission();
+    } catch (error) {
+        alert(cameraPermissionMessage(error));
         return;
     }
 
