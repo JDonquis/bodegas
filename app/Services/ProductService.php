@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Inventory;
+use App\Models\InventoryGeneral;
 use App\Models\Product;
 use Exception;
 
@@ -82,6 +84,9 @@ class ProductService
         if ($product->outputs()->exists()) {
             throw new Exception('No se puede eliminar el producto porque tiene ventas registradas.', 400);
         }
+
+        Inventory::where('product_id', $product->id)->delete();
+        InventoryGeneral::where('product_id', $product->id)->delete();
 
         $product->delete();
 

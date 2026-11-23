@@ -8,6 +8,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OutputController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TenantUserController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -81,6 +82,14 @@ Route::middleware(['auth'])->prefix('home')->group(function () {
     Route::get('/deudas', [DebtController::class, 'index'])->middleware('role_or_permission:admin')->name('debts');
     Route::post('/deudas', [DebtController::class, 'store'])->middleware('role_or_permission:admin')->name('debts.store');
     Route::post('/deudas/pagos', [DebtController::class, 'storePayment'])->middleware('role_or_permission:admin')->name('debts.payments.store');
+
+    // ------------------------------- USUARIOS
+    Route::get('/usuarios', [TenantUserController::class, 'index'])->middleware('role_or_permission:admin')->name('users');
+    Route::get('/usuarios/crear', [TenantUserController::class, 'create'])->middleware('role_or_permission:admin')->name('users.create');
+    Route::post('/usuarios', [TenantUserController::class, 'store'])->middleware('role_or_permission:admin')->name('users.store');
+    Route::get('/usuarios/editar/{user}', [TenantUserController::class, 'edit'])->middleware('role_or_permission:admin')->name('users.edit');
+    Route::put('/usuarios/{user}', [TenantUserController::class, 'update'])->middleware('role_or_permission:admin')->name('users.update');
+    Route::delete('/usuarios/{user}', [TenantUserController::class, 'destroy'])->middleware('role_or_permission:admin')->name('users.delete');
 
     Route::get('/invoice/{outputID}', [InvoiceController::class, 'index'])->middleware('role_or_permission:admin')->name('invoice');
 });

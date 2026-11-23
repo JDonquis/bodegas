@@ -90,6 +90,13 @@
                 <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
                 Deudas
             </a>
+            @if (auth()->user()->hasRole('admin'))
+                <a href="{{ route('users') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+                    Usuarios
+                </a>
+            @endif
             <button type="button" data-pwa-install
                 class="hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-secondary hover:bg-secondary-container/30 transition-colors text-left">
                 <span class="material-symbols-outlined text-[20px]">download</span>
@@ -151,6 +158,13 @@
                 <span class="material-symbols-outlined">account_balance_wallet</span>
                 <span>Deudas</span>
             </a>
+            @if (auth()->user()->hasRole('admin'))
+                <a class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('users*') ? 'bg-primary-container text-white rounded-full border-l-4 border-secondary' : 'text-slate-400 hover:text-white hover:bg-primary-container/50' }} transition-all duration-200"
+                    href="{{ route('users') }}">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                    <span>Usuarios</span>
+                </a>
+            @endif
             @if (Route::has('patients'))
                 <a class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('patients*') ? 'bg-primary-container text-white rounded-full border-l-4 border-secondary' : 'text-slate-400 hover:text-white hover:bg-primary-container/50' }} transition-all duration-200"
                     href="{{ route('patients') }}">

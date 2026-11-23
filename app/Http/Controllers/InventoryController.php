@@ -14,16 +14,18 @@ class InventoryController extends Controller
     {
         $filter = $request->input('filter', 'all');
 
-        $query = InventoryGeneral::with('product');
+        $query = InventoryGeneral::with('product')->whereHas('product');
 
         $this->applyFilter($query, $filter);
 
         $inventories = $query->paginate(10)->withQueryString();
 
-        $totalExpense = InventoryGeneral::sum('expense');
-        $totalProfits = InventoryGeneral::sum('profits');
-        $totalStock = InventoryGeneral::sum('stock');
-        $totalSold = InventoryGeneral::sum('sold');
+        $validInventory = InventoryGeneral::whereHas('product');
+
+        $totalExpense = (clone $validInventory)->sum('expense');
+        $totalProfits = (clone $validInventory)->sum('profits');
+        $totalStock = (clone $validInventory)->sum('stock');
+        $totalSold = (clone $validInventory)->sum('sold');
 
         $profitMargin = $totalSold > 0 ? round(($totalProfits / $totalSold) * 100, 1) : 0;
 
@@ -31,13 +33,13 @@ class InventoryController extends Controller
         $usdRate = $bcvService->getUSDValue() ?? 0;
         $totalExpenseBs = $totalExpense * $usdRate;
 
-        $totalCount = InventoryGeneral::count();
-        $lowStockCount = InventoryGeneral::where('stock', '>', 0)
+        $totalCount = (clone $validInventory)->count();
+        $lowStockCount = (clone $validInventory)->where('stock', '>', 0)
             ->whereHas('product', function ($product) {
                 $product->whereColumn('inventory_generals.stock', '<=', 'products.low_stock_threshold');
             })
             ->count();
-        $criticalCount = InventoryGeneral::where('stock', '<=', 0)->count();
+        $criticalCount = (clone $validInventory)->where('stock', '<=', 0)->count();
 
         return view('home.inventory')->with(compact(
             'inventories',
@@ -58,6 +60,7 @@ class InventoryController extends Controller
     {
         $details = Inventory::with('product')
             ->where('product_id', $inventory->product_id)
+            ->whereHas('product')
             ->where('stock', '>', 0)
             ->orderBy('id', 'desc')
             ->get();

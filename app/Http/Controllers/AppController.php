@@ -20,7 +20,7 @@ class AppController extends Controller
     {
         $entries = EntryGeneral::count();
         $outputs = OutputGeneral::count();
-        $inventories = InventoryGeneral::count();
+        $inventories = InventoryGeneral::whereHas('product')->count();
 
         return view('home.index')->with(compact('entries', 'outputs', 'inventories'));
     }

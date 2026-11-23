@@ -50,4 +50,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Tenant::class);
     }
+
+    public function typeUser()
+    {
+        return $this->belongsTo(TypeUser::class);
+    }
 }

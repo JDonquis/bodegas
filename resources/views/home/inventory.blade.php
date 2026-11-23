@@ -158,6 +158,11 @@
                 @forelse ($inventories as $inventory)
                     @php
                         $product = $inventory->product;
+
+                        if (! $product) {
+                            continue;
+                        }
+
                         $isWeight = $product->sale_type === 'weight';
                         $unit = $isWeight ? 'g' : 'uds';
                         $stock = (float) $inventory->stock;
