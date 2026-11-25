@@ -180,6 +180,14 @@
                         <span>Subtotal en Bolívares:</span>
                         <span id="total-sold-subtotal-bs" class="text-brand-navy font-semibold">Bs. 0.00</span>
                     </div>
+                    <div id="credit-summary"
+                        class="hidden justify-between text-xs text-slate-500 font-medium">
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px] text-amber-500">credit_card</span>
+                            Monto fiado:
+                        </span>
+                        <span id="total-credit-preview" class="text-amber-600 font-bold">$0.00</span>
+                    </div>
                     <div class="flex justify-between text-xs text-slate-500 font-medium">
                         <span>Utilidad estimada:</span>
                         <span class="text-right">
@@ -190,8 +198,8 @@
                     <div
                         class="bg-gradient-to-r from-slate-900 to-brand-navy rounded-xl p-3 text-white flex items-center justify-between shadow-md">
                         <div>
-                            <div class="text-[10px] font-bold text-brand-accent uppercase tracking-widest">TOTAL A COBRAR
-                            </div>
+                            <div class="text-[10px] font-bold text-brand-accent uppercase tracking-widest">TOTAL DE LA
+                                VENTA</div>
                             <div class="text-xs text-slate-300 font-mono mt-0.5">Bs. <span
                                     id="total-sold-bs">0.00</span></div>
                         </div>
@@ -268,6 +276,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('client_id_select').addEventListener('change', syncClientData);
             document.getElementById('client_name_input').addEventListener('input', syncClientData);
+            document.getElementById('output-form').addEventListener('submit', function(event) {
+                const hasCredit = productsAdded.some(p => p.is_credit);
+
+                if (hasCredit && !hasRegisteredClient()) {
+                    event.preventDefault();
+                    alert('Para fiar productos debes seleccionar un cliente registrado.');
+                }
+            });
             syncClientData();
         });
 
@@ -317,6 +333,19 @@
                 info.classList.add('hidden');
                 info.classList.remove('flex');
             }
+
+            if (!hasRegisteredClient() && productsAdded.some(p => p.is_credit)) {
+                productsAdded.forEach(p => p.is_credit = false);
+
+                if (productsAdded.length) {
+                    refreshBasket();
+                }
+            }
+        }
+
+        function hasRegisteredClient() {
+            return currentClientType === 'registered' &&
+                !!document.getElementById('client_id_select').value;
         }
 
         function focusSearch() {
@@ -417,7 +446,8 @@
                     sell_price: effectivePrice,
                     display_price: inventory.product.price_per_kg || inventory.product.sell_price,
                     cost_per_unit: parseFloat(inventory.cost_per_unit),
-                    sale_type: isWeight ? 'weight' : 'unit'
+                    sale_type: isWeight ? 'weight' : 'unit',
+                    is_credit: false
                 });
             }
 
@@ -429,8 +459,9 @@
             const emptyState = document.getElementById('empty-state');
             const summary = document.getElementById('total-summary');
             const hasProducts = productsAdded.length > 0;
+            const hasCredit = productsAdded.some(p => p.is_credit);
 
-            createBtn.disabled = !hasProducts;
+            createBtn.disabled = !hasProducts || (hasCredit && !hasRegisteredClient());
             emptyState.classList.toggle('hidden', hasProducts);
             summary.classList.toggle('hidden', !hasProducts);
 
@@ -459,6 +490,7 @@
             return `<article data-cart-row="${p.inventoryID}" class="p-3 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-2 relative">
                 <input type="hidden" name="products[${index}][productID]" value="${p.productID}">
                 <input type="hidden" name="products[${index}][inventoryID]" value="${p.inventoryID}">
+                <input type="hidden" name="products[${index}][is_credit]" value="${p.is_credit ? 1 : 0}">
                 <div class="flex items-start justify-between">
                     <div class="min-w-0">
                         <h3 class="text-xs font-bold text-brand-navy leading-tight truncate">${escapeHtml(p.name)}</h3>
@@ -482,6 +514,15 @@
                                 class="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-bold active:scale-90">+</button>
                         </div>
                         <span class="text-[8px] font-bold text-slate-400">${unitLabel} • Max: ${p.maxStock}</span>
+                        <button type="button" onclick="toggleCredit(${p.inventoryID})"
+                            class="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg border text-[9px] font-bold uppercase tracking-wide transition ${
+                                p.is_credit
+                                    ? 'bg-amber-100 text-amber-700 border-amber-300'
+                                    : 'bg-white text-slate-400 border-slate-200 hover:text-amber-600 hover:border-amber-300'
+                            }">
+                            <span class="material-symbols-outlined text-[12px]">credit_card</span>
+                            Fiado
+                        </button>
                     </div>
                     <div class="text-right">
                         <div class="text-[10px] text-slate-500 font-medium">P. Unit: ${unitPriceUsdLabel}</div>
@@ -527,6 +568,20 @@
             updateQty(id, input);
         }
 
+        function toggleCredit(id) {
+            const p = productsAdded.find(x => x.inventoryID === id);
+
+            if (!p) return;
+
+            if (!p.is_credit && !hasRegisteredClient()) {
+                alert('Para fiar productos debes seleccionar un cliente registrado.');
+                return;
+            }
+
+            p.is_credit = !p.is_credit;
+            refreshBasket();
+        }
+
         function removeProduct(id) {
             const index = productsAdded.findIndex(x => x.inventoryID === id);
 
@@ -539,6 +594,8 @@
 
         function updateBasketTotals() {
             const totalSold = productsAdded.reduce((sum, p) => sum + (p.sell_price * p.quantity), 0);
+            const creditTotal = productsAdded.reduce((sum, p) =>
+                sum + (p.is_credit ? (p.sell_price * p.quantity) : 0), 0);
             const totalCost = productsAdded.reduce((sum, p) => sum + (p.cost_per_unit * p.quantity), 0);
             const profit = totalSold - totalCost;
 
@@ -546,8 +603,19 @@
             setText('total-sold-subtotal-bs', 'Bs. ' + (totalSold * usdRate).toFixed(2));
             setText('total-sold-preview', totalSold.toFixed(2));
             setText('total-sold-bs', (totalSold * usdRate).toFixed(2));
+            setText('total-credit-preview', '$' + creditTotal.toFixed(2));
             setText('total-profit-preview', '$' + profit.toFixed(2));
             setText('total-profit-bs-preview', 'Bs. ' + (profit * usdRate).toFixed(2));
+            const creditSummary = document.getElementById('credit-summary');
+
+            if (creditTotal > 0) {
+                creditSummary.classList.remove('hidden');
+                creditSummary.classList.add('flex');
+            } else {
+                creditSummary.classList.add('hidden');
+                creditSummary.classList.remove('flex');
+            }
+
             document.getElementById('final_total_sold').value = totalSold.toFixed(2);
         }
 

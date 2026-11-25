@@ -121,6 +121,14 @@ class OutputController extends Controller
                 $client_id = null;
             }
 
+            $hasCredit = collect($products ?? [])->contains(function ($product) {
+                return ! empty($product['is_credit']);
+            });
+
+            if ($hasCredit && ! $client_id) {
+                throw new \Exception('Para fiar productos debes seleccionar un cliente registrado.');
+            }
+
             $outputService = new OutputService;
             $newOutputGeneral = $outputService->create($products, $client_id, $totalSold, $client_name, $paymentMethod);
 
@@ -190,6 +198,14 @@ class OutputController extends Controller
 
             if ($client_id && ! Client::whereKey($client_id)->exists()) {
                 $client_id = null;
+            }
+
+            $hasCredit = collect($products ?? [])->contains(function ($product) {
+                return ! empty($product['is_credit']);
+            });
+
+            if ($hasCredit && ! $client_id) {
+                throw new \Exception('Para fiar productos debes seleccionar un cliente registrado.');
             }
 
             $outputService->create($products, $client_id, $totalSold, $client_name, $paymentMethod);

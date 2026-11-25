@@ -16,8 +16,13 @@ class Output extends Model
         'output_general_id',
         'inventory_id',
         'quantity',
+        'is_credit',
         'expired_date',
         'profit',
+    ];
+
+    protected $casts = [
+        'is_credit' => 'boolean',
     ];
 
     public function product(){
@@ -30,6 +35,24 @@ class Output extends Model
 
     public function inventory(){
         return $this->belongsTo(Inventory::class);
+    }
+
+    public function getUnitPriceAttribute()
+    {
+        $product = $this->product;
+
+        if (! $product) {
+            return 0;
+        }
+
+        return $product->sale_type === 'weight' && $product->price_per_kg
+            ? (float) $product->price_per_kg / 1000
+            : (float) $product->sell_price;
+    }
+
+    public function getSubtotalAttribute()
+    {
+        return round($this->unit_price * (float) $this->quantity, 2);
     }
 
     public function getCreatedAtAttribute($value)

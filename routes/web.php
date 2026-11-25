@@ -4,6 +4,7 @@ use App\Http\Controllers\AppController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\EntryController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OutputController;
@@ -82,6 +83,12 @@ Route::middleware(['auth'])->prefix('home')->group(function () {
     Route::get('/deudas', [DebtController::class, 'index'])->middleware('role_or_permission:admin')->name('debts');
     Route::post('/deudas', [DebtController::class, 'store'])->middleware('role_or_permission:admin')->name('debts.store');
     Route::post('/deudas/pagos', [DebtController::class, 'storePayment'])->middleware('role_or_permission:admin')->name('debts.payments.store');
+
+    // ------------------------------- GASTOS
+    Route::get('/gastos', [ExpenseController::class, 'index'])->middleware('role_or_permission:admin')->name('expenses');
+    Route::get('/gastos/crear', [ExpenseController::class, 'create'])->middleware('role_or_permission:admin')->name('expenses.create');
+    Route::post('/gastos', [ExpenseController::class, 'store'])->middleware('role_or_permission:admin')->name('expenses.store');
+    Route::delete('/gastos/{expense}', [ExpenseController::class, 'destroy'])->middleware('role_or_permission:admin')->name('expenses.delete');
 
     // ------------------------------- USUARIOS
     Route::get('/usuarios', [TenantUserController::class, 'index'])->middleware('role_or_permission:admin')->name('users');

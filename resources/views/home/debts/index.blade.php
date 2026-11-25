@@ -199,6 +199,39 @@
                                 {{ $debt->description }}</p>
                         @endif
 
+                        @php
+                            $creditOutputs = $debt->outputGeneral
+                                ? $debt->outputGeneral->outputs->where('is_credit', true)
+                                : collect();
+                        @endphp
+
+                        @if ($creditOutputs->isNotEmpty())
+                            <div class="bg-amber-50/70 border border-amber-100 rounded-xl px-3 py-2 space-y-1.5">
+                                <p
+                                    class="text-[10px] font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[13px]">credit_card</span>
+                                    Productos fiados
+                                </p>
+                                @foreach ($creditOutputs as $creditOutput)
+                                    @php
+                                        $creditProduct = $creditOutput->product;
+                                        $isWeight = ($creditProduct->sale_type ?? null) === 'weight';
+                                        $qtyLabel = $isWeight
+                                            ? number_format((float) $creditOutput->quantity, 0, ',', '.') . ' g'
+                                            : number_format((float) $creditOutput->quantity, 0, ',', '.') . ' uds';
+                                    @endphp
+                                    <div class="flex items-center justify-between gap-2 text-[11px]">
+                                        <span class="text-slate-600 truncate">
+                                            {{ $creditProduct->name ?? 'Producto' }}
+                                            <span class="text-slate-400">· {{ $qtyLabel }}</span>
+                                        </span>
+                                        <span
+                                            class="font-bold text-amber-800 shrink-0">${{ number_format($creditOutput->subtotal, 2) }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
                         <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px]">
                             <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
                                 @if ($debt->outputGeneral)

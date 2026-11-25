@@ -37,6 +37,15 @@
         </a>
       </li>
 
+      <li class="menu-item {{ request()->routeIs('expenses') ? 'active' : ''}} {{ request()->routeIs('expenses.*') ? 'active' : ''}}">
+        <a
+          href="{{ route('expenses') }}"
+          class="menu-link">
+          <i class="menu-icon tf-icons bx bx-error-circle"></i>
+          <div class="text-truncate" data-i18n="Expenses">Gastos</div>
+        </a>
+      </li>
+
       <li class="menu-item {{ request()->routeIs('entries') ? 'open active' : ''}} {{ request()->routeIs('entries.*') ? 'open active' : ''}} {{ request()->routeIs('outputs.*') ? 'open active' : ''}} {{ request()->routeIs('outputs') ? 'open active' : ''}} {{ request()->routeIs('inventory') ? 'open active' : ''}}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon tf-icons bx bx-store-alt"></i>

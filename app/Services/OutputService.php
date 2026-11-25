@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Client;
+use App\Models\ClientDebt;
 use App\Models\Inventory;
 use App\Models\InventoryGeneral;
 use App\Models\Output;
@@ -13,7 +15,16 @@ class OutputService
     public function create($products, $client_id, $totalSold, $client_name = null, $paymentMethod = null)
     {
 
+        $hasCredit = collect($products)->contains(function ($product) {
+            return ! empty($product['is_credit']);
+        });
+
+        if ($hasCredit && ! $client_id) {
+            throw new Exception('Para fiar productos debes seleccionar un cliente registrado.');
+        }
+
         $totalOutputProfit = 0;
+        $creditAmount = 0;
         $outputGeneral = OutputGeneral::create([
             'quantity_products' => count($products),
             'client_id' => $client_id ?: null,
@@ -44,19 +55,45 @@ class OutputService
                 'profits' => $inventoryGeneral->profits + $detailProfit,
             ]);
 
+            $isCredit = ! empty($product['is_credit']);
+
             Output::create([
                 'product_id' => $product['productID'],
                 'output_general_id' => $outputGeneral->id,
                 'inventory_id' => $product['inventoryID'],
                 'quantity' => $product['quantity'],
+                'is_credit' => $isCredit,
                 'expired_date' => $inventory->expired_date ?? now(),
                 'profit' => $detailProfit,
             ]);
+
+            if ($isCredit) {
+                $creditAmount += round($effectivePrice * $product['quantity'], 2);
+            }
 
             $totalOutputProfit = $totalOutputProfit + $detailProfit;
         }
 
         $outputGeneral->update(['total_profit' => $totalOutputProfit]);
+
+        if ($creditAmount > 0) {
+            $client = Client::find($client_id);
+
+            if (! $client) {
+                throw new Exception('Para fiar productos debes seleccionar un cliente registrado.');
+            }
+
+            ClientDebt::create([
+                'client_id' => $client->id,
+                'output_general_id' => $outputGeneral->id,
+                'amount' => $creditAmount,
+                'description' => 'Fiado de venta #' . $outputGeneral->id,
+            ]);
+
+            $client->update([
+                'debt' => round((float) $client->debt + $creditAmount, 2),
+            ]);
+        }
 
         return $outputGeneral;
 
@@ -66,10 +103,31 @@ class OutputService
     {
 
         $output->load('outputs');
+        $this->removeCreditDebts($output);
         $this->addInventory($output);
         $output->outputs()->delete();
         $output->delete();
 
+    }
+
+    private function removeCreditDebts($output)
+    {
+        $debts = ClientDebt::where('output_general_id', $output->id)
+            ->with(['client', 'payments'])
+            ->get();
+
+        foreach ($debts as $debt) {
+            $paid = $debt->payments->sum('amount');
+            $remaining = max(0, round((float) $debt->amount - (float) $paid, 2));
+
+            if ($debt->client && $remaining > 0) {
+                $debt->client->update([
+                    'debt' => max(0, round((float) $debt->client->debt - $remaining, 2)),
+                ]);
+            }
+
+            $debt->delete();
+        }
     }
 
     private function addInventory($output)

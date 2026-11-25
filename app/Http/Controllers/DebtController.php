@@ -22,7 +22,7 @@ class DebtController extends Controller
         $from = $request->input('from');
         $to = $request->input('to');
 
-        $query = ClientDebt::with(['client', 'outputGeneral', 'payments'])
+        $query = ClientDebt::with(['client', 'outputGeneral.outputs.product', 'payments'])
             ->orderByDesc('created_at');
 
         if ($clientId) {
