@@ -284,7 +284,7 @@
                             value="{{ old('lowStockThreshold', \App\Models\Product::DEFAULT_LOW_STOCK_THRESHOLD) }}"
                             placeholder="10" required
                             class="w-full bg-transparent border-0 py-3 pr-3 text-sm font-bold text-amber-800 placeholder:text-amber-700/40 focus:ring-0">
-                        <span class="pr-3.5 text-[11px] font-semibold text-amber-700/80">uds</span>
+                        <span class="pr-3.5 text-[11px] font-semibold text-amber-700/80">uds/kg</span>
                     </div>
                     <p class="text-[11px] text-amber-700/80 px-1">
                         Umbral usado para marcar productos con bajo stock en el catálogo.

@@ -212,7 +212,7 @@
                         const product = inv.product || {};
                         const added = productsAdded.some(p => p.inventoryID === inv.id);
                         const isWeight = product.sale_type === 'weight';
-                        const unitLabel = isWeight ? 'g' : 'uds';
+                        const unitLabel = isWeight ? 'kg' : 'uds';
                         const priceUsd = isWeight && product.price_per_kg ?
                             parseFloat(product.price_per_kg) :
                             parseFloat(product.sell_price || 0);
@@ -257,7 +257,7 @@
             if (!productsAdded.some(p => p.inventoryID === inventory.id)) {
                 const isWeight = inventory.product.sale_type === 'weight';
                 const effectivePrice = isWeight && inventory.product.price_per_kg ?
-                    inventory.product.price_per_kg / 1000 :
+                    parseFloat(inventory.product.price_per_kg) :
                     parseFloat(inventory.product.sell_price);
 
                 productsAdded.unshift({
@@ -266,7 +266,7 @@
                     name: inventory.product.name,
                     barcode: inventory.product.barcode,
                     lote: inventory.lote_number,
-                    maxStock: inventory.stock,
+                    maxStock: parseFloat(inventory.stock),
                     quantity: 1,
                     cost_per_unit: parseFloat(inventory.cost_per_unit),
                     sell_price: effectivePrice,
@@ -298,7 +298,9 @@
         }
 
         function renderCartItem(p, index) {
-            const unitLabel = p.sale_type === 'weight' ? 'g' : 'uds';
+            const unitLabel = p.sale_type === 'weight' ? 'kg' : 'uds';
+            const minQuantity = p.sale_type === 'weight' ? '0.001' : '1';
+            const quantityStep = p.sale_type === 'weight' ? '0.001' : '1';
             const subtotalCost = p.cost_per_unit * p.quantity;
             const subtotalRetail = p.sell_price * p.quantity;
             const unitPriceUsd = p.sale_type === 'weight' ? parseFloat(p.display_price || 0) : parseFloat(p.sell_price);
@@ -324,7 +326,7 @@
                         <div class="flex items-center border border-slate-200 bg-white rounded-lg p-0.5">
                             <button type="button" onclick="stepQuantity(${p.inventoryID}, -1)"
                                 class="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-bold active:scale-90">−</button>
-                            <input id="qty-${p.inventoryID}" type="number" min="1" max="${p.maxStock}" required
+                            <input id="qty-${p.inventoryID}" type="number" min="${minQuantity}" step="${quantityStep}" max="${p.maxStock}" required
                                 name="items[${index}][quantity]" value="${p.quantity}"
                                 oninput="updateQty(${p.inventoryID}, this)"
                                 class="w-12 bg-transparent border-0 p-0 text-center font-bold text-xs text-brand-navy focus:ring-0">
@@ -335,7 +337,7 @@
                     </div>
                     <div class="text-right">
                         <div class="text-[10px] text-slate-500 font-medium">P. Venta: ${unitPriceLabel}</div>
-                        <div class="text-[10px] text-slate-400">Costo unit: $${parseFloat(p.cost_per_unit).toFixed(2)}</div>
+                        <div class="text-[10px] text-slate-400">${p.sale_type === 'weight' ? 'Costo/kg' : 'Costo unit'}: $${parseFloat(p.cost_per_unit).toFixed(2)}</div>
                         <div class="text-[10px] text-slate-400 font-medium mt-1">Costo</div>
                         <div class="text-sm font-extrabold text-rose-600">$<span id="subtotal-cost-${p.inventoryID}">${subtotalCost.toFixed(2)}</span></div>
                         <div class="text-[10px] font-semibold text-slate-500">Venta: $<span id="subtotal-retail-${p.inventoryID}">${subtotalRetail.toFixed(2)}</span></div>
@@ -350,10 +352,17 @@
             if (!p) return;
 
             let value = parseFloat(element.value) || 0;
-            value = p.sale_type === 'weight' ? Math.max(1, Math.round(value)) : Math.max(1, Math.floor(value));
+
+            if (p.sale_type === 'weight') {
+                value = Math.max(0.001, Math.round(value * 1000) / 1000);
+            } else {
+                value = Math.max(1, Math.floor(value));
+            }
 
             if (value > p.maxStock) {
-                value = p.maxStock;
+                value = p.sale_type === 'weight'
+                    ? Math.floor(p.maxStock * 1000) / 1000
+                    : Math.floor(p.maxStock);
             }
 
             p.quantity = value;
@@ -372,9 +381,11 @@
 
             if (!p || !input) return;
 
-            const current = parseInt(input.value, 10) || 1;
-            const next = Math.min(p.maxStock, Math.max(1, current + delta));
-            input.value = next;
+            const step = p.sale_type === 'weight' ? 0.1 : 1;
+            const minimum = p.sale_type === 'weight' ? 0.001 : 1;
+            const current = parseFloat(input.value) || minimum;
+            const next = Math.min(p.maxStock, Math.max(minimum, current + (delta * step)));
+            input.value = p.sale_type === 'weight' ? Math.round(next * 1000) / 1000 : Math.floor(next);
             updateQty(id, input);
         }
 

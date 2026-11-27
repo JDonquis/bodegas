@@ -24,7 +24,7 @@ class ExpenseItem extends Model
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
+        'quantity' => 'float',
         'cost_per_unit' => 'decimal:4',
         'sell_price_unit' => 'decimal:4',
         'subtotal_cost' => 'decimal:2',
@@ -48,6 +48,6 @@ class ExpenseItem extends Model
 
     public function getUnitLabelAttribute()
     {
-        return $this->sale_type === 'weight' ? 'g' : 'uds';
+        return $this->sale_type === 'weight' ? 'kg' : 'uds';
     }
 }

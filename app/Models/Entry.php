@@ -24,6 +24,9 @@ class Entry extends Model
 
     public $casts = [
         'expired_date' => 'date',
+        'quantity' => 'float',
+        'cost' => 'float',
+        'cost_bs' => 'float',
     ];
 
     public function product(){

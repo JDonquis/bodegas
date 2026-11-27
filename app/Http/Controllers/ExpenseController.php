@@ -95,7 +95,7 @@ class ExpenseController extends Controller
                 'integer',
                 Rule::exists('products', 'id')->where('tenant_id', app(TenantContext::class)->id()),
             ],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.quantity' => ['required', 'numeric', 'min:0.001'],
         ]);
 
         DB::beginTransaction();

@@ -35,23 +35,43 @@ class OutputService
         ]);
 
         foreach ($products as $product) {
+            $quantity = (float) $product['quantity'];
 
-            $this->validateStock($product);
+            if ($quantity <= 0) {
+                throw new Exception('La cantidad del producto debe ser mayor a cero.');
+            }
+
+            $this->validateStock($product, $quantity);
 
             $inventory = Inventory::where('id', $product['inventoryID'])->with('product')->first();
-            $detailProfit = $this->calculateDetailProfit($inventory, $product['quantity']);
+
+            if ($inventory->product->sale_type === 'weight') {
+                $quantity = round($quantity, 3);
+
+                if ($quantity < 0.001) {
+                    throw new Exception('La cantidad del producto debe ser mayor o igual a 0.001 kg.');
+                }
+            } else {
+                if ($quantity < 1 || (float) (int) $quantity !== $quantity) {
+                    throw new Exception('La cantidad de este producto debe ser un número entero.');
+                }
+
+                $quantity = (int) $quantity;
+            }
+
+            $detailProfit = $this->calculateDetailProfit($inventory, $quantity);
             $inventory->update([
-                'stock' => $inventory->stock - $product['quantity'],
-                'sold' => $inventory->sold + $product['quantity'],
+                'stock' => $inventory->stock - $quantity,
+                'sold' => $inventory->sold + $quantity,
                 'profits' => $inventory->profits + $detailProfit,
             ]);
 
             $inventoryGeneral = InventoryGeneral::where('product_id', $product['productID'])->first();
             $effectivePrice = $this->getEffectiveSellPrice($inventory->product);
             $inventoryGeneral->update([
-                'stock' => $inventoryGeneral->stock - $product['quantity'],
-                'outputs' => $inventoryGeneral->outputs + $product['quantity'],
-                'sold' => $inventoryGeneral->sold + ($product['quantity'] * $effectivePrice),
+                'stock' => $inventoryGeneral->stock - $quantity,
+                'outputs' => $inventoryGeneral->outputs + $quantity,
+                'sold' => $inventoryGeneral->sold + ($quantity * $effectivePrice),
                 'profits' => $inventoryGeneral->profits + $detailProfit,
             ]);
 
@@ -61,14 +81,14 @@ class OutputService
                 'product_id' => $product['productID'],
                 'output_general_id' => $outputGeneral->id,
                 'inventory_id' => $product['inventoryID'],
-                'quantity' => $product['quantity'],
+                'quantity' => $quantity,
                 'is_credit' => $isCredit,
                 'expired_date' => $inventory->expired_date ?? now(),
                 'profit' => $detailProfit,
             ]);
 
             if ($isCredit) {
-                $creditAmount += round($effectivePrice * $product['quantity'], 2);
+                $creditAmount += round($effectivePrice * $quantity, 2);
             }
 
             $totalOutputProfit = $totalOutputProfit + $detailProfit;
@@ -162,11 +182,11 @@ class OutputService
 
     }
 
-    private function validateStock($product)
+    private function validateStock($product, $quantity)
     {
         $inventory = Inventory::with('product')->where('id', $product['inventoryID'])->first();
 
-        if ($inventory->stock < $product['quantity']) {
+        if ($inventory->stock < $quantity) {
             throw new Exception('La cantidad del producto: '.$inventory->product->name.' - '.$inventory->expired_date.' supera el stock disponible', 500);
         }
 
@@ -174,10 +194,7 @@ class OutputService
 
     public function calculateDetailProfit($inventory, $quantity)
     {
-        $product = $inventory->product;
-        $sellPrice = $product->sale_type === 'weight' && $product->price_per_kg
-            ? $product->price_per_kg / 1000
-            : $product->sell_price;
+        $sellPrice = $this->getEffectiveSellPrice($inventory->product);
 
         $totalCost = round($inventory->cost_per_unit * $quantity, 2);
         $totalSold = round($sellPrice * $quantity, 2);
@@ -189,7 +206,7 @@ class OutputService
     public function getEffectiveSellPrice($product)
     {
         return $product->sale_type === 'weight' && $product->price_per_kg
-            ? $product->price_per_kg / 1000
-            : $product->sell_price;
+            ? (float) $product->price_per_kg
+            : (float) $product->sell_price;
     }
 }

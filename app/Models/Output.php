@@ -23,6 +23,8 @@ class Output extends Model
 
     protected $casts = [
         'is_credit' => 'boolean',
+        'quantity' => 'float',
+        'profit' => 'float',
     ];
 
     public function product(){
@@ -46,7 +48,7 @@ class Output extends Model
         }
 
         return $product->sale_type === 'weight' && $product->price_per_kg
-            ? (float) $product->price_per_kg / 1000
+            ? (float) $product->price_per_kg
             : (float) $product->sell_price;
     }
 

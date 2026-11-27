@@ -463,7 +463,7 @@
                 </div>
 
                 <div class="flex justify-between text-[9px] text-slate-400 px-1">
-                    <span>${isWeight ? 'Costo por gramo' : 'Costo unitario'}</span>
+                    <span>${isWeight ? 'Costo por kg' : 'Costo unitario'}</span>
                     <span>
                         <span id="unit-usd-${product.id}">$${unitUsd.toFixed(2)}</span>
                         ·
@@ -473,11 +473,11 @@
 
                 <div class="grid grid-cols-12 gap-2 items-end pt-1 border-t border-slate-200/60">
                     <div class="col-span-6">
-                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Cantidad (${isWeight ? 'g' : 'uds'})</label>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Cantidad (${isWeight ? 'kg' : 'uds'})</label>
                         <div class="flex items-center bg-white border border-slate-200 rounded-lg p-0.5">
                             <button type="button" onclick="stepQuantity(${product.id}, -1)"
                                 class="w-6 h-6 flex items-center justify-center text-slate-500 hover:bg-slate-100 rounded text-xs font-bold active:scale-90">−</button>
-                            <input id="qty-${product.id}" type="number" min="1" required
+                            <input id="qty-${product.id}" type="number" min="${isWeight ? '0.001' : '1'}" step="${isWeight ? '0.001' : '1'}" required
                                 name="products[${index}][quantity]" value="${product.quantity}"
                                 oninput="refreshData(${product.id}, 'quantity', this)"
                                 class="flex-1 min-w-0 bg-transparent border-0 p-0 text-center text-xs font-extrabold text-brand-navy focus:ring-0">
@@ -533,12 +533,16 @@
             if (!product) return;
 
             const input = document.getElementById(`qty-${productID}`);
-            const current = parseInt(input ? input.value : product.quantity, 10) || 1;
-            const next = Math.max(1, current + delta);
+            const step = product.sale_type === 'weight' ? 0.1 : 1;
+            const minimum = product.sale_type === 'weight' ? 0.001 : 1;
+            const current = parseFloat(input ? input.value : product.quantity) || minimum;
+            const next = Math.max(minimum, current + (delta * step));
 
-            if (input) input.value = next;
+            if (input) {
+                input.value = product.sale_type === 'weight' ? Math.round(next * 1000) / 1000 : Math.floor(next);
+            }
 
-            product.quantity = next;
+            product.quantity = product.sale_type === 'weight' ? Math.round(next * 1000) / 1000 : Math.floor(next);
             updateRowDisplay(product);
             updateTotalCalculations();
         }
@@ -585,7 +589,7 @@
             }
 
             if (totalWeight > 0) {
-                quantityParts.push(`${totalWeight} g`);
+                quantityParts.push(`${totalWeight} kg`);
             }
 
             setText('items-count', productsAdded.length);

@@ -177,7 +177,7 @@
                                     <span class="text-slate-600 truncate">
                                         {{ $item->product_name }}
                                         <span class="text-slate-400">
-                                            · {{ number_format($item->quantity, 0, ',', '.') }}
+                                            · {{ number_format($item->quantity, $item->sale_type === 'weight' ? 3 : 0, ',', '.') }}
                                             {{ $item->unit_label }}
                                         </span>
                                     </span>

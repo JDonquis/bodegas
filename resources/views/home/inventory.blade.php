@@ -130,7 +130,7 @@
                     </div>
                     <div class="mt-2.5">
                         <div class="text-xl font-black text-brand-navy tracking-tight">
-                            {{ number_format($totalStock) }} <span class="text-xs font-semibold text-slate-400">uds.</span>
+                            {{ number_format($totalStock, 2) }} <span class="text-xs font-semibold text-slate-400">uds/kg</span>
                         </div>
                         @if ($criticalCount > 0)
                             <span class="text-[10px] text-rose-600 font-semibold inline-flex items-center mt-1">
@@ -164,7 +164,10 @@
                         }
 
                         $isWeight = $product->sale_type === 'weight';
-                        $unit = $isWeight ? 'g' : 'uds';
+                        $unit = $isWeight ? 'kg' : 'uds';
+                        $formatQty = function ($value) use ($isWeight) {
+                            return number_format((float) $value, $isWeight ? 3 : 0, ',', '.');
+                        };
                         $stock = (float) $inventory->stock;
                         $entries = (float) $inventory->entries;
                         $outputs = (float) $inventory->outputs;
@@ -198,7 +201,7 @@
                                     <span
                                         class="w-1.5 h-1.5 rounded-full {{ $isCritical ? 'bg-rose-500' : 'bg-amber-500' }} mr-1.5 animate-pulse"></span>
                                 @endif
-                                {{ number_format($stock) }} {{ $unit }}
+                                {{ $formatQty($stock) }} {{ $unit }}
                             </span>
                         </div>
 
@@ -206,9 +209,9 @@
                             <div class="flex justify-between items-center text-xs gap-2">
                                 <span class="text-slate-500 text-[11px] font-medium">Relación Compras / Ventas:</span>
                                 <span class="font-bold tracking-tight text-[11px]">
-                                    <span class="text-blue-900 font-extrabold">{{ number_format($entries) }}</span>
+                                    <span class="text-blue-900 font-extrabold">{{ $formatQty($entries) }}</span>
                                     <span class="text-slate-300 font-normal">/</span>
-                                    <span class="text-amber-600 font-extrabold">{{ number_format($outputs) }}
+                                    <span class="text-amber-600 font-extrabold">{{ $formatQty($outputs) }}
                                         {{ $unit }}</span>
                                 </span>
                             </div>
@@ -517,10 +520,17 @@
                 .catch(error => console.error(error));
         }
 
+        function formatQty(value, isWeight) {
+            return Number(value || 0).toLocaleString('es-VE', {
+                minimumFractionDigits: isWeight ? 3 : 0,
+                maximumFractionDigits: isWeight ? 3 : 0
+            });
+        }
+
         function renderInventoryCard(inventory) {
             const product = inventory.product || {};
             const isWeight = product.sale_type === 'weight';
-            const unit = isWeight ? 'g' : 'uds';
+            const unit = isWeight ? 'kg' : 'uds';
             const stock = parseFloat(inventory.stock) || 0;
             const entries = parseFloat(inventory.entries) || 0;
             const outputs = parseFloat(inventory.outputs) || 0;
@@ -555,16 +565,16 @@
                     </div>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold flex-shrink-0 border ${stockClass}">
                         ${(isCritical || isLow) ? `<span class="w-1.5 h-1.5 rounded-full ${isCritical ? 'bg-rose-500' : 'bg-amber-500'} mr-1.5 animate-pulse"></span>` : ''}
-                        ${stock} ${unit}
+                        ${formatQty(stock, isWeight)} ${unit}
                     </span>
                 </div>
                 <div class="space-y-1.5 pt-1">
                     <div class="flex justify-between items-center text-xs gap-2">
                         <span class="text-slate-500 text-[11px] font-medium">Relación Compras / Ventas:</span>
                         <span class="font-bold tracking-tight text-[11px]">
-                            <span class="text-blue-900 font-extrabold">${entries}</span>
+                            <span class="text-blue-900 font-extrabold">${formatQty(entries, isWeight)}</span>
                             <span class="text-slate-300 font-normal">/</span>
-                            <span class="text-amber-600 font-extrabold">${outputs} ${unit}</span>
+                            <span class="text-amber-600 font-extrabold">${formatQty(outputs, isWeight)} ${unit}</span>
                         </span>
                     </div>
                     <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
@@ -604,13 +614,13 @@
         function buildDetailSheet(details) {
             const product = details[0] ? details[0].product : null;
             const isWeight = product && product.sale_type === 'weight';
-            const unit = isWeight ? 'g' : 'uds';
+            const unit = isWeight ? 'kg' : 'uds';
             const totalStock = details.reduce((sum, item) => sum + (parseFloat(item.stock) || 0), 0);
             const totalCost = details.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0);
 
             setText('detail-product-name', product ? product.name : 'Detalle de lotes');
             setText('detail-lot-count', `${details.length} ${details.length === 1 ? 'lote' : 'lotes'}`);
-            setText('detail-stock', `${totalStock} ${unit}`);
+            setText('detail-stock', `${formatQty(totalStock, isWeight)} ${unit}`);
             setText('detail-cost', `$${totalCost.toFixed(2)} / Bs ${(totalCost * usdRate).toFixed(2)}`);
 
             const container = document.getElementById('detail-lots');
@@ -626,7 +636,7 @@
             container.innerHTML = details.map(detail => {
                 const lotProduct = detail.product || {};
                 const lotIsWeight = lotProduct.sale_type === 'weight';
-                const lotUnit = lotIsWeight ? 'g' : 'uds';
+                const lotUnit = lotIsWeight ? 'kg' : 'uds';
                 const expiry = formatExpiry(detail.expired_date);
 
                 return `<div class="bg-white rounded-2xl p-3.5 border border-brand-border shadow-sm flex flex-col gap-2">
@@ -635,7 +645,7 @@
                             <h4 class="text-xs font-extrabold text-brand-navy leading-snug">Lote: ${escapeHtml(detail.lote_number || 'S/L')}</h4>
                             <p class="text-[10px] font-medium mt-0.5 ${expiry.className}">${expiry.label}</p>
                         </div>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-50 text-brand-accent text-xs font-extrabold border border-emerald-100">${parseFloat(detail.stock) || 0} ${lotUnit}</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-50 text-brand-accent text-xs font-extrabold border border-emerald-100">${formatQty(detail.stock, lotIsWeight)} ${lotUnit}</span>
                     </div>
                     <div class="flex items-center justify-between pt-1 border-t border-gray-50 text-[11px]">
                         <span class="text-gray-400">Inversión del lote</span>

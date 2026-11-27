@@ -217,7 +217,7 @@
                                         $creditProduct = $creditOutput->product;
                                         $isWeight = ($creditProduct->sale_type ?? null) === 'weight';
                                         $qtyLabel = $isWeight
-                                            ? number_format((float) $creditOutput->quantity, 0, ',', '.') . ' g'
+                                            ? number_format((float) $creditOutput->quantity, 3, ',', '.') . ' kg'
                                             : number_format((float) $creditOutput->quantity, 0, ',', '.') . ' uds';
                                     @endphp
                                     <div class="flex items-center justify-between gap-2 text-[11px]">

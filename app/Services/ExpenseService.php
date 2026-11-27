@@ -32,20 +32,30 @@ class ExpenseService
                 throw new Exception('El producto no corresponde al lote de inventario seleccionado.');
             }
 
-            $quantity = (int) $item['quantity'];
+            $product = $inventory->product;
+            $quantity = (float) $item['quantity'];
 
-            if ($quantity < 1) {
-                throw new Exception('La cantidad del producto debe ser mayor a cero.');
+            if ($product->sale_type === 'weight') {
+                $quantity = round($quantity, 3);
+
+                if ($quantity < 0.001) {
+                    throw new Exception('La cantidad del producto debe ser mayor a cero.');
+                }
+            } else {
+                $quantity = (int) $item['quantity'];
+
+                if ($quantity < 1 || (float) $item['quantity'] !== (float) $quantity) {
+                    throw new Exception('La cantidad del producto debe ser un número entero mayor a cero.');
+                }
             }
 
-            if ((int) $inventory->stock < $quantity) {
+            if ((float) $inventory->stock < $quantity) {
                 throw new Exception(
                     'La cantidad de ' . $inventory->product->name . ' supera el stock disponible.'
                 );
             }
 
-            $product = $inventory->product;
-            $costPerUnit = round((float) $inventory->cost_per_unit, 4);
+            $costPerUnit = round((float) $inventory->cost_per_unit, 6);
             $sellPriceUnit = round($this->getEffectiveSellPrice($product), 4);
             $subtotalCost = round($costPerUnit * $quantity, 2);
             $subtotalRetail = round($sellPriceUnit * $quantity, 2);
@@ -118,7 +128,7 @@ class ExpenseService
     private function getEffectiveSellPrice($product)
     {
         if ($product->sale_type === 'weight' && $product->price_per_kg) {
-            return (float) $product->price_per_kg / 1000;
+            return (float) $product->price_per_kg;
         }
 
         return (float) $product->sell_price;

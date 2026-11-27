@@ -21,6 +21,15 @@ class InventoryGeneral extends Model
         'profits',
     ];
 
+    protected $casts = [
+        'stock' => 'float',
+        'entries' => 'float',
+        'outputs' => 'float',
+        'expense' => 'float',
+        'sold' => 'float',
+        'profits' => 'float',
+    ];
+
     public function product(){
         return $this->belongsTo(Product::class)->orderBy('name','desc');
     }

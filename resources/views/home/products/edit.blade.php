@@ -241,7 +241,7 @@
                             class="relative flex items-center rounded-xl bg-surface-container-low border border-outline-variant/30 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20">
                             <div class="pl-3.5 pr-1 text-on-surface-variant font-extrabold text-base">$</div>
                             <input type="number" step="0.01" min="0" name="sellPrice" id="sellPrice"
-                                value="{{ old('sellPrice', $product->sale_type === 'weight' ? $product->price_per_kg : $product->sell_price) }}"
+                                value="{{ old('sellPrice', $product->display_price) }}"
                                 placeholder="0.00" required
                                 class="w-full bg-transparent border-0 py-3 pr-3 text-base font-extrabold text-on-surface placeholder:text-on-surface-variant/30 focus:ring-0">
                         </div>
@@ -293,7 +293,7 @@
                             value="{{ old('lowStockThreshold', $product->low_stock_threshold ?? \App\Models\Product::DEFAULT_LOW_STOCK_THRESHOLD) }}"
                             placeholder="10" required
                             class="w-full bg-transparent border-0 py-3 pr-3 text-sm font-bold text-amber-800 placeholder:text-amber-700/40 focus:ring-0">
-                        <span class="pr-3.5 text-[11px] font-semibold text-amber-700/80">uds</span>
+                        <span class="pr-3.5 text-[11px] font-semibold text-amber-700/80">uds/kg</span>
                     </div>
                     <p class="text-[11px] text-amber-700/80 px-1">
                         Umbral usado para marcar productos con bajo stock en el catálogo.

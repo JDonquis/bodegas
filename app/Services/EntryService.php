@@ -19,10 +19,31 @@ class EntryService
         $entryGeneral = EntryGeneral::create(['quantity_products' => count($products), 'total_expense' => round($totalExpense, 2) ]);
     
         foreach ($products as $product) {
-            
+            $productModel = Product::find($product['productID']);
+
+            if (! $productModel) {
+                throw new Exception('El producto seleccionado no existe.', 400);
+            }
+
+            $quantity = (float) $product['quantity'];
+
+            if ($productModel->sale_type === 'weight') {
+                $quantity = round($quantity, 3);
+
+                if ($quantity < 0.001) {
+                    throw new Exception('La cantidad del producto debe ser mayor o igual a 0.001 kg.', 400);
+                }
+            } else {
+                if ($quantity < 1 || (float) (int) $quantity !== $quantity) {
+                    throw new Exception('La cantidad de este producto debe ser un número entero.', 400);
+                }
+
+                $quantity = (int) $quantity;
+            }
+
             $entry = Entry::create([
                 'product_id' => $product['productID'],
-                'quantity' => $product['quantity'],
+                'quantity' => $quantity,
                 'expired_date' => $product['expiredDate'] ?: null,
                 'entry_general_id' => $entryGeneral->id,
                 'cost' => round(floatval($product['cost']), 2), 
@@ -30,7 +51,7 @@ class EntryService
                 'lote_number' => $product['lote_number'],
             ]);
             
-            $costPerUnit = round(floatval($entry->cost / $entry->quantity), 2);
+            $costPerUnit = round(floatval($entry->cost / $quantity), 6);
 
             Inventory::create([
                 'product_id' => $product['productID'],
@@ -39,7 +60,7 @@ class EntryService
                 'cost_per_unit' => $costPerUnit,
                 'profits' => 0,
                 'sold' => 0,
-                'stock' => $product['quantity'] , 
+                'stock' => $quantity,
                 'expired_date' => $product['expiredDate'] ?: null,
                 'lote_number' => $entry->lote_number,
                 ]);
@@ -50,8 +71,8 @@ class EntryService
 
                 InventoryGeneral::create([
                     'product_id' => $product['productID'],
-                    'stock' => $product['quantity'] ,
-                    'entries' => $product['quantity'],
+                    'stock' => $quantity ,
+                    'entries' => $quantity,
                     'outputs' => 0,
                     'expense' => $entry->cost,
                     'profits' => 0,
@@ -60,18 +81,13 @@ class EntryService
             else{
 
                 $inventoryGeneral->update([
-                    'stock' => $inventoryGeneral->stock + $product['quantity'],
-                    'entries' => $inventoryGeneral->entries + $product['quantity'],
+                    'stock' => $inventoryGeneral->stock + $quantity,
+                    'entries' => $inventoryGeneral->entries + $quantity,
                     'expense' => round($inventoryGeneral->expense + $entry->cost, 2),
                 ]);
             }
 
-            $productModel = Product::find($product['productID']);
-
-            if ($productModel) {
-                (new ProductService)->applyMarginPrice($productModel, $costPerUnit);
-            }
-            
+            (new ProductService)->applyMarginPrice($productModel, $costPerUnit);
         }
 
 

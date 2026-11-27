@@ -137,7 +137,7 @@
                         })->sum('quantity');
                         $qtyLabel = trim(
                             ($unitQuantity > 0 ? number_format($unitQuantity) . ' uds' : '') .
-                                ($weightQuantity > 0 ? ' ' . number_format($weightQuantity) . ' g' : ''),
+                                ($weightQuantity > 0 ? ' ' . number_format($weightQuantity, 3, ',', '.') . ' kg' : ''),
                         );
                         if ($qtyLabel === '') {
                             $qtyLabel = '0';
@@ -423,6 +423,13 @@
             return `Vence: ${date.getDate()} ${months[date.getMonth()]} ${String(date.getFullYear()).slice(-2)}`;
         }
 
+        function formatQuantity(value, isWeight) {
+            return Number(value || 0).toLocaleString('es-VE', {
+                minimumFractionDigits: isWeight ? 3 : 0,
+                maximumFractionDigits: isWeight ? 3 : 0
+            });
+        }
+
         function quantityLabel(outputs) {
             const unitQuantity = (outputs || [])
                 .filter(item => item.product && item.product.sale_type !== 'weight')
@@ -432,8 +439,8 @@
                 .reduce((sum, item) => sum + (parseFloat(item.quantity) || 0), 0);
             const parts = [];
 
-            if (unitQuantity > 0) parts.push(`${unitQuantity} uds`);
-            if (weightQuantity > 0) parts.push(`${weightQuantity} g`);
+            if (unitQuantity > 0) parts.push(`${formatQuantity(unitQuantity, false)} uds`);
+            if (weightQuantity > 0) parts.push(`${formatQuantity(weightQuantity, true)} kg`);
 
             return parts.join(' ') || '0';
         }
@@ -598,13 +605,13 @@
                 const isWeight = product.sale_type === 'weight';
                 const pricePerKg = parseFloat(product.price_per_kg) || 0;
                 const sellPrice = parseFloat(product.sell_price) || 0;
-                const effectivePrice = isWeight && pricePerKg > 0 ? pricePerKg / 1000 : sellPrice;
+                const effectivePrice = isWeight && pricePerKg > 0 ? pricePerKg : sellPrice;
                 const displayPrice = isWeight && pricePerKg > 0 ? pricePerKg : sellPrice;
                 const quantity = parseFloat(item.quantity) || 0;
                 const subtotal = effectivePrice * quantity;
                 const subtotalBs = subtotal * usdRate;
                 const profit = parseFloat(item.profit) || 0;
-                const unitLabel = isWeight ? 'g' : 'uds';
+                const unitLabel = isWeight ? 'kg' : 'uds';
                 const unitPriceBs = displayPrice * usdRate;
                 const unitPriceLabel = isWeight ? `$${displayPrice.toFixed(2)}/kg` : `$${displayPrice.toFixed(2)}`;
                 const unitPriceBsLabel = isWeight ? `Bs ${unitPriceBs.toFixed(2)}/kg` : `Bs ${unitPriceBs.toFixed(2)}`;
@@ -626,7 +633,7 @@
                     </div>
                     <div class="flex items-center justify-between pt-1 border-t border-gray-50 gap-2">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-emerald-50 text-brand-accent text-xs font-extrabold border border-emerald-100">${quantity} ${unitLabel}</span>
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-emerald-50 text-brand-accent text-xs font-extrabold border border-emerald-100">${formatQuantity(quantity, isWeight)} ${unitLabel}</span>
                             <span class="text-[10px] font-semibold text-gray-500 truncate">P.Unit: ${unitPriceLabel} <span class="text-gray-400">(${unitPriceBsLabel})</span></span>
                         </div>
                         <div class="text-right shrink-0">

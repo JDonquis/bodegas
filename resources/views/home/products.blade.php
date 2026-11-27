@@ -139,12 +139,13 @@
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
             @forelse ($products as $product)
                 @php
-                    $stock = (int) ($product->inventoryGeneral->stock ?? 0);
+                    $stock = (float) ($product->inventoryGeneral->stock ?? 0);
                     $unit = $product->unit_label;
                     $isWeight = $product->sale_type === 'weight';
                     $isOut = $stock <= 0;
                     $threshold = (int) ($product->low_stock_threshold ?? \App\Models\Product::DEFAULT_LOW_STOCK_THRESHOLD);
                     $isLow = $stock <= $threshold;
+                    $stockLabel = number_format($stock, $isWeight ? 3 : 0, ',', '.');
                 @endphp
 
                 <article
@@ -185,7 +186,7 @@
                             @if ($isOut)
                                 Agotado
                             @else
-                                Stock: {{ number_format($stock) }} {{ $unit }}{{ $isLow ? ' (Bajo)' : '' }}
+                                Stock: {{ $stockLabel }} {{ $unit }}{{ $isLow ? ' (Bajo)' : '' }}
                             @endif
                         </span>
 

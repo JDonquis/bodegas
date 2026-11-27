@@ -38,7 +38,7 @@ class Product extends Model
 
     public function getUnitLabelAttribute()
     {
-        return $this->sale_type === 'weight' ? 'g' : 'uds';
+        return $this->sale_type === 'weight' ? 'kg' : 'uds';
     }
 
     public function inventoryGeneral()
@@ -49,7 +49,7 @@ class Product extends Model
     public function getEffectivePriceAttribute()
     {
         if ($this->sale_type === 'weight' && $this->price_per_kg) {
-            return $this->price_per_kg / 1000;
+            return $this->price_per_kg;
         }
 
         return $this->sell_price;

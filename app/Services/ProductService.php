@@ -102,9 +102,8 @@ class ProductService
         $unitPrice = round($costPerUnit * (1 + ($margin / 100)), 2);
 
         if ($product->sale_type === 'weight') {
-            $pricePerKg = round($unitPrice * 1000, 2);
-            $attributes = ['sell_price' => $pricePerKg, 'price_per_kg' => $pricePerKg];
-            $displayPrice = $pricePerKg;
+            $attributes = ['sell_price' => $unitPrice, 'price_per_kg' => $unitPrice];
+            $displayPrice = $unitPrice;
         } else {
             $attributes = ['sell_price' => $unitPrice];
             $displayPrice = $unitPrice;

@@ -24,6 +24,14 @@ class Inventory extends Model
 
     ];
 
+    protected $casts = [
+        'cost' => 'float',
+        'cost_per_unit' => 'float',
+        'profits' => 'float',
+        'sold' => 'float',
+        'stock' => 'float',
+    ];
+
     public function product(){
         return $this->belongsTo(Product::class);
     }

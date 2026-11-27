@@ -65,13 +65,17 @@ class PDFService
 
         $productName = str_replace($this->accents, $this->noAccents, $productName);
 
-        $quantity = $output->quantity; 
-        $price = $output->product->sell_price; 
-        $lineTotal = $quantity * $price; 
-        $totalAmount += $lineTotal; 
+        $quantity = (float) $output->quantity;
+        $isWeight = $output->product->sale_type === 'weight';
+        $price = (float) $output->unit_price;
+        $lineTotal = $quantity * $price;
+        $totalAmount += $lineTotal;
+        $quantityLabel = $isWeight
+            ? number_format($quantity, 3, ',', '.') . ' kg'
+            : number_format($quantity, 0, ',', '.') . ' uds';
 
         // Imprimir línea de producto
-        $pdf->Cell(0, 5, $productName . ' x ' . $quantity, 0, 0); // Izquierda
+        $pdf->Cell(0, 5, $productName . ' x ' . $quantityLabel, 0, 0); // Izquierda
         $pdf->Cell(0, 5, number_format($lineTotal, 2), 0, 1, 'R'); // Derecha
     }
     
