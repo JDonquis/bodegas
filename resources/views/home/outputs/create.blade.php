@@ -277,6 +277,33 @@
             document.getElementById('client_id_select').addEventListener('change', syncClientData);
             document.getElementById('client_name_input').addEventListener('input', syncClientData);
             document.getElementById('output-form').addEventListener('submit', function(event) {
+                let invalidQuantity = false;
+
+                productsAdded.forEach(p => {
+                    const input = document.getElementById(`qty-${p.inventoryID}`);
+
+                    if (input) {
+                        normalizeQty(p.inventoryID, input);
+                    }
+
+                    if (!(p.quantity > 0)) {
+                        invalidQuantity = true;
+                        return;
+                    }
+
+                    if (input) {
+                        input.value = p.sale_type === 'weight'
+                            ? String(p.quantity)
+                            : String(Math.floor(p.quantity));
+                    }
+                });
+
+                if (invalidQuantity) {
+                    event.preventDefault();
+                    alert('Ingresa una cantidad válida en todos los productos.');
+                    return;
+                }
+
                 const hasCredit = productsAdded.some(p => p.is_credit);
 
                 if (hasCredit && !hasRegisteredClient()) {
@@ -476,8 +503,11 @@
 
         function renderCartItem(p, index) {
             const unitLabel = p.sale_type === 'weight' ? 'kg' : 'uds';
-            const minQuantity = p.sale_type === 'weight' ? '0.001' : '1';
-            const quantityStep = p.sale_type === 'weight' ? '0.001' : '1';
+            const quantityType = p.sale_type === 'weight' ? 'text' : 'number';
+            const quantityInputMode = p.sale_type === 'weight' ? 'decimal' : 'numeric';
+            const quantityAttrs = p.sale_type === 'weight'
+                ? 'inputmode="decimal" autocomplete="off"'
+                : `inputmode="numeric" min="1" step="1" max="${p.maxStock}"`;
             const subtotal = p.sell_price * p.quantity;
             const subtotalBs = subtotal * usdRate;
             const unitPriceUsd = p.sale_type === 'weight' ? parseFloat(p.display_price || 0) : parseFloat(p.sell_price);
@@ -508,10 +538,12 @@
                         <div class="flex items-center border border-slate-200 bg-white rounded-lg p-0.5">
                             <button type="button" onclick="stepQuantity(${p.inventoryID}, -1)"
                                 class="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-bold active:scale-90">−</button>
-                            <input id="qty-${p.inventoryID}" type="number" min="${minQuantity}" step="${quantityStep}" max="${p.maxStock}" required
+                            <input id="qty-${p.inventoryID}" type="${quantityType}" ${quantityAttrs} required
                                 name="products[${index}][quantity]" value="${p.quantity}"
+                                onfocus="this.select()" onclick="this.select()"
                                 oninput="updateQty(${p.inventoryID}, this)"
-                                class="w-10 bg-transparent border-0 p-0 text-center font-bold text-xs text-brand-navy focus:ring-0">
+                                onblur="normalizeQty(${p.inventoryID}, this)"
+                                class="w-12 bg-transparent border-0 p-0 text-center font-bold text-xs text-brand-navy focus:ring-0">
                             <button type="button" onclick="stepQuantity(${p.inventoryID}, 1)"
                                 class="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 text-xs font-bold active:scale-90">+</button>
                         </div>
@@ -537,27 +569,72 @@
             </article>`;
         }
 
+        function parseQuantity(value) {
+            const normalized = String(value ?? '').trim().replace(',', '.');
+
+            if (normalized === '') {
+                return null;
+            }
+
+            const parsed = parseFloat(normalized);
+
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+
         function updateQty(id, element) {
             const p = productsAdded.find(x => x.inventoryID === id);
 
             if (!p) return;
 
-            let value = parseFloat(element.value) || 0;
+            const parsed = parseQuantity(element.value);
 
-            if (p.sale_type === 'weight') {
-                value = Math.max(0.001, Math.round(value * 1000) / 1000);
-            } else {
-                value = Math.max(1, Math.floor(value));
+            if (parsed === null) {
+                p.quantity = 0;
+                setText(`subtotal-${id}`, '0.00');
+                setText(`subtotal-bs-${id}`, '0.00');
+                updateBasketTotals();
+                return;
             }
 
-            if (value > p.maxStock) {
-                value = p.sale_type === 'weight'
-                    ? Math.floor(p.maxStock * 1000) / 1000
-                    : Math.floor(p.maxStock);
+            const value = p.sale_type === 'weight'
+                ? Math.max(0, Math.round(parsed * 1000) / 1000)
+                : Math.max(0, Math.floor(parsed));
+
+            p.quantity = value;
+
+            const subtotal = p.sell_price * value;
+            setText(`subtotal-${id}`, subtotal.toFixed(2));
+            setText(`subtotal-bs-${id}`, (subtotal * usdRate).toFixed(2));
+            updateBasketTotals();
+        }
+
+        function normalizeQty(id, element) {
+            const p = productsAdded.find(x => x.inventoryID === id);
+
+            if (!p) return;
+
+            const parsed = parseQuantity(element.value);
+
+            if (parsed === null || parsed <= 0) {
+                p.quantity = 0;
+                element.value = '';
+                setText(`subtotal-${id}`, '0.00');
+                setText(`subtotal-bs-${id}`, '0.00');
+                updateBasketTotals();
+                return;
+            }
+
+            let value = parsed;
+
+            if (p.sale_type === 'weight') {
+                value = Math.min(p.maxStock, Math.max(0.001, Math.round(value * 1000) / 1000));
+                element.value = String(value);
+            } else {
+                value = Math.min(p.maxStock, Math.max(1, Math.floor(value)));
+                element.value = String(value);
             }
 
             p.quantity = value;
-            element.value = value;
 
             const subtotal = p.sell_price * value;
             setText(`subtotal-${id}`, subtotal.toFixed(2));
@@ -573,7 +650,7 @@
 
             const step = p.sale_type === 'weight' ? 0.1 : 1;
             const minimum = p.sale_type === 'weight' ? 0.001 : 1;
-            const current = parseFloat(input.value) || minimum;
+            const current = parseQuantity(input.value) ?? minimum;
             const next = Math.min(p.maxStock, Math.max(minimum, current + (delta * step)));
             input.value = p.sale_type === 'weight' ? Math.round(next * 1000) / 1000 : Math.floor(next);
             updateQty(id, input);
